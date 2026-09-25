@@ -1,46 +1,84 @@
 import Link from 'next/link'
-import { PageHeader } from '@/components/ui'
 
 export const metadata = { title: 'Demos' }
 
 const DEMOS = [
   {
     href: '/demo/onchain',
+    n: '01',
     kicker: 'Blockchain',
+    motif: ['Agent A', 'treasury.eth', 'Agent B'],
     title: 'Treasury agents',
-    body: 'Agent A watches whale treasuries and prices and writes to treasury.eth. Bring your own ENS memory, and Agent B reads both to answer about your holdings and recommend what to do.',
+    body: 'Two agents share one memory on ENS.',
+    reads: ['treasury.eth', 'Ethereum mainnet', 'your ENS name'],
+    meta: '2 min · no wallet needed',
     cta: 'See the flow',
   },
   {
     href: '/app?start=1',
+    n: '02',
     kicker: 'Personal memory',
+    motif: ['GitHub · Google', 'you.eth'],
     title: 'Owned Instinct',
-    body: 'An agent that learns you from the apps you already use — like Instinct, except the memory is under an ENS name you own, every claim cites its source, and any agent you grant can read it.',
+    body: 'Memory from your apps, under a name you own.',
+    reads: ['GitHub', 'Google', 'Granola', 'your wallet'],
+    meta: '5 min · a wallet on Sepolia',
     cta: 'Start with a source',
   },
   {
     href: '/demo/mcp',
+    n: '03',
     kicker: 'Your terminal',
+    motif: ['$ npx -y @knowledge01/mcp'],
     title: 'MCP in action',
-    body: 'Install the MCP server, point your agent at a live namespace on ENS, and ask it questions. Follow the steps in your own terminal while the recording plays beside them.',
+    body: 'Your agent reading ENS, from your terminal.',
+    reads: ['cancer-research.eth', 'IPFS', '@knowledge01/mcp'],
+    meta: '3 min · Node 22 and Claude Code',
     cta: 'Open the steps',
   },
 ]
 
 export default function Demos() {
   return (
-    <>
-      <PageHeader title="Demos" subtitle="Three ways to see the knowledge network working. Each one reads real data — nothing on these pages is a mock-up." />
-      <div className="grid gap-4 lg:grid-cols-3">
+    <div className="flex min-h-[calc(100vh-9rem)] flex-col">
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-[12px] uppercase tracking-[0.12em] text-dim">Demos</p>
+          <h1 className="mt-2 text-[clamp(2rem,4vw,3.2rem)] font-semibold leading-[1.02] tracking-[-0.035em]">See the network working.</h1>
+        </div>
+        <p className="text-[15px] text-dim">Three ways in. All real data.</p>
+      </header>
+
+      <div className="grid flex-1 gap-4 lg:grid-cols-3">
         {DEMOS.map((d) => (
-          <Link key={d.href} href={d.href} className="group flex flex-col rounded-[22px] border border-line bg-surface p-6 transition-colors hover:border-ink/40">
-            <span className="text-[12px] uppercase tracking-[0.12em] text-dim">{d.kicker}</span>
-            <span className="mt-3 text-[22px] font-semibold tracking-[-0.02em]">{d.title}</span>
-            <span className="mt-2 flex-1 text-[14.5px] leading-relaxed text-dim">{d.body}</span>
-            <span className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-ink px-4 py-2 text-[13.5px] text-bg transition-opacity group-hover:opacity-85">{d.cta} →</span>
+          <Link key={d.href} href={d.href} className="group flex min-h-[460px] flex-col rounded-[26px] border border-line bg-surface p-7 transition-colors hover:border-ink/40">
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] uppercase tracking-[0.12em] text-dim">{d.kicker}</span>
+              <span className="font-mono text-[13px] text-dim">{d.n}</span>
+            </div>
+            <div className="flex flex-1 items-center justify-center py-8" aria-hidden>
+              <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-[13px]">
+                {d.motif.map((m, i) => (
+                  <span key={m} className="flex items-center gap-2">
+                    {i ? <span className="text-dim">→</span> : null}
+                    <span className={`rounded-xl border px-3 py-2 ${i === d.motif.length - 1 ? 'border-ink bg-ink text-bg' : 'border-line bg-raised/60 text-ink/80'}`}>{m}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+            <h2 className=" text-[clamp(2rem,3vw,2.8rem)] font-semibold leading-[1.02] tracking-[-0.035em]">{d.title}</h2>
+            <p className="mt-3 text-[16px] text-dim">{d.body}</p>
+            <div className="mt-5 flex flex-wrap gap-1.5">
+              {d.reads.map((r) => <span key={r} className="rounded-full border border-line px-2.5 py-1 font-mono text-[12px] text-ink/70">{r}</span>)}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-8">
+              <span className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-[14px] text-bg transition-opacity group-hover:opacity-85">{d.cta} →</span>
+              <span className="text-[13px] text-dim">{d.meta}</span>
+            </div>
           </Link>
         ))}
       </div>
-    </>
+    </div>
   )
 }
