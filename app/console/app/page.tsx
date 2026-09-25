@@ -1,9 +1,10 @@
 import { NetworkStats } from '@/components/NetworkStats'
 import { Sources } from '@/components/landing/Sources'
 import { CallToAction, Footer, Question } from '@/components/landing/Sections'
+import { AccessFirsts } from '@/components/landing/AccessFirsts'
 import { Hero } from '@/components/landing/Hero'
 import { WhyEns } from '@/components/landing/WhyEns'
-import { ActionCard, Firsts, Label, Lead, Media, Pill, Section, Spec, Split, Statement, Title, Wordmark } from '@/components/mono'
+import { ActionCard, Label, Lead, Pill, Section, Spec, Split, Statement, Title, Wordmark } from '@/components/mono'
 import { FlowGraph, LOOP_EDGES, LOOP_NODES } from '@/components/motion/FlowGraph'
 import { ThesisMotion } from '@/components/motion/Thesis'
 
@@ -116,17 +117,7 @@ export default function Page() {
             to each of them. Any agent can check it. Only the ones on it can use it. It is a series of firsts:
           </Lead>
         </Split>
-        <div className="mt-14 grid gap-10 lg:grid-cols-2">
-          <Firsts
-            items={[
-              { title: 'Scoped by key, not by interface', body: 'Granting food.you.eth says nothing about work.you.eth. The keys are per namespace, so a denied namespace is ciphertext to the agent — not a hidden tab.' },
-              { title: 'Revocation that means something', body: 'Dropping a sealed key is not enough; the old key still opens old bytes. So a revoke re-keys every version and re-seals for whoever remains.' },
-              { title: 'Recoverable with your wallet', body: 'Every namespace carries a key sealed to one only your wallet can re-derive. Delete the app, sign one message, read it all back.' },
-              { title: 'Published by you, not by us', body: 'Grants are staged, then written to your name by your own transaction. The app prepares calldata; it never holds a key that could send it.' },
-            ]}
-          />
-          <Media title="Access, on chain." sub="Placeholder — footage to come." className="aspect-[4/3]" />
-        </div>
+        <AccessFirsts />
       </Section>
 
       {/* What is in the network, live ------------------------------------ */}
