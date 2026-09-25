@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Callout, CallFlow, Footer, Hero, Section, Steps } from '@/components/Guide'
+import { CallFlow, Footer, Hero, Section, Steps } from '@/components/Guide'
 import { AgentFetch } from '@/components/motion/AgentFetch'
 
 export const metadata = { title: 'For agents' }
@@ -30,11 +30,6 @@ export default function ForAgents() {
             { title: 'Compose namespaces', body: <>Personal + shared + domain in one answer — the agent decides which names to consult.</>, code: `knowledge_search({ namespace: "rishikesh.eth",   query: "food preferences" })\nknowledge_search({ namespace: "japan.travel.user.eth", query: "Tokyo neighbourhoods" })\nknowledge_search({ namespace: "tokyo.food.eth",   query: "vegetarian" })` },
             { title: 'Contribute back', body: <>An agent is a source. Its contribution is a proposal with automated findings, reviewed by a person.</>, code: `knowledge_propose({ namespace: "tokyo.food.eth", title: "Add Saido",\n  items: [{ subject: "Saido", claim: "Saido in Jiyugaoka is a vegan izakaya", topic: "restaurants",\n            sources: [{ kind: "agent", type: "inference", name: "my-agent.eth", excerpt: "…" }] }] })` },
           ]} />
-        </Section>
-        <Section title="Guarantees, plainly">
-          <Callout title="What the agent can rely on" tone="plain">
-            <p>Every claim carries its sources, contributor, reviewers, confidence, and the namespace version it came from. Every version is a content-hashed commit reachable from a name whose pointer only the owner can move. Claims are returned as data, fenced and labelled; a claim that tries to instruct the model is reported, not obeyed. The server never holds a funded wallet.</p>
-          </Callout>
         </Section>
         <Footer />
       </main>

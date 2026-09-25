@@ -64,7 +64,7 @@ export function llmConfig(env: NodeJS.ProcessEnv = process.env): LlmConfig | nul
 
 export const llmAvailable = (env: NodeJS.ProcessEnv = process.env): boolean => !!llmConfig(env)
 
-type ChatMessage = { role: 'system' | 'user'; content: string }
+export type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string }
 
 async function callModel(cfg: LlmConfig, model: string, messages: ChatMessage[], timeoutMs: number): Promise<string> {
   const controller = new AbortController()
@@ -162,6 +162,23 @@ async function chat(cfg: LlmConfig, messages: ChatMessage[], opts: { timeoutMs?:
     (m) => callModel(cfg, m, messages, timeoutMs),
     (content) => parseJsonArray(content).length > 0,
     () => 'no JSON in reply',
+  )
+  return { content: result, model }
+}
+
+/**
+ * A plain-text answer, for callers that want prose rather than JSON.
+ *
+ * Same walk over the free models; an empty reply is the only thing treated as
+ * a miss, since a reasoning-tuned model that deliberates still answered.
+ */
+export async function complete(cfg: LlmConfig, messages: ChatMessage[], opts: { timeoutMs?: number } = {}): Promise<ChatResult> {
+  const timeoutMs = opts.timeoutMs ?? 45_000
+  const { result, model } = await walkModels(
+    cfg,
+    (m) => callModel(cfg, m, messages, timeoutMs),
+    (content) => content.trim().length > 0,
+    () => 'empty reply',
   )
   return { content: result, model }
 }

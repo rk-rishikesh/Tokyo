@@ -12,7 +12,7 @@
  * consent dialog.
  */
 import { Monogram } from '@/components/Monogram'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { WorkspaceDef } from '@knowledge01/connect/workspaces'
 import { ConnectButton } from './Consent'
 
@@ -26,7 +26,15 @@ export type SidebarSource = {
 
 export function Sidebar({ sources, owner }: { sources: SidebarSource[]; owner: string }) {
   const [query, setQuery] = useState('')
-  const [open, setOpen] = useState(true)
+  const [open, setOpenState] = useState(true)
+  // Remembered per browser; storage can be unavailable, and the default is open.
+  useEffect(() => {
+    try { if (localStorage.getItem('sources-collapsed') === '1') setOpenState(false) } catch { /* no storage */ }
+  }, [])
+  const setOpen = (v: boolean) => {
+    setOpenState(v)
+    try { localStorage.setItem('sources-collapsed', v ? '0' : '1') } catch { /* no storage */ }
+  }
 
   const q = query.trim().toLowerCase()
   const shown = q ? sources.filter((s) => `${s.ws.name} ${s.ws.summary}`.toLowerCase().includes(q)) : sources
@@ -35,13 +43,23 @@ export function Sidebar({ sources, owner }: { sources: SidebarSource[]; owner: s
 
   if (!open) {
     return (
-      <button
-        onClick={() => setOpen(true)}
-        className="absolute left-4 top-4 z-20 rounded-xl border border-line bg-surface px-3 py-2 text-[13.5px] shadow-sm"
-        title="Show sources"
-      >
-        ☰ Sources
-      </button>
+      <aside className="flex h-full w-[60px] shrink-0 flex-col items-center gap-2 border-r border-line bg-surface py-4">
+        <button
+          onClick={() => setOpen(true)}
+          className="mb-2 rounded-lg p-1.5 text-dim transition-colors hover:bg-raised hover:text-ink"
+          title="Expand sources"
+          aria-label="Expand sources"
+          aria-expanded={false}
+        >
+          <Chevron dir="right" />
+        </button>
+        {sources.map((s) => (
+          <button key={s.ws.id} onClick={() => setOpen(true)} title={`${s.ws.name} — ${s.connected ? 'connected' : 'not connected'}`} className="relative rounded-lg transition-opacity hover:opacity-80">
+            <Monogram name={s.ws.name} size="sm" />
+            {s.connected ? <span className={`absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface ${s.failing ? 'bg-removed' : 'bg-accent'}`} aria-hidden /> : null}
+          </button>
+        ))}
+      </aside>
     )
   }
 
@@ -51,10 +69,12 @@ export function Sidebar({ sources, owner }: { sources: SidebarSource[]; owner: s
         <h2 className="text-[14px] font-semibold">Sources</h2>
         <button
           onClick={() => setOpen(false)}
-          className="rounded-lg px-2 py-1 text-[13.5px] text-dim transition-colors hover:bg-raised"
-          title="Hide"
+          className="rounded-lg p-1.5 text-dim transition-colors hover:bg-raised hover:text-ink"
+          title="Collapse sources"
+          aria-label="Collapse sources"
+          aria-expanded
         >
-          ◧
+          <Chevron dir="left" />
         </button>
       </div>
 
@@ -88,7 +108,7 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
   return (
     <div className="mb-4">
       <p className="px-2 pb-2 text-[12px] uppercase tracking-[0.12em] text-dim">{label}</p>
-      <div className="grid grid-cols-2 gap-2">{children}</div>
+      <div className="space-y-1.5">{children}</div>
     </div>
   )
 }
@@ -104,18 +124,28 @@ function Tile({ source, owner }: { source: SidebarSource; owner: string }) {
   const { ws, connected, needsAuth, failing, claims } = source
   return (
     <div
-      className={`group relative rounded-2xl border p-3 transition-colors ${
+      className={`group flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors ${
         failing ? 'border-removed/40 bg-removed-bg/30' : connected ? 'border-accent/40 bg-accent-soft/40' : 'border-line bg-raised/40 hover:border-accent/30'
       }`}
     >
       <Monogram name={ws.name} size="sm" />
-      <p className="mt-2 truncate text-[14px] font-medium" title={ws.name}>{ws.name}</p>
-      <p className="mt-0.5 text-[12px] text-dim">
-        {failing ? 'needs reconnecting' : connected ? (claims ? `${claims} claim${claims === 1 ? '' : 's'}` : 'reading') : 'not connected'}
-      </p>
-      <div className="mt-2">
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[14px] font-medium" title={ws.name}>{ws.name}</p>
+        <p className="text-[12px] text-dim">
+          {failing ? 'needs reconnecting' : connected ? (claims ? `${claims} claim${claims === 1 ? '' : 's'}` : 'reading') : 'not connected'}
+        </p>
+      </div>
+      <div className="shrink-0">
         <ConnectButton ws={ws} connected={connected} owner={owner} needsAuth={needsAuth} />
       </div>
     </div>
+  )
+}
+
+function Chevron({ dir }: { dir: 'left' | 'right' }) {
+  return (
+    <svg viewBox="0 0 16 16" className={`h-4 w-4 ${dir === 'right' ? 'rotate-180' : ''}`} aria-hidden>
+      <path d="M10 3.5 5.5 8 10 12.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }

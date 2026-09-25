@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "treasury:watch": "node --conditions=development --import tsx scripts/treasury-watch.mts"
   },
   "dependencies": {
     "@knowledge01/connect": "workspace:*",

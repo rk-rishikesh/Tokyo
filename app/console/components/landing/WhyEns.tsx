@@ -20,7 +20,7 @@ const FEATURES: { title: string; ens: string; body: string; without: string }[] 
     without: 'A user id in someone else’s database, revocable by whoever runs it.',
   },
   {
-    title: 'Namespaces nest, and each child is its own',
+    title: 'Namespaces nest',
     ens: 'Subregistries · setSubregistry · setParent',
     body:
       'food.yours.eth has its own registry, its own owner and its own policy. You can give a team control of one branch without giving them the rest, and a child can outlive its parent’s operator.',

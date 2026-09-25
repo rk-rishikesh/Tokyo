@@ -196,7 +196,7 @@ export function Footer() {
     {
       head: 'Your memory',
       links: [
-        { href: '/app', label: 'Demo' },
+        { href: '/demo', label: 'Demo' },
         { href: '/app/memory', label: 'Memory' },
         { href: '/app/publish', label: 'Publish' },
         { href: '/app/access', label: 'Access' },
@@ -235,7 +235,7 @@ export function Footer() {
           </svg>
         </div>
         <div className="mt-8 flex flex-wrap justify-between gap-3 border-t border-bg/15 pt-5 text-[13px] text-bg/50">
-          <p>ENSv2 on Sepolia for names · IPFS for versions · MCP for agents. Stock registries and resolvers.</p>
+          <p>Your agents change. Your knowledge doesn&rsquo;t.</p>
           <p>Every claim names where it came from.</p>
         </div>
       </div>

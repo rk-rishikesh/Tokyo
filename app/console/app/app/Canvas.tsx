@@ -26,8 +26,8 @@ export type Stage = {
 export function Canvas({ stages, namespace }: { stages: Stage[]; namespace: string }) {
   return (
     <div className="relative flex h-full w-full flex-col overflow-auto bg-[radial-gradient(hsl(var(--line))_1px,transparent_1px)] [background-size:22px_22px]">
-      <div className="flex flex-1 items-center justify-center px-10 py-16">
-        <div className="flex flex-wrap items-start justify-center gap-y-10">
+      <div className="flex flex-1 items-center overflow-x-auto px-6 py-12">
+        <div className="mx-auto flex flex-nowrap items-start">
           {stages.map((s, i) => (
             <div key={s.id} className="flex items-start">
               <Node stage={s} />
@@ -54,15 +54,15 @@ function Node({ stage }: { stage: Stage }) {
         : 'border-line bg-surface'
 
   const body = (
-    <div className="w-[136px] text-center">
+    <div className="w-[112px] text-center">
       <div
-        className={`mx-auto flex h-[76px] w-[76px] items-center justify-center rounded-3xl border text-[30px] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_10px_28px_-14px_rgba(0,0,0,0.18)] transition-transform group-hover:-translate-y-0.5 ${tone}`}
+        className={`mx-auto flex h-[52px] w-[52px] items-center justify-center rounded-2xl border text-[20px] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_10px_28px_-14px_rgba(0,0,0,0.18)] transition-transform group-hover:-translate-y-0.5 ${tone}`}
         aria-hidden
       >
         <span className="grayscale">{stage.glyph}</span>
       </div>
-      <p className="mt-3 text-[14.5px] font-medium leading-tight">{stage.label}</p>
-      <p className="mt-1 text-[12.5px] leading-snug text-dim">
+      <p className="mt-2 text-[13px] font-medium leading-tight">{stage.label}</p>
+      <p className="mt-0.5 text-[11.5px] leading-snug text-dim">
         {stage.count === null ? stage.detail : `${stage.count.toLocaleString()} ${stage.detail}`}
       </p>
     </div>
@@ -77,9 +77,9 @@ function Node({ stage }: { stage: Stage }) {
 
 function Arrow() {
   return (
-    <div className="mt-[38px] flex w-[90px] items-center px-2" aria-hidden>
+    <div className="mt-[26px] flex w-[36px] shrink-0 items-center px-1" aria-hidden>
       <span className="h-px flex-1 bg-line" />
-      <span className="-ml-1 text-[12.5px] leading-none text-line">▶</span>
+      <span className="-ml-1 text-[9px] leading-none text-line">▶</span>
     </div>
   )
 }

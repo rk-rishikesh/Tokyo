@@ -2,7 +2,7 @@ import { CallToAction, Footer, Question } from '@/components/landing/Sections'
 import { AccessFirsts } from '@/components/landing/AccessFirsts'
 import { Hero } from '@/components/landing/Hero'
 import { WhyEns } from '@/components/landing/WhyEns'
-import { ActionCard, Label, Lead, Pill, Section, Spec, Split, Statement, Title, Wordmark } from '@/components/mono'
+import { Label, Lead, Pill, Section, Split, Statement, Title, Wordmark } from '@/components/mono'
 import { FlowGraph, LOOP_EDGES, LOOP_NODES } from '@/components/motion/FlowGraph'
 import { ThesisMotion } from '@/components/motion/Thesis'
 
@@ -68,16 +68,6 @@ export default function Page() {
         </Statement>
       </Section>
 
-      {/* Specs ---------------------------------------------------------- */}
-      <Section>
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-          <Spec value="1" unit="signature" label="Publish">Every namespace, its version and who may read it, in one transaction from your own wallet.</Spec>
-          <Spec value="0" unit="accounts" label="Sign-up">You prove a name you already own. There is no account with us to create or lose.</Spec>
-          <Spec value="18" unit="tools" label="MCP">Any agent that speaks MCP can resolve, search, and propose — none of them can act.</Spec>
-          <Spec value="55" unit="roles" label="ENSv2">Enhanced access control, granted and revoked on chain — authority you can verify, not assert.</Spec>
-        </div>
-      </Section>
-
       {/* The loop ------------------------------------------------------- */}
       <Section>
         <Split label={<>The loop.<br />Six steps, every claim.</>}>
@@ -89,17 +79,6 @@ export default function Page() {
         </Split>
         <div className="mt-12">
           <FlowGraph nodes={LOOP_NODES} edges={LOOP_EDGES} label="Observation, then a proposal and automated findings, then your review and sealing, then your ENS name." />
-        </div>
-      </Section>
-
-      {/* See it in action ------------------------------------------------ */}
-      <Section>
-        <Title size="md">See it<br />in action.</Title>
-        <div className="-mx-5 mt-12 flex snap-x scroll-px-5 gap-6 overflow-x-auto px-5 pb-4 sm:-mx-8 sm:scroll-px-8 sm:px-8 lg:-mx-10 lg:scroll-px-10 lg:px-10">
-          <ActionCard title="Agent A" sub="Learns from Takeout" body="Connect Google Takeout and the watcher reads order patterns — never an order's contents — and proposes a claim citing the export it came from." href="/sources" />
-          <ActionCard title="Agent B" sub="Reads with its own key" body="A separate program with its own key asks for access. You tick one namespace; its key is sealed to Agent B and nothing else opens." href="/for-agents" />
-          <ActionCard title="You" sub="Revoke, and it re-keys" body="Revoking generates a new key and re-encrypts every version, so the old key opens nothing published after — and the chain is updated at once." href="/protocol" />
-          <ActionCard title="Anyone" sub="Resolves a public name" body="Public namespaces are plaintext on IPFS behind an ENS name. Any agent resolves them without an account, an integration, or us." href="/namespaces" />
         </div>
       </Section>
 

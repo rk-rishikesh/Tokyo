@@ -9,7 +9,7 @@ import { TopBar } from './TopBar'
 import { defaultBranch, loadRepo, snapshotOf, type RepoView } from '@/lib/repoview'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Demo — connected sources' }
+export const metadata = { title: 'Owned Instinct' }
 
 const ago = (iso: string) => {
   const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000))

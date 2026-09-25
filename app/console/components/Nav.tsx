@@ -121,7 +121,7 @@ function ProtocolNav({ active }: { active: (href: string, opts?: { exact?: boole
               {l.label}
             </Link>
           ))}
-          <Link href="/app" className="rounded-full bg-ink px-4 py-2 text-[13.5px] text-bg transition hover:opacity-85">Demo</Link>
+          <Link href="/demo" className="rounded-full bg-ink px-4 py-2 text-[13.5px] text-bg transition hover:opacity-85">Demo</Link>
         </nav>
         <button
           onClick={() => setOpen((o) => !o)}
@@ -137,7 +137,7 @@ function ProtocolNav({ active }: { active: (href: string, opts?: { exact?: boole
         <div className="w-full border-t border-line bg-bg px-5 pb-10 pt-8 sm:px-8 lg:px-10">
           <div className="grid gap-8 md:grid-cols-2">
             <nav className="flex flex-col gap-1">
-              {[...PROTOCOL, { href: '/app', label: 'Demo' }].map((l) => (
+              {[...PROTOCOL, { href: '/demo', label: 'Demo' }].map((l) => (
                 <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="font-display text-[clamp(2rem,4vw,3.4rem)] leading-[1.02] tracking-[-0.045em] opacity-90 hover:opacity-100">
                   {l.label}.
                 </Link>
