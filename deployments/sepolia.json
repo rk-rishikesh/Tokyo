@@ -1,0 +1,188 @@
+{
+  "network": "sepolia",
+  "chainId": 11155111,
+  "deployedAt": "2026-09-13",
+  "note": "Live deployment record. Secrets live in .env and are absent here. `collection` = first product (skills collections); `namespace` = second (agent memory); `knowledge` = current (ENS V2 knowledge network).",
+  "publisher": {
+    "name": "recalltest.eth",
+    "owner": "0x3C5f1294C17aA9Effd340d4dfbf01ED8E8Beac6d",
+    "expires": "2027-09-13T17:20:24.000Z",
+    "registry": "0xb92e1E7AB519AEeea55bD904eDc58c7A4Fa92541"
+  },
+  "verified": {
+    "collectionRegistryEmancipated": true,
+    "registrarHoldsRegistrarAndRenew": true,
+    "registrarHoldsSetPubkeyAdmin": true,
+    "publisherHoldsSetContenthash": true,
+    "publisherHoldsSetDataAdmin": true,
+    "resolvesThroughUniversalResolver": true,
+    "contentIsEncryptedAtRest": true,
+    "wrongKeyRejected": true,
+    "readableWithoutPinataAccount": true,
+    "publisherCanRegisterProposals": true
+  },
+  "knownLimitations": [
+    "setParent was never called on the collection registry, and the publisher holds neither SET_PARENT nor its admin, so findCanonicalRegistry returns zero for this collection. Code uses findExactRegistry, which is the correct lookup here. deploy-deploy-collection.ts now sets the parent, so a fresh deployment does not have this gap.",
+    "The collection registry was initialised with only the admin halves of REGISTRAR/RENEW, which UserRegistry.initialize does not expand. Repaired by granting the regular halves (tx 0xf640cca0...); EMANCIPATED_REGISTRY_ROLES now lists both halves.",
+    "Republished after renaming the document field slice -> collection, which minted a new content key. Harmless: there were no subscribers holding a wrapped copy of the old one."
+  ],
+  "collection": {
+    "name": "exploits.recalltest.eth",
+    "registry": "0x504035dd2AfFE9b133003aa737EF38913B31c510",
+    "resolver": "0xAf72428cE67020646487e0AC16aC37AEf236293D",
+    "registrar": "0xf6230385E05B2C4E45cf0561F8Baec8354478dd2",
+    "storage": "pinata",
+    "schema": "recall/entry-list/1",
+    "price": {
+      "amount": "10000000",
+      "decimals": 6,
+      "termSeconds": 2592000,
+      "token": "0x768F42455A2D082E23ceeF7d51e5787C82d67a39"
+    },
+    "contenthash": "0xe301015512201c7c5c8226c524878d093d918504e076591524299fc7a86c650830527ec35f1a",
+    "ref": "bafkreia4proiejwfesdy2cj5sgcqjydwleksikm7y6ugyziigbjh5q27di",
+    "entries": 36,
+    "title": "Smart contract exploits"
+  },
+  "namespace": {
+    "name": "memory.recalltest.eth",
+    "identity": "recalltest.eth",
+    "registeredAt": "2026-09-15",
+    "identityRegistry": "0xb92e1E7AB519AEeea55bD904eDc58c7A4Fa92541",
+    "resolver": "0xC8600E692D25CAfD763dF4a2323fa44D5dcd4Cd4",
+    "resolverDeployTx": "0x0d07c1bfd2a56a5f19b395829518a23cbd877e322add39fac4695120fa79efe8",
+    "registerTx": "0x6bb28e60d47c39e0c0f66ca84f7eeb32f8e9bb6269c58b31892771162625a493",
+    "firstPush": {
+      "tx": "0xee8e14cb9d2818f723ab4111a9f719da495371f1a5b647c3ce56fbdc21eed01e",
+      "contenthash": "0xe30101551220cb3048bfdb40d60660fc6fd1c412fed4ef6b1c1a3b8738ee9203ee953f0e0a3e",
+      "refs": "bafkreiglgbel7w2a2ydgb7dp2hcbf7wu55vrygr3q44o5eqd52kt6dqkhy",
+      "commits": 7,
+      "branches": [
+        "main",
+        "experiment"
+      ],
+      "memories": 6
+    },
+    "verified": {
+      "resolvesThroughUniversalResolver": true,
+      "refsAndCommitsEncryptedAtRest": true,
+      "secondMachinePullReproducesHistory": true,
+      "explorerReadsPublishedHistory": true
+    },
+    "storage": "pinata"
+  },
+  "knowledge": {
+    "universalResolverPinned": "0x4A1817d13E9cF196f471725176355C1234b63C70",
+    "pinNote": "Re-pinned 2026-09-15 from the 0xeEeE\u2026EeEe proxy, which now resolves through an undocumented registry set (root 0x0F62FBF8A820B4F2590A6631D846467dA7384A55, eth 0x1BD29E26f09b4c68c623141673e5F0a5d02709f6). Documented root 0x8115186E8f2E0B0281e86ab91f0f48Ba90364354, eth 0xBDC85dD5b15D7ecb354cd7cb6f2c50b4f2c4F0E2.",
+    "namespaces": {
+      "worldhistory.eth": {
+        "registeredAt": "2026-09-15",
+        "via": "ETHRegistrar 0xa88553F454b77203B0D036A05c894d555EAAa2Cc (commit-reveal, test USDC)",
+        "registry": "0x518f2143a7ac268cEedf12FF78972a494F3f9949",
+        "resolver": "0x23D250Be4CD38EBE1F9FD42A0371a7A083D5eA9F",
+        "policy": {
+          "owner": "worldhistory.eth",
+          "reviewers": [
+            "expert.eth"
+          ],
+          "contributors": "anyone",
+          "readers": "public",
+          "approvals": 1
+        },
+        "v1": {
+          "tx": "0xb8afdbf1a862f7738b9a522973c7f63c7fec16604fa008d487df208681d8278d",
+          "refs": "bafkreiaggox2cmwwt52mcsfqmqrllrkdp5npacf4kw6zhrsq3xteru2ffa"
+        },
+        "v2": {
+          "tx": "0xd5bea9155cadad4b11b259e7ee04035e833d99f0f43b536d746b84863eee4da1",
+          "refs": "bafkreia3mdd6wrqddtsnnby2nj6i4zn26se2ogpnind2xloyqebqavtwtm",
+          "landedProposal": 1
+        },
+        "knownLimitations": [
+          "setParent was not called on the registry (SET_PARENT was missing from the owner role set at the time); findCanonicalRegistry returns zero for this name. Resolution via findResolver is unaffected. Fixed for later registrations."
+        ],
+        "v2-refs-with-proposal-2": {
+          "tx": "0x7c2119c6f90b21919b838cd6e2541ec77f5935e1d2fbeb75eb2ccf7f637a4dd0",
+          "refs": "bafkreic7hiy3jh6ibq5lfz4ha2luftthnadx4v5tzhvhv7xfuo4fus4f2u",
+          "note": "Same v2 head; refs now carry the connected Wikipedia source and open proposal #2 (Import from Wikipedia: Partition of India)."
+        }
+      },
+      "india.worldhistory.eth": {
+        "registeredAt": "2026-09-15",
+        "parent": "worldhistory.eth",
+        "registry": "0x8d179002c7cE732F963f3632a12096b2621fb861",
+        "resolver": "0x81Aa5C4bA3dEBd5614171f72a1f01CDd09B7d0de",
+        "registerTx": "0x6a03d9d6516e2a20df45375154281bffb1c82497ded4788f5564d888e2d9b50f",
+        "setParentTx": "0x54204f96be96208d0fb49117a4949a6f75118546b040e9db8f50cf137e329134",
+        "v1": {
+          "tx": "0xc82f156d6397d9fa9111f6560b0e73aa3eabf9e44e554100042a9ade0d34aab7",
+          "refs": "bafkreicml6chldganlbvcx2cihc4wyj4lmkqepyze5j5yfhyuaw6ygtelm"
+        }
+      },
+      "conventions.recalltest.eth": {
+        "registeredAt": "2026-09-17",
+        "parent": "recalltest.eth",
+        "kind": "organisation",
+        "registry": "0x539D0Beec7B391ab3170ce892459A3341308089C",
+        "resolver": "0x4Bd97F948c732a1D5Ea8d597fa483552bA8EB67F",
+        "registerTx": "0x7821e96272c3743dec4e7cefbe33270d5710ca1aeaadd264972f919dbbad4627",
+        "setParentTx": "0x1e639cfc4b4af7b3c8a6fcd7e0e3373b40dfa354e358ee07cf2ae5a1ba173cce",
+        "v1": {
+          "tx": "0x0261a4568ed7c0662e439801c4531a969968e607491e0aee374e0f7b80b615ba",
+          "refs": "bafkreiddcqiihfqsjys7crwybeslgqrldrzqlwfjo36ondqjxmmgr4xjkm",
+          "claims": 10
+        },
+        "note": "PRD W6 wedge: this repository's own engineering conventions, consumed by Claude Code / Cursor through adapters/ and .mcp.json."
+      },
+      "tools.recalltest.eth": {
+        "registeredAt": "2026-09-22",
+        "parent": "recalltest.eth",
+        "kind": "personal",
+        "registry": "0x87986E723b98F211c3F8cF4A08C1390D707efd58",
+        "resolver": "0x95dda22e3d30f333429dF9B8e3e5c512D72bAF48",
+        "registerTx": "0x440b1fcddc9ba24de700db9949673ed73e9a790ed8d562801031f4b37055ae71",
+        "v3": {
+          "tx": "0x7aff0a8967ebab34b78354383633ede5994077c310719f95504e5bcd40b0b923",
+          "refs": "bafkreidxzyddejg54tyfcykq34defhqxynbqgwjvunhhsuz3v4qsivzx3e"
+        },
+        "note": "Written by the Chrome history connector from real local browser data: GitHub, Linear, Vercel. Read back on a fresh machine from ENS with only the name and key.",
+        "v8": {
+          "tx": "0x4c3fb0919043be17926c7a1a9d7e4d9892b9e7902561ab312dece178b2ab6f34",
+          "refs": "bafkreicqiqn777hepsi3qedhwkjhv2kpk76llogr5ccbnpnse6vqnwzdr4",
+          "note": "Browser history + editor manifests + shell history. 'Uses pnpm regularly' carries two sources at 98%."
+        }
+      },
+      "projects.recalltest.eth": {
+        "registeredAt": "2026-09-22",
+        "parent": "recalltest.eth",
+        "kind": "personal",
+        "registry": "0x5bB20c4751acE5cda6B0F8159728dcB4452622D5",
+        "resolver": "0x867FdA8914915b62dc708EB6aC417D22846EbE38",
+        "v1": {
+          "tx": "0xafae6c1fe05fdffcff7ad3f8980e0882e0c424b9fa8d45f380c41386c0ba971a"
+        },
+        "note": "Chrome history connector: 'Works on Loops House'. One claim, because the bar for a project claim is deliberately high.",
+        "v19": {
+          "tx": "0x19224594301aa0f6ad37d24989cecc5df05dc05687880dea36689c2a656e4a1f",
+          "refs": "bafkreih4xopcm2vbmvawh7qnwuymk7vp4bb2v7asl6ukqtgowyxmss3xty"
+        }
+      }
+    },
+    "verified": {
+      "resolvesThroughDocumentedUniversalResolver": true,
+      "publicObjectsPlaintextOnIpfs": true,
+      "freshMachinePullsBothNamespaces": true,
+      "reviewHistoryTravelsWithRefs": true,
+      "explorerReadsPublishedHistory": true
+    },
+    "localDemoNamespaces": {
+      "note": "Seeded locally for the composition demo (/demo/travel); not registered on chain.",
+      "names": [
+        "rishikesh.eth (private)",
+        "food.rishikesh.eth (private, subject-addressed; 2 sources \u2192 0.96)",
+        "japan.travel.eth",
+        "tokyo.food.eth"
+      ]
+    }
+  }
+}
