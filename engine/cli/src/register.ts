@@ -3,15 +3,15 @@
  *
  * Two cases:
  *
- *   history.eth        a top-level name: ETH registrar commit → wait → reveal,
- *                      then a UserRegistry (so it can have children) and a
- *                      PermissionedResolver, both via the Verifiable Factory.
- *   india.history.eth  a child: the wallet must own the parent. Deploy the
- *                      child's registry + resolver, register the label under the
- *                      parent's registry, setParent for the canonical walk.
+ *   cancer-research.eth         a top-level name: ETH registrar commit → wait → reveal,
+ *                               then a UserRegistry (so it can have children) and a
+ *                               PermissionedResolver, both via the Verifiable Factory.
+ *   trials.cancer-research.eth  a child: the wallet must own the parent. Deploy the
+ *                               child's registry + resolver, register the label under the
+ *                               parent's registry, setParent for the canonical walk.
  *
  * Every namespace gets its own registry, because hierarchy is the point (PRD §6):
- * india.history.eth can later own ancient.india.history.eth. Every contract
+ * trials.cancer-research.eth can later own phase3.trials.cancer-research.eth. Every contract
  * call uses a function present in a vendored ABI.
  */
 import { randomBytes } from 'node:crypto'
@@ -96,7 +96,7 @@ export async function registerNamespace(name: string, publicClient: PublicClient
     throw new Error(`pinned ETHRegistrar registers into ${registrarRegistry} but the pinned Universal Resolver reads ${ethRegistry}. Re-pin against the ENS docs deployments table before registering anything.`)
   }
 
-  // ---- top-level: history.eth ----
+  // ---- top-level: cancer-research.eth ----
   if (parent === 'eth') {
     const registrar = addresses.ethRegistrar
     const labelhash = BigInt(keccakLabel(label))
@@ -135,7 +135,7 @@ export async function registerNamespace(name: string, publicClient: PublicClient
     return { registry, resolver, alreadyRegistered: false }
   }
 
-  // ---- child: india.history.eth under history.eth ----
+  // ---- child: trials.cancer-research.eth under cancer-research.eth ----
   const parentRegistry = await registryOf(parent, publicClient)
   const { registry, resolver } = await deployPair()
   const expiry = BigInt(Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60)

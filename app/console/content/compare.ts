@@ -13,7 +13,7 @@ export const ROWS: Row[] = [
     github: 'Lines in files. A diff tells you which text moved; it says nothing about what the text means.',
     memory: {
       ens: 'A claim: subject, statement, topic, confidence, sources, contributor, reviewers. Diffs are by claim id and field, so “sources +1” or “confidence 0.6 → 0.9” is a change, not a rewrite of a line.',
-      plain: 'A single statement about the world. A change says “this claim gained a source” or “this date was corrected”, not “line 42 changed”.',
+      plain: 'A single statement about the world. A change says “this claim gained a source” or “this approval date was corrected”, not “line 42 changed”.',
     },
     edge: 'memory',
   },
@@ -31,15 +31,15 @@ export const ROWS: Row[] = [
     github: 'git blame gives you the author and the commit. Whether the line is *true*, who checked it, and on what evidence is not recorded.',
     memory: {
       ens: '`knowledge why` returns sources, contributor, reviewers, confidence, the version that introduced the claim and every revision since — across merges.',
-      plain: '“Why does it say 1947?” — “Two books, added by historian-a.eth in v41, approved by expert.eth.”',
+      plain: '“Why does it say olaparib is approved?” — “The FDA approval of December 2014, added by oncology-lab.eth in v41, approved by oncology-review.eth.”',
     },
     edge: 'memory',
   },
   {
     question: 'Who owns the name, and can it have children?',
-    github: 'github.com/history is an account on one company’s servers; “india” would be a folder inside it, with the same permissions.',
+    github: 'github.com/cancer-research is an account on one company’s servers; “trials” would be a folder inside it, with the same permissions.',
     memory: {
-      ens: 'history.eth is an ENS V2 name with its own registry. india.history.eth is registered under it with its own owner, policy and reviewers. The contenthash of each is its only pointer.',
+      ens: 'cancer-research.eth is an ENS V2 name with its own registry. trials.cancer-research.eth is registered under it with its own owner, policy and reviewers. The contenthash of each is its only pointer.',
       plain: 'The name belongs to its owner the way a domain does — and the owner can hand out sub-names with their own owners. Move hosts, switch tools: the names still work and the history still verifies.',
     },
     edge: 'memory',
@@ -57,7 +57,7 @@ export const ROWS: Row[] = [
     question: 'Who can read it?',
     github: 'Public, or private to accounts the owner invites. Enforced by GitHub.',
     memory: {
-      ens: 'Public namespaces are plaintext on IPFS — that is the point of history.eth. Private and personal ones are AES-256-GCM encrypted; readers hold the key.',
+      ens: 'Public namespaces are plaintext on IPFS — that is the point of cancer-research.eth. Private ones, like treasury.kestrel.eth, and personal ones are AES-256-GCM encrypted; readers hold the key.',
       plain: 'Public knowledge is readable by anyone. Private knowledge is scrambled; only people with the key can open it.',
     },
     edge: 'even',
@@ -73,7 +73,7 @@ export const ROWS: Row[] = [
     github: 'Repositories with millions of commits and files.',
     memory: {
       ens: 'Snapshots are inline per commit. Fine for thousands of claims per namespace — which is why the tree is many namespaces, not one giant one.',
-      plain: 'Built for an encyclopedia split into named volumes, not for the Linux kernel.',
+      plain: 'Built for a field of knowledge split into named parts, not for the Linux kernel.',
     },
     edge: 'github',
   },
@@ -88,9 +88,9 @@ export const THESIS: Record<Mode, { title: string; body: string[] }> = {
     ],
   },
   plain: {
-    title: 'How is this different from GitHub — or Wikipedia?',
+    title: 'How is this different from GitHub?',
     body: [
-      'GitHub keeps a reviewed history of code. Wikipedia keeps a reviewed history of claims, on one company’s servers, for humans. This keeps a reviewed history of claims at names their owners control, for humans *and* agents.',
+      'GitHub keeps a reviewed history of code, on one company’s servers. This keeps a reviewed history of claims at names their owners control, for humans *and* agents.',
       'The difference is what gets tracked — statements with sources, confidence and reviewers, not lines of text — and where it lives: at a name you own, not in someone’s account.',
     ],
   },
@@ -109,5 +109,5 @@ export const VERDICT: Record<Mode, { use: string; instead: string }> = {
 
 export const TEASER: Record<Mode, { title: string; body: string }> = {
   ens: { title: 'GitHub with an ENS remote?', body: 'Almost. The unit is a claim, review knows what a contradiction is, and the remote is a hierarchical name you own. Here is the honest row-by-row.' },
-  plain: { title: 'Isn’t this just GitHub, or Wikipedia?', body: 'Same idea — proposals, review, history — for knowledge that people and AI agents both use. The full comparison, including where GitHub wins.' },
+  plain: { title: 'Isn’t this just GitHub?', body: 'Same idea — proposals, review, history — for knowledge that people and AI agents both use. The full comparison, including where GitHub wins.' },
 }

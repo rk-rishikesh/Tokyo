@@ -1,7 +1,7 @@
 /**
  * push / pull — the only part of the repository that touches ENS and IPFS.
  *
- * Public namespaces are published in plaintext: the point of history.eth is
+ * Public namespaces are published in plaintext: the point of cancer-research.eth is
  * that any agent can read it. Private and personal namespaces are encrypted.
  *
  * The published shape is deliberately minimal:

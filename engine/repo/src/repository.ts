@@ -645,7 +645,7 @@ export class Repository {
     return c
   }
 
-  /** Record a child namespace (e.g. india.history.eth under history.eth). */
+  /** Record a child namespace (e.g. trials.cancer-research.eth under cancer-research.eth). */
   addChild(namespace: string): void {
     const refs = this.store.readRefs()
     if (!refs.children.includes(namespace)) { refs.children.push(namespace); this.store.writeRefs(refs) }

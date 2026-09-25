@@ -50,7 +50,7 @@ export default async function Namespaces() {
     <>
       <PageHeader title="Knowledge network" subtitle="Namespaces this explorer can read, as a hierarchy. Each is an ENS name whose contenthash points at a versioned, reviewed body of knowledge with its own owner, policy and sources." />
       {roots.length ? <div className="space-y-3">{roots.map((t) => <Node key={t.name} t={t} depth={0} />)}</div>
-        : <Empty>No namespaces. Set <code>NEXT_PUBLIC_KNOWLEDGE_NAMESPACES=worldhistory.eth</code> or run <code>knowledge init worldhistory.eth</code> on this machine.</Empty>}
+        : <Empty>No namespaces. Set <code>NEXT_PUBLIC_KNOWLEDGE_NAMESPACES=cancer-research.eth</code> or run <code>knowledge init cancer-research.eth</code> on this machine.</Empty>}
       {missing.length ? <p className="mt-4 text-[13.5px] text-muted-foreground">Configured but unreadable here: {missing.join(', ')}</p> : null}
       <p className="mt-6 text-[13.5px] text-muted-foreground">Browse · search · resolve · inspect · compare versions · inspect sources · inspect contributors — open a namespace.</p>
     </>

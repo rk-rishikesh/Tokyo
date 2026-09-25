@@ -10,7 +10,7 @@ const MCP = ['knowledge_resolve', 'knowledge_search', 'knowledge_get', 'knowledg
 
 export const ROLES = [
   { id: 'owner', who: 'Namespace owner', title: 'Namespace owner', line: 'Controls the name: policy, reviewers, what gets published, which children exist.', tone: 'border-owner/40', text: 'text-owner', dot: 'bg-owner' },
-  { id: 'contributor', who: 'Contributor', title: 'Contributor', line: 'Proposes knowledge with sources. Historian, researcher, agent, community member.', tone: 'border-propose/40', text: 'text-propose', dot: 'bg-propose' },
+  { id: 'contributor', who: 'Contributor', title: 'Contributor', line: 'Proposes knowledge with sources. Researcher, lab, agent, community member.', tone: 'border-propose/40', text: 'text-propose', dot: 'bg-propose' },
   { id: 'reviewer', who: 'Reviewer / curator', title: 'Reviewer / curator', line: 'Reads the diff and the automated findings, approves or rejects, lands the next version.', tone: 'border-member/40', text: 'text-member', dot: 'bg-member' },
   { id: 'consumer', who: 'Consumer', title: 'Consumer — people, apps and agents', line: 'Resolves the name and reads the current version — with provenance.', tone: 'border-accent/45', text: 'text-accent', dot: 'bg-accent' },
 ] as const
@@ -39,28 +39,29 @@ export function OwnerGuide() {
   return (
         <Section title="Namespace owner" intro="You control a name and decide how knowledge under it is governed.">
           <div className="grid gap-6 md:grid-cols-[1fr_1.1fr]">
-            <Diagram caption="How it works: the name is yours on ENS V2; everything else is a policy you publish with the knowledge.">{`history.eth  (your wallet owns it)
+            <Diagram caption="How it works: the name is yours on ENS V2; everything else is a policy you publish with the knowledge.">{`cancer-research.eth  (your wallet owns it)
 │
 ├── policy        owner · reviewers · who may propose · approvals · public|private
 ├── main          v42 — the authoritative version
 ├── branches      proposals in flight
-└── children      india.history.eth, europe.history.eth (each with its own owner and policy)
+└── children      trials.cancer-research.eth, immunotherapy.cancer-research.eth
+                  (each with its own owner and policy)
 
-contenthash(history.eth) → refs → commits on IPFS      ← the ONLY thing you move on chain`}</Diagram>
+contenthash(cancer-research.eth) → refs → commits on IPFS   ← the ONLY thing you move on chain`}</Diagram>
             <Facts items={[
-              { k: 'You own the name, not a server', v: 'history.eth is an ENS V2 name; its registry can hold children; its resolver holds one pointer. Nobody can move that pointer but your wallet.' },
+              { k: 'You own the name, not a server', v: 'cancer-research.eth is an ENS V2 name; its registry can hold children; its resolver holds one pointer. Nobody can move that pointer but your wallet.' },
               { k: 'Policy is published', v: 'Reviewers, contributors, approvals and visibility travel with the refs object, so every reader and every reviewer sees the same rules.' },
-              { k: 'Public or private', v: 'Public namespaces are plaintext on IPFS — that is the point of history.eth. Private and personal namespaces are encrypted; readers hold the key.' },
-              { k: 'Hierarchy', v: 'Register india.history.eth under your registry and hand it to another owner with its own reviewers. The tree is the taxonomy.' },
-              { k: 'Name for subjects, not writers', v: 'food.rishikesh.eth, never swiggy.rishikesh.eth or foodagent.rishikesh.eth. Who wrote a claim and where it came from are metadata on the claim. Address by what someone would look for; attribute by who said it. init warns when a child name looks like a vendor or an agent. Exception: a source big enough to maintain its own body of knowledge (wikipedia.history.eth).' },
+              { k: 'Public or private', v: 'Public namespaces are plaintext on IPFS — that is the point of cancer-research.eth. Private ones, like treasury.kestrel.eth, and personal ones are encrypted; readers hold the key.' },
+              { k: 'Hierarchy', v: 'Register trials.cancer-research.eth under your registry and hand it to another owner with its own reviewers. The tree is the taxonomy.' },
+              { k: 'Name for subjects, not writers', v: 'food.rishikesh.eth, never swiggy.rishikesh.eth or foodagent.rishikesh.eth. Who wrote a claim and where it came from are metadata on the claim. Address by what someone would look for; attribute by who said it. init warns when a child name looks like a vendor or an agent. Exception: a source big enough to maintain its own body of knowledge, like a trial registry publishing under its own name.' },
               { k: 'Review is a policy, not a tax', v: 'Public namespaces gate every write (approvals ≥ 1). Personal ones default to approvals: 0 — writes land instantly, automated review still runs and queues findings for you. Organisation namespaces gate and publish on an interval. Set with --kind at init, change with knowledge policy.' },
             ]} />
           </div>
           <div className="mt-6"><Steps steps={[
-            { title: 'Create the namespace', body: <>Local first. Add <code>--register</code> to put it on Sepolia (top-level names go through the ETH registrar and cost test USDC; children register under your parent). Add <code>--private</code> for encrypted knowledge.</>, code: `knowledge init history.eth --title "World History" --description "Collaboratively maintained." --register\nknowledge init india.history.eth --title "History of India" --register     # child, under your registry` },
-            { title: 'Set the policy', body: <>Who reviews, who may propose, how many approvals a proposal needs, how unmarked conflicts resolve, when local commits publish, whether approvals must be signed.</>, code: `knowledge init conventions.acme.eth --kind organisation --register\nknowledge policy --reviewer expert.eth --contributors anyone --approvals 1 --conflicts ask --signed-approvals true\nknowledge policy --publish interval --interval-minutes 60 --pending-commits 20` },
-            { title: 'Seed it and publish', body: <>Owners and reviewers may commit to <code>main</code> directly. Everyone else proposes. Push encrypts (if private), pins to IPFS and moves the pointer once.</>, code: `knowledge add "India became independent in 1947" --subject "Indian Independence" --topic independence --type event --source book:"India After Gandhi"\nknowledge commit -m "Initial history"\nknowledge push` },
-            { title: 'Watch it grow', body: <>Open proposals, contributors and every version are in the explorer: <Link href="/namespaces" className="text-accent hover:underline">/k/history.eth</Link>.</> },
+            { title: 'Create the namespace', body: <>Local first. Add <code>--register</code> to put it on Sepolia (top-level names go through the ETH registrar and cost test USDC; children register under your parent). Add <code>--private</code> for encrypted knowledge.</>, code: `knowledge init cancer-research.eth --title "Cancer Research" --description "Community-maintained, reviewed." --register\nknowledge init trials.cancer-research.eth --title "Clinical trials" --register     # child, under your registry` },
+            { title: 'Set the policy', body: <>Who reviews, who may propose, how many approvals a proposal needs, how unmarked conflicts resolve, when local commits publish, whether approvals must be signed.</>, code: `knowledge init treasury.kestrel.eth --kind organisation --private --register\nknowledge policy --reviewer cfo.kestrel.eth --contributors treasury-agent.eth --approvals 1 --conflicts ask --signed-approvals true\nknowledge policy --publish interval --interval-minutes 60 --pending-commits 20` },
+            { title: 'Seed it and publish', body: <>Owners and reviewers may commit to <code>main</code> directly. Everyone else proposes. Push encrypts (if private), pins to IPFS and moves the pointer once.</>, code: `knowledge add "Pembrolizumab is FDA-approved for MSI-H or mismatch-repair-deficient solid tumours, wherever the tumour started" --subject "Pembrolizumab" --topic approvals --type fact --source document:"FDA approval, May 2017"\nknowledge commit -m "Seed approvals"\nknowledge push` },
+            { title: 'Watch it grow', body: <>Open proposals, contributors and every version are in the explorer: <Link href="/namespaces" className="text-accent hover:underline">/k/cancer-research.eth</Link>.</> },
           ]} /></div>
         </Section>
   )
@@ -72,7 +73,7 @@ export function ContributorGuide() {
           <div className="grid gap-6 md:grid-cols-[1fr_1.1fr]">
             <Diagram caption="How it works: a contribution is a branch with commits and a proposal. It reaches main only through review.">{`main ──●──●──●  v41
             \\
-   add-partition ●──●     ← your branch: claims + sources
+    add-olaparib ●──●     ← your branch: claims + sources
                     │
                  propose  →  automated review runs
                     │        [contradiction] [missing-sources] …
@@ -89,10 +90,10 @@ export function ContributorGuide() {
             ]} />
           </div>
           <div className="mt-6"><Steps steps={[
-            { title: 'Get the namespace', body: <>Pull the published history. For a private namespace the owner gives you the key.</>, code: `knowledge init history.eth && knowledge pull` },
-            { title: 'Branch, add with sources, commit', body: <>Work on your own branch. Say who you are with <code>--as</code>.</>, code: `knowledge checkout add-partition -b --as historian-a.eth\nknowledge add "The Partition of India created Pakistan in August 1947" --subject "Partition of India" --topic independence --type event --confidence 0.9 --source book:"Freedom at Midnight" --as historian-a.eth\nknowledge commit -m "Add partition context" --as historian-a.eth` },
-            { title: 'Propose', body: <>Opens proposal #n and runs the automated review immediately, so you see what a reviewer will see.</>, code: `knowledge propose --title "Add partition context" --as historian-a.eth\n# automated review:\n#   [missing-sources] …   [contradiction] May contradict existing "…" (60% similar).` },
-            { title: 'Or, as an agent', body: <>One MCP call does branch + commit + propose.</>, code: `knowledge_propose({ namespace: "history.eth", title: "Add partition context",\n  items: [{ claim: "…", subject: "Partition of India", topic: "independence", sources: [{ type: "book", title: "Freedom at Midnight" }] }] })` },
+            { title: 'Get the namespace', body: <>Pull the published history. For a private namespace the owner gives you the key.</>, code: `knowledge init cancer-research.eth && knowledge pull` },
+            { title: 'Branch, add with sources, commit', body: <>Work on your own branch. Say who you are with <code>--as</code>.</>, code: `knowledge checkout add-olaparib -b --as oncology-lab.eth\nknowledge add "Olaparib, a PARP inhibitor, is approved for BRCA-mutated advanced ovarian cancer" --subject "Olaparib" --topic approvals --type fact --confidence 0.9 --source document:"FDA approval, December 2014" --as oncology-lab.eth\nknowledge commit -m "Add olaparib approval" --as oncology-lab.eth` },
+            { title: 'Propose', body: <>Opens proposal #n and runs the automated review immediately, so you see what a reviewer will see.</>, code: `knowledge propose --title "Add olaparib approval" --as oncology-lab.eth\n# automated review:\n#   [missing-sources] …   [contradiction] May contradict existing "…" (60% similar).` },
+            { title: 'Or, as an agent', body: <>One MCP call does branch + commit + propose.</>, code: `knowledge_propose({ namespace: "cancer-research.eth", title: "Add olaparib approval",\n  items: [{ claim: "…", subject: "Olaparib", topic: "approvals", sources: [{ type: "document", title: "FDA approval, December 2014" }] }] })` },
           ]} /></div>
         </Section>
   )
@@ -112,17 +113,17 @@ what you see:   the diff, by claim        the previous version
             <Facts items={[
               { k: 'Automated review is advisory', v: 'Duplicates, contradictions (same topic and subject, similar claim, different statement), missing sources, low confidence, removals of reviewed claims, and claim changes with no new source.' },
               { k: 'Approvals are counted', v: 'The policy says how many. A contributor cannot approve their own proposal. A reject closes it.' },
-              { k: 'Landing stamps you', v: 'Every claim the proposal changed records you as a reviewer. Readers see “reviewed by expert.eth”.' },
+              { k: 'Landing stamps you', v: 'Every claim the proposal changed records you as a reviewer. Readers see “reviewed by oncology-review.eth”.' },
               { k: 'Sign it', v: 'knowledge review <n> --approve --sign signs the verdict with the key that owns your ENS name; land verifies the signer against the name’s owner on chain and shows “verified” instead of “claimed”. Namespaces can require it (--signed-approvals true).' },
               { k: 'Nothing is lost', v: 'A rejected proposal keeps its branch. A landed one can be reverted with a new version; history is never rewritten.' },
             ]} />
           </div>
           <div className="mt-6"><Steps steps={[
-            { title: 'See what is waiting', body: <>Open proposals with their findings.</>, code: `knowledge proposals --as expert.eth` },
-            { title: 'Read the proposal', body: <>The diff by claim, the findings, other reviews.</>, code: `knowledge review 1 --as expert.eth` },
-            { title: 'Decide', body: <>Approve, reject, or comment. When approvals reach the policy threshold the proposal is APPROVED.</>, code: `knowledge review 1 --approve -m "Partition context is right; date correction verified." --as expert.eth\nknowledge review 2 --reject  -m "No sources." --as expert.eth` },
-            { title: 'Land and publish', body: <>Landing merges onto main as the next version. The owner (or a reviewer with the wallet) pushes.</>, code: `knowledge land 1 --as expert.eth     # history.eth is now v42\nknowledge push` },
-            { title: 'In the explorer', body: <>Every proposal has a page: findings, diff, reviews, and the commit it landed as. <Link href="/namespaces" className="text-accent hover:underline">/k/history.eth/reviews</Link></> },
+            { title: 'See what is waiting', body: <>Open proposals with their findings.</>, code: `knowledge proposals --as oncology-review.eth` },
+            { title: 'Read the proposal', body: <>The diff by claim, the findings, other reviews.</>, code: `knowledge review 1 --as oncology-review.eth` },
+            { title: 'Decide', body: <>Approve, reject, or comment. When approvals reach the policy threshold the proposal is APPROVED.</>, code: `knowledge review 1 --approve -m "Matches the FDA label; source checked." --as oncology-review.eth\nknowledge review 2 --reject  -m "No sources." --as oncology-review.eth` },
+            { title: 'Land and publish', body: <>Landing merges onto main as the next version. The owner (or a reviewer with the wallet) pushes.</>, code: `knowledge land 1 --as oncology-review.eth     # cancer-research.eth is now v42\nknowledge push` },
+            { title: 'In the explorer', body: <>Every proposal has a page: findings, diff, reviews, and the commit it landed as. <Link href="/namespaces" className="text-accent hover:underline">/k/cancer-research.eth/reviews</Link></> },
           ]} /></div>
         </Section>
   )
@@ -132,25 +133,27 @@ export function ConsumerGuide() {
   return (
         <Section title="Consumer — people, apps and agents" intro="You read the current version and can always ask where it came from.">
           <div className="grid gap-6 md:grid-cols-[1fr_1.1fr]">
-            <Diagram caption="How it works: resolve the name, fetch the version, answer with provenance.">{`agent: "What happened during Indian independence?"
+            <Diagram caption="How it works: resolve the name, fetch the version, answer with provenance.">{`agent: "What is approved for BRCA-mutated ovarian cancer?"
    │
-   ├─ knowledge_resolve("history.eth")        → v42 · owner · policy
-   ├─ knowledge_search("history.eth", "…")    → claims with sources, reviewers, confidence
-   └─ knowledge_sources(id)                   → introduced in v41 by historian-a.eth, approved by expert.eth
+   ├─ knowledge_resolve("cancer-research.eth")       → v42 · owner · policy
+   ├─ knowledge_search("cancer-research.eth", "…")   → claims with sources, reviewers, confidence
+   └─ knowledge_sources(id)                          → introduced in v41 by oncology-lab.eth,
+                                                       approved by oncology-review.eth
 
-answer:  "India became independent in 1947 … (history.eth v42, 2 sources, reviewed by expert.eth)"`}</Diagram>
+answer:  "Olaparib, a PARP inhibitor … (cancer-research.eth v42, FDA approval Dec 2014,
+          reviewed by oncology-review.eth)"`}</Diagram>
             <Facts items={[
               { k: 'No account, no server', v: 'Public namespaces need no key and no wallet. Resolve the ENS name, fetch from IPFS, verify each version’s hash.' },
               { k: 'Claims are data, not instructions', v: 'Everything an agent reads arrives fenced and labelled as retrieved data with its provenance. A claim that says “ignore your instructions” is reported, not obeyed.' },
-              { k: 'Compose namespaces', v: 'One server, many names: alice.eth for preferences, tokyo.travel.eth for restaurants. The agent combines them.' },
+              { k: 'Compose namespaces', v: 'One server, many names: treasury.kestrel.eth for policy, portfolio.kestrel.eth for positions. The agent combines them.' },
               { k: 'Updates are automatic', v: 'v42 → v43 is one pointer move. The next query sees the new version.' },
             ]} />
           </div>
           <div className="mt-6"><Steps steps={[
             { title: 'Give an agent the network', body: <>One MCP server serves every namespace; the agent names one per call.</>, code: `claude mcp add knowledge -e KNOWLEDGE_AGENT=my-agent.eth -- npx -y @knowledge01/mcp` },
-            { title: 'Read from a terminal', body: <>Pull once, then search offline.</>, code: `knowledge init history.eth && knowledge pull\nknowledge search "Indian independence"\nknowledge why k_6374f147a677        # sources, contributor, reviewers, version` },
-            { title: 'Read in the browser', body: <>The explorer shows the same objects: <Link href="/namespaces" className="text-accent hover:underline">/k/history.eth</Link>. A personal namespace also has a plain-language view at <code>/me/&lt;name&gt;</code>.</> },
-            { title: 'Build an application', body: <>The SDK is a thin facade over the same repository.</>, code: `import { Namespace } from '@knowledge01/repo'\nconst history = Namespace.for('history.eth')\nhistory.search('Indian independence')                 // Hit[] with sources and reviewers\nhistory.contribute({ title: 'Add partition context', items: [...] })   // → proposal\n\nconst alice = Namespace.for('alice.eth', { agent: 'shopping-agent' })  // personal memory\nalice.observe({ observation: 'User prefers Nike running shoes', topic: 'shopping', confidence: 0.87 })` },
+            { title: 'Read from a terminal', body: <>Pull once, then search offline.</>, code: `knowledge init cancer-research.eth && knowledge pull\nknowledge search "PARP inhibitor ovarian"\nknowledge why k_6374f147a677        # sources, contributor, reviewers, version` },
+            { title: 'Read in the browser', body: <>The explorer shows the same objects: <Link href="/namespaces" className="text-accent hover:underline">/k/cancer-research.eth</Link>. A personal namespace also has a plain-language view at <code>/me/&lt;name&gt;</code>.</> },
+            { title: 'Build an application', body: <>The SDK is a thin facade over the same repository.</>, code: `import { Namespace } from '@knowledge01/repo'\nconst research = Namespace.for('cancer-research.eth')\nresearch.search('PARP inhibitor ovarian')                 // Hit[] with sources and reviewers\nresearch.contribute({ title: 'Add olaparib approval', items: [...] })   // → proposal\n\nconst alice = Namespace.for('alice.eth', { agent: 'shopping-agent' })  // personal memory\nalice.observe({ observation: 'User prefers Nike running shoes', topic: 'shopping', confidence: 0.87 })` },
           ]} /></div>
           <div className="mt-4 rounded-2xl border border-line bg-surface p-4"><p className="text-[12.5px] font-medium uppercase tracking-wider text-dim">MCP tools</p><p className="mt-2 flex flex-wrap gap-1.5">{MCP.map((t) => <code key={t} className="rounded bg-raised px-2 py-0.5 font-mono text-[13.5px]">{t}</code>)}</p></div>
         </Section>

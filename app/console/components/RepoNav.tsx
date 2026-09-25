@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export type RepoTab = 'knowledge' | 'branches' | 'contributors' | 'history' | 'reviews' | 'findings' | 'diff' | 'info'
 
-/** GitHub + Wikipedia: one namespace, six tabs. Branch is carried in the query so every tab agrees. */
+/** GitHub-style: one namespace, six tabs. Branch is carried in the query so every tab agrees. */
 export function RepoNav({ namespace, active, branch, counts }: { namespace: string; active: RepoTab; branch?: string; counts?: Partial<Record<RepoTab, number>> }) {
   const base = `/k/${encodeURIComponent(namespace)}`
   const q = branch ? `?branch=${encodeURIComponent(branch)}` : ''

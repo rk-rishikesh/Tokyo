@@ -33,7 +33,7 @@ export type Source = {
   type: string
   /** Which of the five ingestion methods produced it. Derived from `type` when absent. */
   kind?: SourceKind
-  /** The source's name as people know it: "Wikipedia", "Weather API", "research-agent.eth". */
+  /** The source's name as people know it: "Slack", "Weather API", "watch-agent.eth". */
   name?: string
   /** Identifier within that type: a URL, DOI, ISBN, conversation id… */
   id?: string
@@ -53,13 +53,13 @@ export function sourceKind(s: Source): SourceKind {
   return 'document'
 }
 
-/** A source connected to a namespace: Wikipedia → wikipedia.history.eth. One source may feed many namespaces. */
+/** A source connected to a namespace: "Treasury policy v3" → treasury.kestrel.eth. One source may feed many namespaces. */
 export type SourceConnection = {
   id: string
   name: string
   kind: SourceKind
   description?: string
-  /** Contributor identity its imports are attributed to, e.g. "wikipedia-import". */
+  /** Contributor identity its imports are attributed to, e.g. "treasury-policy-v3-import". */
   contributor: string
   status: 'connected' | 'paused'
   connectedAt: string
@@ -77,7 +77,7 @@ export type SourceConnection = {
 export type Knowledge = {
   /** Stable id. Never rewritten — it is the key for diff, merge and revert. */
   id: string
-  /** What the claim is about, e.g. "Indian Independence". Null for free-standing notes. */
+  /** What the claim is about, e.g. "Pembrolizumab". Null for free-standing notes. */
   subject: string | null
   /** The statement itself. */
   claim: string
@@ -161,7 +161,7 @@ export type Refs = {
   /** Human title and description of the namespace. */
   title?: string
   description?: string
-  /** Parent namespace, e.g. "history.eth" for "india.history.eth". */
+  /** Parent namespace, e.g. "cancer-research.eth" for "trials.cancer-research.eth". */
   parent?: string
   /** Child namespaces registered under this one. */
   children: string[]
@@ -220,7 +220,7 @@ export type Policy = {
   owner: string
   kind: NamespaceKind
   reviewers: string[]
-  /** Who may propose. "anyone" for a public, Wikipedia-like namespace. */
+  /** Who may propose. "anyone" for a public research community like cancer-research.eth. */
   contributors: 'anyone' | string[]
   /** "public": published in plaintext. "key": encrypted; readers hold the namespace key. */
   readers: 'public' | 'key'
@@ -397,7 +397,7 @@ const norm = (s: string | null | undefined) => (s ?? '').trim().toLowerCase().re
  * Build a knowledge object.
  *
  * The id is derived from claim, subject and topic — not from the contributor —
- * so two historians stating the same claim collapse onto one object and a diff
+ * so two labs stating the same claim collapse onto one object and a diff
  * shows an update rather than a duplicate. Who said it is provenance, not identity.
  */
 export function newKnowledge(input: NewKnowledge): Knowledge {

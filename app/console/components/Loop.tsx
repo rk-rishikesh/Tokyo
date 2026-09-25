@@ -14,8 +14,8 @@ import { useState } from 'react'
  */
 const SOURCES = [
   { id: 'human', label: 'People', glyph: '👤', names: ['experts', 'teammates'], blurb: 'Experts and teammates state what they know — into a review queue, not a chat log.' },
-  { id: 'document', label: 'Documents', glyph: '📄', names: ['Wikipedia', 'manifests'], blurb: 'Wikis, papers and project manifests: the places facts are already written down. The Wikipedia importer runs today.' },
-  { id: 'api', label: 'APIs', glyph: '⚡', names: [], blurb: 'Systems of record — weather norms, government data, your own services. Any endpoint you own can contribute through the SDK.' },
+  { id: 'document', label: 'Documents', glyph: '📄', names: ['papers', 'manifests'], blurb: 'Papers, policies, regulatory approvals and project manifests: the places facts are already written down. Every claim cites its document by title and id.' },
+  { id: 'api', label: 'APIs', glyph: '⚡', names: [], blurb: 'Systems of record — trial registries, block explorers, your own services. Any endpoint you own can contribute through the SDK.' },
   { id: 'agent', label: 'Agents', glyph: '🤖', names: ['Claude Code', 'Cursor'], blurb: 'Coding agents propose conventions they learn while working, through MCP. Live today.' },
   { id: 'application', label: 'Applications', glyph: '🧩', names: ['browser', 'editor', 'shell'], blurb: 'Products whose knowledge is trapped inside them. Your browser, editor and shell read locally today.' },
 ]
@@ -55,7 +55,7 @@ export function Loop() {
           <div className="grid gap-2">{STAGES.map((s) => node(s, 'justify-center'))}</div>
           <div className="mx-auto h-4 w-px bg-line" />
           <div className="pulse rounded-xl border border-accent/50 bg-accent-soft p-3 text-center">
-            <p className="font-mono text-[15px] font-semibold">history.eth · v42</p>
+            <p className="font-mono text-[15px] font-semibold">cancer-research.eth · v42</p>
             <p className="mt-1 text-[12.5px] text-dim">ENS V2 — identity, namespace, ownership, access</p>
             <p className="mt-0.5 text-[12.5px] text-dim">IPFS — immutable, content-addressed versions</p>
           </div>

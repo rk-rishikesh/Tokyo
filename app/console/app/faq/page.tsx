@@ -10,11 +10,11 @@ const GROUPS: { title: string; items: QA[] }[] = [
     title: 'Identity and trust',
     items: [
       {
-        q: 'When I run knowledge review --approve --as expert.eth, how does the system know I am expert.eth?',
+        q: 'When I run knowledge review --approve --as oncology-review.eth, how does the system know I am oncology-review.eth?',
         a: <>
-          <p>Today it does not. <code>--as expert.eth</code> (or <code>KNOWLEDGE_AGENT</code> for the MCP server) is a <strong>claim, not a proof</strong>. Anyone with access to the repository could type it. The roles in the policy — owner, reviewers, contributors — are enforced by every repository that acts on the namespace, which is real protection against mistakes and against agents overstepping, but not against a person who controls the machine and wants to lie.</p>
-          <p>What <em>is</em> enforced cryptographically is narrower and stronger: only the wallet that owns the ENS name holds <code>SET_CONTENTHASH</code> on its resolver, so <strong>only the owner can publish a version</strong>. Everything a reader sees on <code>worldhistory.eth</code> got there because the owner’s key moved the pointer.</p>
-          <p>The natural next step, which needs nothing new in the object model: reviewers sign their approvals with the key that owns their ENS name, and <code>land</code> verifies the signature — or reviewers hold a role on the namespace’s resolver and approvals are checked on chain. Until then, treat “reviewed by expert.eth” as “recorded as reviewed by expert.eth on the owner’s repository”.</p>
+          <p>Today it does not. <code>--as oncology-review.eth</code> (or <code>KNOWLEDGE_AGENT</code> for the MCP server) is a <strong>claim, not a proof</strong>. Anyone with access to the repository could type it. The roles in the policy — owner, reviewers, contributors — are enforced by every repository that acts on the namespace, which is real protection against mistakes and against agents overstepping, but not against a person who controls the machine and wants to lie.</p>
+          <p>What <em>is</em> enforced cryptographically is narrower and stronger: only the wallet that owns the ENS name holds <code>SET_CONTENTHASH</code> on its resolver, so <strong>only the owner can publish a version</strong>. Everything a reader sees on <code>cancer-research.eth</code> got there because the owner’s key moved the pointer.</p>
+          <p>The natural next step, which needs nothing new in the object model: reviewers sign their approvals with the key that owns their ENS name, and <code>land</code> verifies the signature — or reviewers hold a role on the namespace’s resolver and approvals are checked on chain. Until then, treat “reviewed by oncology-review.eth” as “recorded as reviewed by oncology-review.eth on the owner’s repository”.</p>
         </>,
       },
       {
@@ -44,7 +44,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
       },
       {
         q: 'Is the content encrypted?',
-        a: <p>Public namespaces (<code>worldhistory.eth</code>) are stored in plaintext on IPFS on purpose — any agent should be able to read them. Private and personal namespaces (<code>--private</code>, e.g. <code>alice.eth</code>) are AES-256-GCM encrypted before pinning; readers hold the namespace key. No plaintext personal memory ever reaches public IPFS.</p>,
+        a: <p>Public namespaces (<code>cancer-research.eth</code>) are stored in plaintext on IPFS on purpose — any agent should be able to read them. Private and personal namespaces (<code>--private</code>, e.g. <code>treasury.kestrel.eth</code> or <code>alice.eth</code>) are AES-256-GCM encrypted before pinning; readers hold the namespace key. No plaintext personal memory ever reaches public IPFS.</p>,
       },
     ],
   },
@@ -73,15 +73,11 @@ const GROUPS: { title: string; items: QA[] }[] = [
       },
       {
         q: 'Do I need to build an application to use this?',
-        a: <p>No. The consuming application is any MCP-capable assistant — Claude Code, Cursor and others — with the <code>knowledge</code> server attached. It resolves the name, searches, cites sources and reviewers, and can open proposals. The SDK (<code>Namespace.for(&apos;worldhistory.eth&apos;)</code>) is the same primitive for people who do want to build; see <Link href="/roles/consumer" className="text-ink underline underline-offset-4 hover:opacity-70">the consumer guide</Link>.</p>,
+        a: <p>No. The consuming application is any MCP-capable assistant — Claude Code, Cursor and others — with the <code>knowledge</code> server attached. It resolves the name, searches, cites sources and reviewers, and can open proposals. The SDK (<code>Namespace.for(&apos;cancer-research.eth&apos;)</code>) is the same primitive for people who do want to build; see <Link href="/roles/consumer" className="text-ink underline underline-offset-4 hover:opacity-70">the consumer guide</Link>.</p>,
       },
       {
         q: 'Do I need to publish the MCP server to npm?',
         a: <p>No. It is a single bundled file that a client spawns locally over stdio: <code>claude mcp add knowledge -- npx -y @knowledge01/mcp</code>. Search works offline against the local repositories; only pull and push touch the network.</p>,
-      },
-      {
-        q: 'Why worldhistory.eth and not history.eth?',
-        a: <p><code>history.eth</code> is already registered by someone else on Sepolia. The demo namespace is <code>worldhistory.eth</code> with the child <code>india.worldhistory.eth</code>. The CLI refuses to adopt a name owned by another wallet.</p>,
       },
       {
         q: 'How does another agent see a new version?',

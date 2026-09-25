@@ -7,7 +7,7 @@
  *   knowledge_commit   knowledge_branch  knowledge_merge    knowledge_revert
  *   knowledge_pull     knowledge_push
  *
- * An agent names the namespace on every call (history.eth, alice.eth…), so one
+ * An agent names the namespace on every call (cancer-research.eth, alice.eth…), so one
  * server composes many namespaces (PRD §26–27). Everything but pull/push is
  * local. The server never holds a funded wallet: `knowledge_push` refuses
  * unless PRIVATE_KEY is present in this process, and pull needs no key at all
@@ -60,7 +60,7 @@ const server = new McpServer({ name: 'knowledge', version: '0.3.0' })
 const text = (body: string) => ({ content: [{ type: 'text' as const, text: body }] })
 const fail = (e: unknown) => ({ isError: true as const, content: [{ type: 'text' as const, text: notice(`error: ${e instanceof Error ? e.message : String(e)}`) }] })
 const run = async (fn: () => string | Promise<string>) => { try { return text(await fn()) } catch (e) { return fail(e) } }
-const NS = z.string().optional().describe('namespace, e.g. history.eth or alice.eth (default: KNOWLEDGE_NAMESPACE)')
+const NS = z.string().optional().describe('namespace, e.g. cancer-research.eth or alice.eth (default: KNOWLEDGE_NAMESPACE)')
 const SOURCE = z.object({ type: z.string(), id: z.string().optional(), title: z.string().optional(), excerpt: z.string().optional() })
 
 // ---- consume ----

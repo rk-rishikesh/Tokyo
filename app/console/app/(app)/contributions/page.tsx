@@ -6,10 +6,10 @@ import { STATUS_TONE } from '@/lib/status'
 export const dynamic = 'force-dynamic'
 
 const STEPS = [
-  ['Select namespace', 'knowledge init worldhistory.eth && knowledge pull'],
-  ['Add knowledge on a branch', 'knowledge checkout add-republic -b --as you.eth\nknowledge add "…" --subject "…" --topic republic --as you.eth'],
-  ['Attach a source', '--source document/"Constitution of India":"Article 394"\n--source application/Wikipedia:"Republic Day":https://…'],
-  ['Submit a proposal', 'knowledge commit -m "Republic Day" --as you.eth\nknowledge propose --title "Republic Day" --as you.eth'],
+  ['Select namespace', 'knowledge init cancer-research.eth && knowledge pull'],
+  ['Add knowledge on a branch', 'knowledge checkout add-olaparib -b --as you.eth\nknowledge add "…" --subject Olaparib --topic approvals --as you.eth'],
+  ['Attach a source', '--source document:"FDA approval, December 2014"\n--source paper:"<title>":<doi>\n--source api:ClinicalTrials.gov:<NCT id>'],
+  ['Submit a proposal', 'knowledge commit -m "Add olaparib approval" --as you.eth\nknowledge propose --title "Add olaparib approval" --as you.eth'],
   ['Review', 'automated findings → a reviewer approves or rejects'],
   ['Commit', 'knowledge land <n>  →  vN+1, reviewers stamped on your claims'],
 ]

@@ -24,7 +24,7 @@ export function SourceBadge({ view }: { view: RepoView }) {
   return view.source === 'ens' ? <Badge tone="added">published · ENS + IPFS</Badge> : <Badge tone="warn">local · not published yet</Badge>
 }
 
-/** The namespace header, GitHub + Wikipedia style, shared by every tab. */
+/** The namespace header, GitHub-style, shared by every tab. */
 export function NamespaceHeader({ view, branch, active }: { view: RepoView; branch: string; active: RepoTab }) {
   const main = defaultBranch(view)
   const version = versionOf(view, main)

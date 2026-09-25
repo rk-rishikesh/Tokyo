@@ -33,7 +33,6 @@ knowledge land 1
 
 ```bash
 knowledge import memory export.json --vendor chatgpt --split --owner you.eth
-knowledge import wikipedia "Ashoka" --namespace india.worldhistory.eth
 ```
 
 The memory importer reads an assistant's export and turns each remembered fact

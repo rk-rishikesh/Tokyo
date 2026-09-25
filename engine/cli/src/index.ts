@@ -1,8 +1,8 @@
 /**
  * `knowledge` — the CLI for ENS-native knowledge namespaces (PRD §35).
  *
- *   knowledge init history.eth [--register] [--private] [--title "World History"]
- *   knowledge add "<claim>" --subject "Indian Independence" --topic independence --source book:"India After Gandhi"
+ *   knowledge init cancer-research.eth [--register] [--private] [--title "Cancer Research"]
+ *   knowledge add "<claim>" --subject "Pembrolizumab" --topic immunotherapy --source document:"FDA approval, May 2017"
  *   knowledge get [<id>] · search "<query>" · log · status · diff <ref> [<ref>] · why <id>
  *   knowledge branch [<name>] · checkout <branch> [-b] · merge <branch> · revert <ref>
  *   knowledge propose --title "…"            (current branch → default branch, runs automated review)
@@ -53,7 +53,7 @@ const HELP = `knowledge — ENS-native, versioned knowledge namespaces
   namespaces · push · pull
 
 Sources on add/update: --source <type>:<title>[:<id>]  or  --source <kind>/<name>:<title>[:<id>]
-  e.g. --source book:"India After Gandhi"   --source application/Wikipedia:"Partition of India":https://en.wikipedia.org/wiki/Partition_of_India
+  e.g. --source document:"Treasury policy v3"   --source agent/watch-agent.eth:"Payroll Safe outflows"
 
 Global: --namespace <name.eth>  (or KNOWLEDGE_NAMESPACE; automatic when only one exists)
         --as <identity.eth>     act as another identity   --json   machine-readable output

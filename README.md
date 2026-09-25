@@ -16,8 +16,12 @@ Humans · Documents · APIs · Agents · Applications
 ```
 
 ```
-worldhistory.eth                      owner · policy · v2 · reviewed
-└── india.worldhistory.eth            its own registry, owner and reviewers
+cancer-research.eth                   owner · policy · v2 · reviewed
+└── trials.cancer-research.eth        its own registry, owner and reviewers
+
+kestrel.eth                           organisation · private
+├── treasury.kestrel.eth              policies the Treasury Agent works from
+└── watch.kestrel.eth                 what the On-Chain Monitoring Agent treats as unusual
 ```
 
 Every namespace is an ENS V2 name with its own registry (so it can have children) and its own
@@ -41,11 +45,11 @@ build on it.
 
 | question | answer here |
 |---|---|
-| Who owns this knowledge? | The ENS name's owner. `india.worldhistory.eth` can have a different owner than `worldhistory.eth`. |
+| Who owns this knowledge? | The ENS name's owner. `trials.cancer-research.eth` can have a different owner than `cancer-research.eth`. |
 | Where does it live? | `contenthash(name)` → refs → commits on IPFS. Public namespaces in plaintext; private and personal ones encrypted. |
 | Who contributed / reviewed it? | On every claim: `contributor`, `reviewers`, `sources`. On every commit: author and, if it came through review, the proposal. |
 | Which version is authoritative? | `main` at `vN`. Every version is a content-hashed commit; anyone can verify the chain. |
-| Can another agent consume it? | `knowledge_search({ namespace: "worldhistory.eth", query })` over MCP. No account, no key for public namespaces. |
+| Can another agent consume it? | `knowledge_search({ namespace: "cancer-research.eth", query })` over MCP. No account, no key for public namespaces. |
 
 Four roles, separated from applications: **owner**, **contributor**, **reviewer**, **consumer**.
 Personal memory (`alice.eth`) is a namespace like any other — same primitive, encrypted.
@@ -71,11 +75,9 @@ entry (working today vs planned) and the claim each would contribute; seven work
 A source is never a feed: a forecast, a tick or a chat log has no truth condition a second party
 would cite. What a connector contributes is the durable statement underneath — the climate norm, the
 rebalancing date, the decision the thread reached. A source connects to one or
-many namespaces (`knowledge source connect "Wikipedia" --kind application`); source-specific
-namespaces (`wikipedia.history.eth`) are a convention, not a protocol rule. A **live Wikipedia
-importer** is the reference integration: `knowledge import wikipedia "Partition of India"` fetches
-the article summary and opens a proposal whose claims each cite the article — through the same
-review as everything else.
+many namespaces (`knowledge source connect "Treasury policy v3" --kind document`); source-specific
+namespaces are a convention, not a protocol rule. Imported claims go through the same review as
+everything else.
 
 ---
 
@@ -92,23 +94,23 @@ alias knowledge="node $PWD/engine/cli/dist/knowledge.mjs"
 **Owner** — create a namespace, set the policy, seed, publish:
 
 ```bash
-knowledge init worldhistory.eth --title "World History" --register   # ETH registrar + registry + resolver
-knowledge policy --reviewer expert.eth --contributors anyone --approvals 1
-knowledge add "India became independent from British rule on 15 August 1947" \
-  --subject "Indian Independence" --topic independence --type event --confidence 0.97 \
-  --source book:"India After Gandhi":"Ramachandra Guha, 2007"
-knowledge commit -m "Initial history" && knowledge push                # → v1, one setContenthash
-knowledge init india.worldhistory.eth --title "History of India" --register   # child, own registry
+knowledge init cancer-research.eth --title "Cancer Research" --kind public --register   # ETH registrar + registry + resolver
+knowledge policy --reviewer oncology-review.eth --contributors anyone --approvals 1 --readers public
+knowledge add "Pembrolizumab is FDA-approved for MSI-H or mismatch-repair-deficient solid tumours, wherever the tumour started" \
+  --subject "Pembrolizumab" --topic immunotherapy --type fact --confidence 0.97 \
+  --source document:"FDA approval, May 2017"
+knowledge commit -m "Seed approvals" && knowledge push                   # → v1, one setContenthash
+knowledge init trials.cancer-research.eth --title "Clinical Trials" --register   # child, own registry
 ```
 
 **Contributor** — propose on a branch; automated review runs:
 
 ```bash
-knowledge checkout add-partition -b --as historian-a.eth
-knowledge add "The Partition of India in August 1947 created the Dominion of Pakistan…" \
-  --subject "Partition of India" --topic independence --source book:"Freedom at Midnight" --as historian-a.eth
-knowledge commit -m "Add partition context" --as historian-a.eth
-knowledge propose --title "Add partition context" --as historian-a.eth
+knowledge checkout add-parp -b --as oncology-lab.eth
+knowledge add "Olaparib, a PARP inhibitor, is approved for BRCA-mutated advanced ovarian cancer" \
+  --subject "Olaparib" --topic targeted-therapy --confidence 0.95 --as oncology-lab.eth
+knowledge commit -m "Add olaparib" --as oncology-lab.eth
+knowledge propose --title "Add olaparib" --as oncology-lab.eth
 #  automated review:
 #    [missing-sources] "…" cites no sources.     [contradiction] May contradict existing "…" (60% similar).
 ```
@@ -116,11 +118,31 @@ knowledge propose --title "Add partition context" --as historian-a.eth
 **Reviewer** — read, decide, land:
 
 ```bash
-knowledge review 1 --as expert.eth                 # findings + diff by claim
-knowledge review 1 --approve -m "Sourced and correct." --as expert.eth
-knowledge land 1 --as expert.eth                   # → v2, reviewers stamped on every changed claim
+knowledge review 1 --as oncology-review.eth                 # findings + diff by claim
+knowledge review 1 --approve -m "Matches the label." --as oncology-review.eth
+knowledge land 1 --as oncology-review.eth                   # → v2, reviewers stamped on every changed claim
 knowledge push
 ```
+
+**Organisation** — private namespaces the owner's agents work from. The same flow, encrypted, with
+a named reviewer and named contributors:
+
+```bash
+knowledge init treasury.kestrel.eth --title "Treasury" --kind organisation --private --register
+knowledge policy --reviewer cfo.kestrel.eth --contributors treasury-agent.eth --approvals 1 --readers key
+knowledge add "Keep at least 18 months of operating runway in USDC" \
+  --subject "Runway" --topic policy --confidence 0.99 --source document:"Treasury policy v3"
+knowledge add "No single DeFi protocol may hold more than 15% of treasury assets" \
+  --subject "Protocol exposure" --topic policy --source document:"Treasury policy v3"
+knowledge commit -m "Treasury policy v3" && knowledge push
+```
+
+`watch.kestrel.eth` holds what the On-Chain Monitoring Agent (`watch-agent.eth`) treats as unusual —
+"The payroll Safe pays contributors on the 1st of each month; outflows on other days are unusual",
+"The treasury multisig is 3-of-5; a signer change is always worth an alert".
+`portfolio.kestrel.eth` holds what the Portfolio Intelligence Agent (`portfolio-agent.eth`) answers
+from — "Kestrel staked 200 ETH through Lido in March 2026". Each agent proposes what it learns;
+`cfo.kestrel.eth` reviews.
 
 **Reviewer identity and forks.** `knowledge review <n> --approve --sign` signs the verdict with the
 key that owns the reviewer's ENS name; `land` verifies the signer against the name's owner on chain
@@ -132,17 +154,17 @@ verified by hash — and reviews it like any other.
 **Consumer** — a person, an app or an agent:
 
 ```bash
-knowledge init worldhistory.eth && knowledge pull   # no key, no wallet
-knowledge search "partition" && knowledge why <id>  # sources · contributor · reviewers · version
+knowledge init cancer-research.eth && knowledge pull   # no key, no wallet
+knowledge search "pembrolizumab" && knowledge why <id>  # sources · contributor · reviewers · version
 
 claude mcp add knowledge -e KNOWLEDGE_AGENT=my-agent.eth -- npx -y @knowledge01/mcp
 ```
 
 ```ts
 import { Namespace } from '@knowledge01/repo'
-const history = Namespace.for('worldhistory.eth')
-history.search('Indian independence')                       // Hit[] with sources, reviewers, confidence
-history.contribute({ title: 'Republic Day', items: [{ subject: 'Republic of India', claim: '…', topic: 'republic', sources: [{ type: 'document', title: 'Constitution of India' }] }] })  // → proposal
+const research = Namespace.for('cancer-research.eth')
+research.search('MSI-H solid tumours')                      // Hit[] with sources, reviewers, confidence
+research.contribute({ title: 'Add olaparib', items: [{ subject: 'Olaparib', claim: '…', topic: 'targeted-therapy', sources: [{ type: 'document', title: 'FDA approval' }] }] })  // → proposal
 
 const alice = Namespace.for('alice.eth', { agent: 'shopping-agent' })   // personal memory
 alice.observe({ observation: 'User prefers Nike running shoes', topic: 'shopping', confidence: 0.87 })
@@ -151,8 +173,8 @@ alice.observe({ observation: 'User prefers Nike running shoes', topic: 'shopping
 **Sources and the demo application:**
 
 ```bash
-knowledge source connect "Wikipedia" --kind application --namespace worldhistory.eth
-knowledge import wikipedia "Partition of India" --topic independence --namespace worldhistory.eth   # → proposal #2
+knowledge source connect "Treasury policy v3" --kind document --namespace treasury.kestrel.eth
+knowledge source connect "watch-agent.eth" --kind agent --namespace watch.kestrel.eth
 knowledge source list --namespace tokyo.food.eth
 ```
 

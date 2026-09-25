@@ -1,9 +1,9 @@
 /**
  * The developer-facing facade — what an application imports.
  *
- *   const history = Namespace.for('history.eth')
- *   history.search('Indian independence')
- *   history.contribute({ title: 'Add partition context', items: [...] })
+ *   const research = Namespace.for('cancer-research.eth')
+ *   research.search('MSI-H solid tumours')
+ *   research.contribute({ title: 'Add olaparib', items: [...] })
  *
  *   const alice = Namespace.for('alice.eth', { agent: 'shopping-agent' })   // personal memory: same primitive
  *   alice.observe({ observation: 'User prefers Nike running shoes', topic: 'shopping', confidence: 0.87 })

@@ -21,7 +21,7 @@ const ROWS: [string, string, string, string][] = [
   ['Conflicting facts', 'Latest extraction wins, silently.', 'Resolved silently, by them.', 'Detected. Personal namespaces resolve by policy (latest wins) and record the finding; shared ones ask a reviewer. A changed fact is marked `supersedes`; a disagreement is a contradiction.'],
   ['Two sources say the same thing', 'Two memories, or a dedupe you cannot inspect.', 'One memory, presumably.', 'One claim with two sources and higher confidence — 0.8 + 0.8 → 0.96, stated as a function.'],
   ['Review', 'None.', 'None, by design — it is your assistant.', 'A policy per namespace: gates public and organisational knowledge, auto-lands personal knowledge while still recording findings.'],
-  ['Shared knowledge', 'Out of scope.', 'Out of scope.', 'The same primitive: history.eth, conventions.acme.eth, tokyo.food.eth — owned by others, read by your agent.'],
+  ['Shared knowledge', 'Out of scope.', 'Out of scope.', 'The same primitive: cancer-research.eth, treasury.kestrel.eth, conventions.acme.eth — owned by others, read by your agent.'],
   ['Retrieval quality', 'Strong: embeddings, graph memory, relevance tuning.', 'Strong, and proactive — it acts before you ask.', 'Keyword ranking scoped by topic and subject. Deliberately thin; a vector index can sit underneath. We do not compete here.'],
   ['Setup', 'An API key.', 'An invite.', 'A local repository, optionally an ENS registration for publishing. More steps; the steps are the point.'],
 ]
@@ -41,7 +41,7 @@ export default function VersusMemory() {
         <Section title="Memory or knowledge? One test" intro="A sentence decides which side something falls on, and therefore whether it needs sources, a reviewer and a version.">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-line bg-surface p-5"><p className="text-[12.5px] font-medium uppercase tracking-wider text-dim">Memory</p><p className="mt-2 text-[15px] font-medium">“Would a second party want to know where this came from?” — No.</p><p className="mt-2 text-[14.5px] leading-relaxed text-dim">A byproduct of interaction. One principal. Can only go stale. “User seemed frustrated on Tuesday.” Nobody else will ever ask for its source.</p></div>
-            <div className="rounded-2xl border border-accent/45 bg-surface p-5"><p className="text-[12.5px] font-medium uppercase tracking-wider text-accent">Knowledge</p><p className="mt-2 text-[15px] font-medium">“Would a second party want to know where this came from?” — Yes.</p><p className="mt-2 text-[14.5px] leading-relaxed text-dim">Authored. Has a truth condition. Read by people who were not there when it was written. “We use pnpm, not npm.” “India became independent in 1947.” “Prefers vegetarian food” — the moment a second app acts on it.</p></div>
+            <div className="rounded-2xl border border-accent/45 bg-surface p-5"><p className="text-[12.5px] font-medium uppercase tracking-wider text-accent">Knowledge</p><p className="mt-2 text-[15px] font-medium">“Would a second party want to know where this came from?” — Yes.</p><p className="mt-2 text-[14.5px] leading-relaxed text-dim">Authored. Has a truth condition. Read by people who were not there when it was written. “We use pnpm, not npm.” “No single DeFi protocol may hold more than 15% of treasury assets.” “Prefers vegetarian food” — the moment a second app acts on it.</p></div>
           </div>
           <p className="mt-4 text-[14.5px] leading-relaxed text-dim">Personal memory is still a use case here — a private namespace with `approvals: 0`, so writes land instantly and review never gets in the way. The difference is that the same object model carries it, so the day a second agent needs it, it already has a name, a version and a source.</p>
         </Section>
@@ -71,7 +71,7 @@ export default function VersusMemory() {
 
         <Section title="Review is a policy, not a tax" intro="The answer to “but they write in milliseconds”.">
           <Callout title="Choose it per namespace" tone="plain">
-            <p>On a personal namespace, gating your own claim is friction with no benefit — so the default is <code>approvals: 0</code>: commits land at once, the contradiction check still runs and records, and you review the queue when you like. On <code>history.eth</code> the gate <em>is</em> the product: drop it and it is a wiki anyone can overwrite. Same primitive, different policy, your choice.</p>
+            <p>On a personal namespace, gating your own claim is friction with no benefit — so the default is <code>approvals: 0</code>: commits land at once, the contradiction check still runs and records, and you review the queue when you like. On <code>cancer-research.eth</code> the gate <em>is</em> the product: drop it and it is a wiki anyone can overwrite. Same primitive, different policy, your choice.</p>
             <p>Publishing is separate from committing for the same reason. A commit is local and instant; a published version is one transaction on an interval or a threshold the namespace sets. Every reader is told the version it got and how old it is.</p>
           </Callout>
         </Section>

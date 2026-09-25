@@ -63,7 +63,7 @@ export const typeForTopic = (id: string): string => BY_ID.get(id)?.type ?? 'note
  * What a person reads for a topic.
  *
  * Falls back to capitalising, which is what a namespace someone else invented
- * deserves — `history.eth` is a real namespace and we have no map entry for it.
+ * deserves — `cancer-research.eth` is a real namespace and we have no map entry for it.
  */
 export function topicLabel(id: string | null | undefined): string {
   if (!id) return 'General'
