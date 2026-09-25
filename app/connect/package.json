@@ -1,0 +1,48 @@
+{
+  "name": "@recall/connect",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "knowledge-connect": "./dist/knowledge-connect.mjs"
+  },
+  "main": "./src/index.ts",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./config": {
+      "development": "./src/config.ts",
+      "default": "./src/config.ts"
+    },
+    "./workspaces": {
+      "development": "./src/workspaces.ts",
+      "default": "./src/workspaces.ts"
+    },
+    "./topics": {
+      "development": "./src/topics.ts",
+      "default": "./src/topics.ts"
+    },
+    "./policy": {
+      "development": "./src/policy.ts",
+      "default": "./src/policy.ts"
+    }
+  },
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "build": "node build.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@recall/core": "workspace:*",
+    "@recall/repo": "workspace:*",
+    "dotenv": "^16.4.7",
+    "@recall/storage": "workspace:*",
+    "viem": "^2.23.2"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.5"
+  }
+}
