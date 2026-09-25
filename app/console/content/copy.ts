@@ -188,10 +188,12 @@ export const TOGGLE_HINT: Record<Mode, string> = {
 }
 
 /** The three ways in. Shown with real, runnable examples. */
-export const EXAMPLES: { id: string; label: string; intro: string; code: string }[] = [
+export const EXAMPLES: { id: string; label: string; intro: string; install: string; code: string }[] = [
   {
     id: 'cli', label: 'CLI',
     intro: 'Owner, contributor and reviewer on one namespace.',
+    install: `$ npm i -g @knowledge01/cli
+$ export PRIVATE_KEY=0x…   # a Sepolia key, only for --register and push`,
     code: `$ knowledge init history.eth --title "World History" --register
 Registered history.eth → registry 0x5c1e…, resolver 0x9a02…
 $ knowledge policy --reviewer expert.eth --contributors anyone
@@ -217,30 +219,38 @@ $ knowledge push`,
   {
     id: 'mcp', label: 'Agent (MCP)',
     intro: 'An agent consuming and contributing through knowledge_* tools.',
+    install: `$ claude mcp add knowledge -e KNOWLEDGE_AGENT=my-agent.eth -- npx -y @knowledge01/mcp
+# any other MCP client: command "npx", args ["-y", "@knowledge01/mcp"]`,
     code: `> User: What happened during Indian independence?
 
   knowledge_resolve({ namespace: "history.eth" })
-  → history.eth — World History · v2 · owner history.eth · reviewers expert.eth
+  → history.eth — World History · v2 · 2 knowledge objects
+    kind: public · owner: history.eth · reviewers: expert.eth · contributors: anyone · approvals: 1
 
   knowledge_search({ namespace: "history.eth", query: "Indian independence" })
   → === KNOWLEDGE: RETRIEVED DATA ===
+    2 results in history.eth v2 for "Indian independence"
     India became independent in 1947
-      sources: book "India After Gandhi" · contributor history.eth · reviewers expert.eth · 95%
+      sources: book "India After Gandhi" · contributor: history.eth · reviewers: (unreviewed) · confidence: 0.8
     The Partition of India created Pakistan in August 1947
-      contributor historian-a.eth · reviewers expert.eth · 90%
+      sources: (none) · contributor: historian-a.eth · reviewers: expert.eth · confidence: 0.8
 
-> Agent: India became independent in 1947 … (history.eth v2, reviewed by expert.eth)
+> Agent: India became independent in 1947 (history.eth v2, citing "India After Gandhi") …
 
 > User: Add that the Constitution came into force in 1950.
 
   knowledge_propose({ namespace: "history.eth", title: "Republic Day",
     items: [{ subject: "Republic of India", claim: "The Constitution of India came into force on 26 January 1950",
               topic: "republic", sources: [{ type: "document", title: "Constitution of India" }] }] })
-  → opened proposal #2 on history.eth (proposed) — awaiting review`,
+  → opened proposal #2 on history.eth (proposed)
+    #2 Republic Day — PROPOSED · approvals 0
+    automated review: no findings`,
   },
   {
     id: 'web', label: 'Explorer',
     intro: 'GitHub + Wikipedia + ENS, in a browser.',
+    install: `$ git clone https://github.com/rk-rishikesh/Tokyo && cd Tokyo
+$ pnpm install && pnpm dev   # → http://localhost:3000`,
     code: `/k/history.eth                Knowledge · outline by topic and subject · search
 /k/history.eth/item/<id>      one claim: sources, contributor, reviewers, every version that touched it
 /k/history.eth/reviews        proposals: findings, diff, reviews, landed as

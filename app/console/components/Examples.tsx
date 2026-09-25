@@ -22,6 +22,10 @@ export function Examples() {
         ))}
         <span className="ml-auto pb-2 pr-1 text-[13.5px] text-dim">{ex.intro}</span>
       </div>
+      <div className="border-b border-line px-5 py-4">
+        <p className="mb-2 text-[12.5px] uppercase tracking-wide text-dim">Install</p>
+        <pre className="overflow-x-auto font-mono text-[14px] leading-relaxed text-ink/90"><code>{ex.install}</code></pre>
+      </div>
       <pre className="overflow-x-auto p-5 font-mono text-[14px] leading-relaxed text-ink/90"><code>{ex.code}</code></pre>
     </div>
   )

@@ -196,7 +196,7 @@ export function Footer() {
     {
       head: 'Your memory',
       links: [
-        { href: '/app', label: 'Your agent' },
+        { href: '/app', label: 'Demo' },
         { href: '/app/memory', label: 'Memory' },
         { href: '/app/publish', label: 'Publish' },
         { href: '/app/access', label: 'Access' },

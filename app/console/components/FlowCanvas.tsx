@@ -197,26 +197,6 @@ export function FlowCanvas({ mode }: { mode: Mode }) {
           />
         ))}
       </div>
-
-      {/* Detail for the selected node. */}
-      <div className="mt-4 rounded-2xl border border-line bg-surface p-5">
-        <div className="mb-3 flex items-center gap-2.5">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-active-badge text-[12.5px] font-semibold text-white">
-            {active.n}
-          </span>
-          <h3 key={`h-${active.id}-${mode}`} className="relabel text-base font-semibold">
-            {active[mode].label}
-          </h3>
-        </div>
-        <ol key={`s-${active.id}-${mode}`} className="relabel space-y-2">
-          {active[mode].steps.map((step, i) => (
-            <li key={i} className="flex gap-3 text-[14.5px] leading-relaxed">
-              <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-wire" aria-hidden />
-              <span className="text-ink/85">{step}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
     </div>
   )
 }

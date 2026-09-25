@@ -1,5 +1,3 @@
-import { NetworkStats } from '@/components/NetworkStats'
-import { Sources } from '@/components/landing/Sources'
 import { CallToAction, Footer, Question } from '@/components/landing/Sections'
 import { AccessFirsts } from '@/components/landing/AccessFirsts'
 import { Hero } from '@/components/landing/Hero'
@@ -7,10 +5,6 @@ import { WhyEns } from '@/components/landing/WhyEns'
 import { ActionCard, Label, Lead, Pill, Section, Spec, Split, Statement, Title, Wordmark } from '@/components/mono'
 import { FlowGraph, LOOP_EDGES, LOOP_NODES } from '@/components/motion/FlowGraph'
 import { ThesisMotion } from '@/components/motion/Thesis'
-
-// The network band counts what is really in the network, so the page is
-// rendered per request rather than baked.
-export const dynamic = 'force-dynamic'
 
 /**
  * The landing page, in the reference's grammar: full width, a hairline over
@@ -118,25 +112,6 @@ export default function Page() {
           </Lead>
         </Split>
         <AccessFirsts />
-      </Section>
-
-      {/* What is in the network, live ------------------------------------ */}
-      <Section>
-        <Split label={<>In the network.<br />Counted, not claimed.</>}>
-          <NetworkStats />
-        </Split>
-      </Section>
-
-      {/* Where it comes from --------------------------------------------- */}
-      <Section>
-        <div className="mb-14 grid gap-8 lg:grid-cols-2">
-          <Title size="md">The apps that will let you.</Title>
-          <Lead tone="dim">
-            Researched rather than wished for. Some hand you an OAuth token, some ship an MCP server, and some will
-            only ever give you a file — all three become claims, and each says which it was.
-          </Lead>
-        </div>
-        <Sources />
       </Section>
 
       {/* Why ENSv2 ------------------------------------------------------- */}
