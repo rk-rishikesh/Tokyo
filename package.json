@@ -8,23 +8,23 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm --filter @recall/console dev",
+    "dev": "pnpm --filter @k01/console dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "check": "pnpm check:layering && pnpm check:packaging && pnpm check:config && pnpm check:abi && pnpm check:deployment && pnpm resolve:check && pnpm test",
     "check:abi": "node --conditions=development --import tsx scripts/check-abi-usage.ts",
     "resolve:check": "node --conditions=development --import tsx scripts/check-resolve.ts",
-    "mcp": "pnpm --filter @recall/mcp start",
+    "mcp": "pnpm --filter @k01/mcp start",
     "check:deployment": "node --conditions=development --import tsx scripts/check-deployment.ts",
     "preflight": "node --conditions=development --import tsx scripts/preflight.ts",
     "register:name": "node --conditions=development --import tsx scripts/register-name.ts",
-    "memory": "pnpm --filter @recall/cli start --",
-    "build:mcp": "pnpm --filter @recall/mcp build",
-    "build:cli": "pnpm --filter @recall/cli build",
+    "memory": "pnpm --filter @k01/cli start --",
+    "build:mcp": "pnpm --filter @k01/mcp build",
+    "build:cli": "pnpm --filter @k01/cli build",
     "demo:connect": "node --conditions=development --import tsx scripts/demo-connect.ts",
-    "connect": "pnpm --filter @recall/connect start",
-    "build:connect": "pnpm --filter @recall/connect build",
+    "connect": "pnpm --filter @k01/connect start",
+    "build:connect": "pnpm --filter @k01/connect build",
     "demo:connect:publish": "node --conditions=development --import tsx scripts/demo-connect.ts --publish",
     "check:layering": "node --conditions=development --import tsx scripts/check-layering.ts",
     "build:engine": "pnpm --filter \"./engine/**\" build",
@@ -34,7 +34,9 @@
     "reset:local": "node --conditions=development --import tsx scripts/reset-local.ts",
     "docs:pdf": "python3 scripts/md2html.py docs/PRD.md /tmp/prd.html && \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=docs/PRD.pdf /tmp/prd.html",
     "agent-b": "pnpm --filter agent-b start",
-    "agent-b:read": "pnpm --filter agent-b read"
+    "agent-b:read": "pnpm --filter agent-b read",
+    "release:check": "pnpm --filter './engine/*' --filter '!@k01/contracts' build && pnpm -r --filter './engine/*' --filter '!@k01/contracts' publish --dry-run --no-git-checks --access public",
+    "release": "pnpm --filter './engine/*' --filter '!@k01/contracts' build && pnpm -r --filter './engine/*' --filter '!@k01/contracts' publish --access public"
   },
   "devDependencies": {
     "@types/node": "^22.13.1",
@@ -44,8 +46,8 @@
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@recall/core": "workspace:*",
-    "@recall/storage": "workspace:*",
+    "@k01/core": "workspace:*",
+    "@k01/storage": "workspace:*",
     "dotenv": "^16.4.7",
     "viem": "^2.23.2"
   }

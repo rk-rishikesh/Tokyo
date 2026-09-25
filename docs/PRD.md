@@ -200,7 +200,7 @@ had the agent acting unasked.
 
 4. **Persistence.** Repositories, grants, activity and tokens are JSON files in
    `~/.recall`. Needs a database behind the existing `RepoStore` interface.
-5. **Publish the engine.** Five packages build, have READMEs, and `@recall` is
+5. **Publish the engine.** Five packages build, have READMEs, and `@k01` is
    free on npm. `npm publish` is the remaining step.
 
 **Smaller:** `TOOLS` in `chrome.ts` is still 8 host patterns; `TOPIC_RULES`

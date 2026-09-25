@@ -16,7 +16,7 @@ import {
   type Action, type Commit, type Finding, type Knowledge, type MergeResult, type NewKnowledge, type ObserveOptions,
   type Observation, type Policy, type Proposal, type ProposalBundle, type Provenance, type Refs, type Resolution, type Review, type Role,
   type Snapshot, type SnapshotDiff, type SourceConnection, type SourceKind,
-} from '@recall/core'
+} from '@k01/core'
 import { RepoStore, repoPath, type InitOptions } from './store.js'
 
 export type Status = {

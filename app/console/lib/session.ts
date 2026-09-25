@@ -13,7 +13,7 @@
  * just the sign-in button.
  */
 import { cookies } from 'next/headers'
-import { configuredProviders, connectOwner, readUser, SESSION_COOKIE, verifySession, type User } from '@recall/connect'
+import { configuredProviders, connectOwner, readUser, SESSION_COOKIE, verifySession, type User } from '@k01/connect'
 
 export type Viewer =
   | { mode: 'hosted'; user: User | null; providers: string[] }

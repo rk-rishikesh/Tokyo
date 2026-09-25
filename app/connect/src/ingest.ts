@@ -10,8 +10,8 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { generateContentKey, type Source } from '@recall/core'
-import { Repository, RepoStore, repoPath } from '@recall/repo'
+import { generateContentKey, type Source } from '@k01/core'
+import { Repository, RepoStore, repoPath } from '@k01/repo'
 import { isKnowledge, route, type ConnectorEvent } from './routing.js'
 
 export type Outcome =

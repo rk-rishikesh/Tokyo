@@ -1,5 +1,5 @@
 import { SOURCE_GLYPH } from '@/lib/glyphs'
-import { WORKSPACES } from '@recall/connect/workspaces'
+import { WORKSPACES } from '@k01/connect/workspaces'
 
 /**
  * The hero visual: sources orbiting a namespace, with a claim arriving.

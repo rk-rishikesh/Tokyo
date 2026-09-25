@@ -1,4 +1,4 @@
-# @recall/mcp
+# @k01/mcp
 
 Agent access to knowledge namespaces over the Model Context Protocol.
 
@@ -8,7 +8,7 @@ land, diff, revert. There is nothing here that books, sends or replies, and that
 is a property of the design rather than a feature not yet written.
 
 ```bash
-npm i @recall/mcp
+npm i @k01/mcp
 ```
 
 ## Running it
@@ -19,7 +19,7 @@ npm i @recall/mcp
   "mcpServers": {
     "knowledge": {
       "command": "npx",
-      "args": ["-y", "@recall/mcp"],
+      "args": ["-y", "@k01/mcp"],
       "env": { "RECALL_CACHE_DIR": "~/.recall" }
     }
   }
@@ -43,7 +43,7 @@ the server does not hold one by default.
 
 ## Related
 
-- [`@recall/repo`](../repo) — the operations these tools expose
-- [`@recall/cli`](../cli) — the same operations for a person
+- [`@k01/repo`](../repo) — the operations these tools expose
+- [`@k01/cli`](../cli) — the same operations for a person
 
 MIT

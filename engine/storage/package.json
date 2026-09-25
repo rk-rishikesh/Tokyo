@@ -1,5 +1,5 @@
 {
-  "name": "@recall/storage",
+  "name": "@k01/storage",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -27,7 +27,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@recall/core": "workspace:*",
+    "@k01/core": "workspace:*",
     "viem": "^2.23.2",
     "@ensdomains/content-hash": "^3.1.1",
     "@noble/hashes": "^1.7.1",
@@ -37,7 +37,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rk-rishikesh/knowledge-network.git",
+    "url": "git+https://github.com/rk-rishikesh/Tokyo.git",
     "directory": "engine/storage"
   },
   "keywords": [
@@ -53,7 +53,9 @@
   "files": [
     "dist",
     "abis",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
-  "types": "./dist/index.d.ts"
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/rk-rishikesh/Tokyo#readme"
 }

@@ -9,8 +9,8 @@
  * Built from the owner's namespaces on this machine, decrypted — which is the
  * point of a download. It is only ever served to the signed-in owner.
  */
-import { namespacesOf, pendingOf } from '@recall/connect'
-import { Repository } from '@recall/repo'
+import { namespacesOf, pendingOf } from '@k01/connect'
+import { Repository } from '@k01/repo'
 import { ownerOf, viewer } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'

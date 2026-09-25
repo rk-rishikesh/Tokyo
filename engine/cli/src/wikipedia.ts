@@ -7,8 +7,8 @@
  * runs through the same automated review, and is attributed to the connected
  * source's contributor identity so readers can see "Source: Wikipedia".
  */
-import type { Knowledge, Proposal, Source } from '@recall/core'
-import type { Repository } from '@recall/repo'
+import type { Knowledge, Proposal, Source } from '@k01/core'
+import type { Repository } from '@k01/repo'
 
 type Summary = { title: string; extract: string; content_urls?: { desktop?: { page?: string } }; description?: string }
 

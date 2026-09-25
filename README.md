@@ -135,11 +135,11 @@ verified by hash — and reviews it like any other.
 knowledge init worldhistory.eth && knowledge pull   # no key, no wallet
 knowledge search "partition" && knowledge why <id>  # sources · contributor · reviewers · version
 
-claude mcp add knowledge -e KNOWLEDGE_AGENT=my-agent.eth -- node ./engine/mcp/dist/knowledge-mcp.mjs
+claude mcp add knowledge -e KNOWLEDGE_AGENT=my-agent.eth -- npx -y @k01/mcp
 ```
 
 ```ts
-import { Namespace } from '@recall/repo'
+import { Namespace } from '@k01/repo'
 const history = Namespace.for('worldhistory.eth')
 history.search('Indian independence')                       // Hit[] with sources, reviewers, confidence
 history.contribute({ title: 'Republic Day', items: [{ subject: 'Republic of India', claim: '…', topic: 'republic', sources: [{ type: 'document', title: 'Constitution of India' }] }] })  // → proposal
@@ -186,7 +186,7 @@ worse than a missing one: on a real 90-day history it produced 4 claims, not 13.
 `tools.recalltest.eth` (v3) and `projects.recalltest.eth` (v1), read back on a fresh machine with
 only the name and a key.
 
-**Connected apps (`@recall/connect`).** A local service your apps post to, so the demo everyone
+**Connected apps (`@k01/connect`).** A local service your apps post to, so the demo everyone
 asks for — "I connect my apps and they write into my memory" — actually runs: `pnpm demo:connect`.
 Slack is a real connector (`/knowledge` command or a 📌 reaction; channel traffic is never read) and
 Claude Code writes through MCP; Gmail, Linear and Notion are scripted for the demo and labelled as
@@ -223,7 +223,7 @@ no demo present; `app/` is the demo built on it. `pnpm check:layering` fails if
 that arrow ever points the other way.
 
 ```
-engine/                 the protocol — published to npm as @recall/*
+engine/                 the protocol — published to npm as @k01/*
   core/                 objects (Knowledge, Commit, Refs, Policy, Proposal) · merge · diff · revert
                         why (provenance across merges) · search · observe · review (automated findings)
                         contracts, resolve, roles, crypto — ENSv2 reads, EAC roles, AES-GCM/ECIES

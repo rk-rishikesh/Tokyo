@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generatePrivateKey } from 'viem/accounts'
-import { publicKeyFromPrivate, generateContentKey } from '@recall/core'
+import { publicKeyFromPrivate, generateContentKey } from '@k01/core'
 import { MemoryAdapter } from '../src/memory.js'
 import { StorageError } from '../src/types.js'
 

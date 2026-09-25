@@ -5,7 +5,7 @@
  * reader's business and happens wherever the reader's key is: for the owner's
  * recovery, in their own browser.
  */
-import { networkObject } from '@recall/connect'
+import { networkObject } from '@k01/connect'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ cid: string }> }) {
   const { cid } = await params

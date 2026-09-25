@@ -19,13 +19,13 @@ import {
   INTERFACE_IDS,
   SEPOLIA_CHAIN_ID,
   UNIVERSAL_RESOLVER,
-} from '@recall/core'
+} from '@k01/core'
 import {
   findResolver,
   getEthRegistry,
   getRootRegistry,
   getText,
-} from '@recall/core'
+} from '@k01/core'
 
 const RPC = process.env.SEPOLIA_RPC_URL ?? 'https://ethereum-sepolia-rpc.publicnode.com'
 

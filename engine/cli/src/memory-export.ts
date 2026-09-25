@@ -19,8 +19,8 @@
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, join } from 'node:path'
-import type { Knowledge, Proposal, Source, SourceKind } from '@recall/core'
-import type { Repository } from '@recall/repo'
+import type { Knowledge, Proposal, Source, SourceKind } from '@k01/core'
+import type { Repository } from '@k01/repo'
 
 export type Vendor = { id: string; name: string; kind: SourceKind }
 

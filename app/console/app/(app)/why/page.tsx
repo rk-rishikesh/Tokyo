@@ -1,5 +1,5 @@
-import { POLICY, WORKSPACES, CONFIDENCE, workspacesFor } from '@recall/connect'
-import { readActivity } from '@recall/connect'
+import { POLICY, WORKSPACES, CONFIDENCE, workspacesFor } from '@k01/connect'
+import { readActivity } from '@k01/connect'
 import { viewer } from '@/lib/session'
 import { PageHeader } from '@/components/ui'
 import { SectionHeading } from '@/components/ui'

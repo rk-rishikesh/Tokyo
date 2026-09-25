@@ -1,31 +1,23 @@
 {
-  "name": "@recall/mcp",
-  "version": "0.2.0",
+  "name": "@k01/mcp",
+  "version": "0.3.0",
   "type": "module",
   "bin": {
+    "k01-mcp": "./dist/knowledge-mcp.mjs",
     "knowledge-mcp": "./dist/knowledge-mcp.mjs"
   },
-  "main": "./dist/index.js",
   "scripts": {
     "start": "node --conditions=development --import tsx src/index.ts",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "node build.mjs",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm build"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0",
-    "@recall/core": "workspace:*",
-    "@recall/repo": "workspace:*",
-    "@recall/storage": "workspace:*",
-    "viem": "^2.23.2",
-    "zod": "^3.24.1"
   },
   "description": "Model Context Protocol server giving agents access to knowledge namespaces",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rk-rishikesh/knowledge-network.git",
+    "url": "git+https://github.com/rk-rishikesh/Tokyo.git",
     "directory": "engine/mcp"
   },
   "keywords": [
@@ -40,9 +32,20 @@
   },
   "files": [
     "dist",
-    "abis",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
-  "exports": {},
-  "types": "./dist/index.d.ts"
+  "devDependencies": {
+    "@k01/core": "workspace:*",
+    "@k01/repo": "workspace:*",
+    "@k01/storage": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "viem": "^2.23.2",
+    "zod": "^3.24.1"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "mcpName": "io.github.rk-rishikesh/k01",
+  "homepage": "https://github.com/rk-rishikesh/Tokyo#readme"
 }

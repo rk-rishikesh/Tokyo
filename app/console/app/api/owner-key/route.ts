@@ -7,7 +7,7 @@
  * person who can sign the message again.
  */
 import { NextResponse } from 'next/server'
-import { protectWithOwnerKey, writeOwnerKey } from '@recall/connect'
+import { protectWithOwnerKey, writeOwnerKey } from '@k01/connect'
 import { ownerOf, viewer } from '@/lib/session'
 
 export async function POST(req: Request) {

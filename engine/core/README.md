@@ -1,4 +1,4 @@
-# @recall/core
+# @k01/core
 
 Knowledge objects, merge rules, review and roles for an ENS-native knowledge
 network.
@@ -9,7 +9,7 @@ it. This package defines what a claim is and how two of them combine. It has no
 storage, no network and no opinion about where claims live.
 
 ```bash
-npm i @recall/core
+npm i @k01/core
 ```
 
 ## Claims merge; they do not overwrite
@@ -18,7 +18,7 @@ Two people stating the same thing independently is evidence, not a conflict. So
 a merge keeps both sources and raises confidence rather than picking a winner.
 
 ```ts
-import { combineConfidence, mergeClaim, newKnowledge } from '@recall/core'
+import { combineConfidence, mergeClaim, newKnowledge } from '@k01/core'
 
 const fromAlice = newKnowledge({
   claim: 'Uses pnpm',
@@ -73,7 +73,7 @@ before landing it: duplicates, contradictions, supersessions, claims with no
 sources, low confidence, unsupported edits and removals. Some findings block.
 
 ```ts
-import { blockingFindings, reviewChanges } from '@recall/core'
+import { blockingFindings, reviewChanges } from '@k01/core'
 
 const findings = reviewChanges(before, after)
 if (blockingFindings(findings).length) {
@@ -93,7 +93,7 @@ commits publish. Personal namespaces auto-land, because asking yourself for
 approval is theatre.
 
 ```ts
-import { normalisePolicy, POLICY_DEFAULTS, rolesOf } from '@recall/core'
+import { normalisePolicy, POLICY_DEFAULTS, rolesOf } from '@k01/core'
 
 rolesOf(policy, 'alice.eth') // ['contributor', 'reviewer']
 ```
@@ -106,8 +106,8 @@ rolesOf(policy, 'alice.eth') // ['contributor', 'reviewer']
 
 ## Related
 
-- [`@recall/repo`](../repo) — commits, branches and the review workflow
-- [`@recall/storage`](../storage) — IPFS and contenthash encoding
-- [`@recall/mcp`](../mcp) — agent access over the Model Context Protocol
+- [`@k01/repo`](../repo) — commits, branches and the review workflow
+- [`@k01/storage`](../storage) — IPFS and contenthash encoding
+- [`@k01/mcp`](../mcp) — agent access over the Model Context Protocol
 
 MIT

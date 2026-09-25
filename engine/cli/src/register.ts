@@ -23,7 +23,7 @@ import { sepolia } from 'viem/chains'
 import {
   abis, addresses, RegistryRoles, RegistryRolesAdmin, ResolverRoles, ResolverRolesAdmin, STABLECOIN_DECIMALS,
   combineRoles, findOwner, findResolver, getEthRegistry, getSubregistry, keccakLabel, splitName,
-} from '@recall/core'
+} from '@k01/core'
 
 export type RegisterLog = (msg: string) => void
 export type Registered = { resolver: Address; registry: Address; alreadyRegistered: boolean }

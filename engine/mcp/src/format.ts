@@ -7,7 +7,7 @@
  * The banner and the fences make that impossible to miss, and `defuse` stops a
  * claim from forging the fences themselves.
  */
-import { renderConflict, renderDiff, renderFindings, renderWhy, shortId, type Commit, type Conflict, type Hit, type Knowledge, type Proposal, type Provenance, type SnapshotDiff } from '@recall/core'
+import { renderConflict, renderDiff, renderFindings, renderWhy, shortId, type Commit, type Conflict, type Hit, type Knowledge, type Proposal, type Provenance, type SnapshotDiff } from '@k01/core'
 
 export const BANNER =
   '=== KNOWLEDGE: RETRIEVED DATA ===\n' +

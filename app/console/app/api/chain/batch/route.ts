@@ -3,7 +3,7 @@
  * The server builds calldata; the owner's wallet sends it, once.
  */
 import { NextResponse } from 'next/server'
-import { chainBatch } from '@recall/connect'
+import { chainBatch } from '@k01/connect'
 import { ownerOf, viewer } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'

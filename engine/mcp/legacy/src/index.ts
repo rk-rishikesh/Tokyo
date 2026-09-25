@@ -32,8 +32,8 @@ import {
   withEntry,
   type Entry,
   type Collection,
-} from '@recall/core'
-import { createStorage } from '@recall/storage'
+} from '@k01/core'
+import { createStorage } from '@k01/storage'
 import { createRetrieval, WHOLE_COLLECTION_BUDGET_BYTES } from './retrieval.js'
 import { Cache } from './cache.js'
 import { RevocationReader } from './revocation.js'

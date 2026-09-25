@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import type { Knowledge, Provenance as P } from '@recall/core'
-import { sourceKind } from '@recall/core'
+import type { Knowledge, Provenance as P } from '@k01/core'
+import { sourceKind } from '@k01/core'
 import { Badge, Mono } from './ui'
 
 const GLYPH: Record<string, string> = { human: '👤', document: '📄', api: '⚡', agent: '🤖', application: '🧩' }

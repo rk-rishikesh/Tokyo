@@ -8,7 +8,7 @@
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return
-  const { configReport } = await import('@recall/connect/config')
+  const { configReport } = await import('@k01/connect/config')
   const report = configReport()
   if (!report) return
 

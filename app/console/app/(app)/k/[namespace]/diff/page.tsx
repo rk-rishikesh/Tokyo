@@ -1,6 +1,6 @@
 import { Card, Mono } from '@/components/ui'
 import { DiffView } from '@/components/DiffView'
-import { diffSnapshots } from '@recall/core'
+import { diffSnapshots } from '@k01/core'
 import { defaultBranch, logOf, resolveVersion } from '@/lib/repoview'
 import { NamespaceHeader, load, type Params, type Query } from '../_shared'
 

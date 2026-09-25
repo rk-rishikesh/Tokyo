@@ -17,8 +17,8 @@ import {
   serialiseCollection,
   validateCollection,
   type Collection,
-} from '@recall/core'
-import { createStorage } from '@recall/storage'
+} from '@k01/core'
+import { createStorage } from '@k01/storage'
 import { seedSkills } from './seed/skills.js'
 import { DESCRIPTION, README, TITLE } from './seed/about.js'
 

@@ -16,7 +16,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 const root = new URL('..', import.meta.url).pathname
-const APP_PACKAGES = new Set(readdirSync(join(root, 'app')).map((d) => `@recall/${d}`))
+const APP_PACKAGES = new Set(readdirSync(join(root, 'app')).map((d) => `@k01/${d}`))
 
 const sourceFiles = (dir: string): string[] => {
   const out: string[] = []

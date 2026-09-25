@@ -15,8 +15,8 @@
 import {
   decodeObject, publicKeyFromPrivate, unwrapKey, validateCommit,
   type Commit, type Knowledge, type Refs,
-} from '@recall/core'
-import type { Identity } from '@recall/storage'
+} from '@k01/core'
+import type { Identity } from '@k01/storage'
 import type { Hex } from 'viem'
 import { grantId, readManifest, type AccessGrant, type AccessManifest } from './access.js'
 import type { Network } from './network.js'

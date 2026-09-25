@@ -19,7 +19,7 @@
  * and the subscriber's agent reports it as third-party data instead of acting
  * on it. That only works if attribution is impossible to miss.
  */
-import type { Entry, IndexedEntry, SearchHit } from '@recall/core'
+import type { Entry, IndexedEntry, SearchHit } from '@k01/core'
 
 export const BANNER =
   '=== RECALL: RETRIEVED REFERENCE DATA ===\n' +

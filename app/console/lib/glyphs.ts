@@ -5,7 +5,7 @@
  * the only reason nobody noticed — the provider label maps beside them had
  * already drifted, with Google rendered as 🅖 in one place and 🔴 in another.
  */
-import type { SourceKind } from '@recall/core'
+import type { SourceKind } from '@k01/core'
 
 export const SOURCE_GLYPH: Record<SourceKind, string> = {
   human: '👤',

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.rk-rishikesh/k01",
+  "title": "k01 knowledge network",
+  "description": "Read and contribute to ENS-owned, versioned knowledge namespaces: claims with sources, reviewers and history.",
+  "repository": { "url": "https://github.com/rk-rishikesh/Tokyo", "source": "github", "subfolder": "engine/mcp" },
+  "version": "0.3.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@k01/mcp",
+      "version": "0.3.0",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "KNOWLEDGE_NAMESPACE", "description": "The namespace to read by default, e.g. worldhistory.eth", "isRequired": false },
+        { "name": "KNOWLEDGE_AGENT", "description": "The identity this agent contributes as, e.g. my-agent.eth", "isRequired": false },
+        { "name": "SEPOLIA_RPC_URL", "description": "Ethereum Sepolia RPC used to resolve ENS names (a public default is used if unset)", "isRequired": false },
+        { "name": "PINATA_GATEWAY", "description": "IPFS gateway used to fetch namespace versions", "isRequired": false }
+      ]
+    }
+  ]
+}

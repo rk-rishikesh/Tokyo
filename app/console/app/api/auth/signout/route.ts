@@ -7,7 +7,7 @@
  */
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { SESSION_COOKIE } from '@recall/connect'
+import { SESSION_COOKIE } from '@k01/connect'
 
 export async function POST(req: Request) {
   const jar = await cookies()

@@ -14,7 +14,7 @@ import {
   rekey,
   unwrapKey,
   wrapKey,
-} from '@recall/core'
+} from '@k01/core'
 import type { Hex } from 'viem'
 import {
   CODECS,

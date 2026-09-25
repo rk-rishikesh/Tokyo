@@ -15,7 +15,7 @@
 import 'dotenv/config'
 import { createPublicClient, http, toFunctionSelector, type Abi } from 'viem'
 import { sepolia } from 'viem/chains'
-import { abis, addresses, dnsEncode, UNIVERSAL_RESOLVER } from '@recall/core'
+import { abis, addresses, dnsEncode, UNIVERSAL_RESOLVER } from '@k01/core'
 
 const RPC = process.env.SEPOLIA_RPC_URL ?? 'https://ethereum-sepolia-rpc.publicnode.com'
 

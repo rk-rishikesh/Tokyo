@@ -23,9 +23,9 @@ export default function ForAgents() {
             <AgentFetch />
           </div>
         </Section>
-        <Section title="Attach it" intro="No npm publish, no hosting: a single bundled file the client spawns.">
+        <Section title="Attach it" intro="One npm package, run locally by your agent host. No hosting, no account.">
           <Steps steps={[
-            { title: 'Add the server to your agent host', body: <>Claude Code shown; any MCP client takes the same command + env.</>, code: `claude mcp add knowledge -e KNOWLEDGE_AGENT=my-agent.eth \\\n  -- node /path/to/engine/mcp/dist/knowledge-mcp.mjs` },
+            { title: 'Add the server to your agent host', body: <>Claude Code shown; any MCP client takes the same command + env.</>, code: `claude mcp add knowledge -e KNOWLEDGE_AGENT=my-agent.eth \\\n  -- npx -y @k01/mcp` },
             { title: 'Resolve, then search', body: <>Start with <code>knowledge_resolve</code> to learn version, policy and roles; then search. Public namespaces need no key.</>, code: `knowledge_resolve({ namespace: "worldhistory.eth" })\nknowledge_search({ namespace: "worldhistory.eth", query: "Indian independence" })\nknowledge_sources({ namespace: "worldhistory.eth", id: "k_9d57e7d6ef72" })` },
             { title: 'Compose namespaces', body: <>Personal + shared + domain in one answer — the agent decides which names to consult.</>, code: `knowledge_search({ namespace: "rishikesh.eth",   query: "food preferences" })\nknowledge_search({ namespace: "japan.travel.user.eth", query: "Tokyo neighbourhoods" })\nknowledge_search({ namespace: "tokyo.food.eth",   query: "vegetarian" })` },
             { title: 'Contribute back', body: <>An agent is a source. Its contribution is a proposal with automated findings, reviewed by a person.</>, code: `knowledge_propose({ namespace: "tokyo.food.eth", title: "Add Saido",\n  items: [{ subject: "Saido", claim: "Saido in Jiyugaoka is a vegan izakaya", topic: "restaurants",\n            sources: [{ kind: "agent", type: "inference", name: "my-agent.eth", excerpt: "…" }] }] })` },

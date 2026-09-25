@@ -4,7 +4,7 @@
  * Reads go through the Universal Resolver. Writes need the resolver address
  * (discovered by walking the name) and a wallet holding ROLE_SET_CONTENTHASH.
  */
-import { abis, findResolver, getContenthash } from '@recall/core'
+import { abis, findResolver, getContenthash } from '@k01/core'
 import { namehash, type Address, type Hex, type PublicClient, type WalletClient } from 'viem'
 import type { Pointer } from './remote.js'
 

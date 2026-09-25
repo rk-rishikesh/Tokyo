@@ -1,6 +1,6 @@
-import type { WorkspaceDef } from '@recall/connect/workspaces'
+import type { WorkspaceDef } from '@k01/connect/workspaces'
 import { Monogram } from '@/components/Monogram'
-import { localSources } from '@recall/connect/workspaces'
+import { localSources } from '@k01/connect/workspaces'
 import { Onboarding } from './Onboarding'
 
 /**

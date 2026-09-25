@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { ActivityEntry } from '@recall/connect'
+import type { ActivityEntry } from '@k01/connect'
 import { Nothing } from '@/components/ui'
 
 /**

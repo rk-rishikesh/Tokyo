@@ -77,7 +77,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
       },
       {
         q: 'Do I need to publish the MCP server to npm?',
-        a: <p>No. It is a single bundled file that a client spawns locally over stdio: <code>claude mcp add knowledge -- node …/engine/mcp/dist/knowledge-mcp.mjs</code>. Search works offline against the local repositories; only pull and push touch the network.</p>,
+        a: <p>No. It is a single bundled file that a client spawns locally over stdio: <code>claude mcp add knowledge -- npx -y @k01/mcp</code>. Search works offline against the local repositories; only pull and push touch the network.</p>,
       },
       {
         q: 'Why worldhistory.eth and not history.eth?',

@@ -9,7 +9,7 @@
  *   - `api-client-patterns` is the one whose proposal widens the manifest (F4);
  *     see `WIDENED_API_CLIENT` at the bottom.
  */
-import { EMPTY_MANIFEST, type Entry, type Manifest } from '@recall/core'
+import { EMPTY_MANIFEST, type Entry, type Manifest } from '@k01/core'
 
 const A = '0x1111111111111111111111111111111111111111' as const
 const B = '0x2222222222222222222222222222222222222222' as const

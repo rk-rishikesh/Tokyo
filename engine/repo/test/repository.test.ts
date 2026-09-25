@@ -3,8 +3,8 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { Hex } from 'viem'
-import { MemoryAdapter } from '@recall/storage'
-import { generateContentKey, renderConflict, renderWhy, shortId } from '@recall/core'
+import { MemoryAdapter } from '@k01/storage'
+import { generateContentKey, renderConflict, renderWhy, shortId } from '@k01/core'
 import { Remote, Repository, RepoStore, type Pointer } from '../src/index.js'
 
 /** A pointer that lives in a variable — the chain, without the chain. */

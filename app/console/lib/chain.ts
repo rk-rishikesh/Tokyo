@@ -1,7 +1,7 @@
 /**
  * Server-side chain reads for the console.
  *
- * Everything here goes through `@recall/core`, so the console never assembles
+ * Everything here goes through `@k01/core`, so the console never assembles
  * its own contract calls and inherits the vendored-ABI guarantee.
  */
 import { createPublicClient, http, type PublicClient } from 'viem'

@@ -7,7 +7,7 @@
  * than as a failed transaction.
  */
 import { NextResponse } from 'next/server'
-import { nextChainStep } from '@recall/connect'
+import { nextChainStep } from '@k01/connect'
 import { ownerOf, viewer } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'

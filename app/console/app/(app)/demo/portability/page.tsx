@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { sourceKind, type Knowledge } from '@recall/core'
+import { sourceKind, type Knowledge } from '@k01/core'
 import { SOURCE_GLYPH } from '@/lib/glyphs'
 import { Badge, Card, Empty, PageHeader } from '@/components/ui'
 import { defaultBranch, knownNamespaces, loadRepo, logOf, snapshotOf, versionOf, type RepoView } from '@/lib/repoview'

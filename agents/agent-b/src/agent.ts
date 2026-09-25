@@ -8,13 +8,13 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { publicKeyFromPrivate } from '@recall/core'
+import { publicKeyFromPrivate } from '@k01/core'
 import { config } from 'dotenv'
 import {
   AccessDenied, NotPublished, ensNetwork, localNetwork, localNetworkDir, resolveNamespace,
   type Network, type ResolvedNamespace,
-} from '@recall/repo'
-import { createStorage } from '@recall/storage'
+} from '@k01/repo'
+import { createStorage } from '@k01/storage'
 import { createPublicClient, http, type Hex, type PublicClient } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import { sepolia } from 'viem/chains'

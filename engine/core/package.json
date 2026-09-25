@@ -1,5 +1,5 @@
 {
-  "name": "@recall/core",
+  "name": "@k01/core",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -54,7 +54,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rk-rishikesh/knowledge-network.git",
+    "url": "git+https://github.com/rk-rishikesh/Tokyo.git",
     "directory": "engine/core"
   },
   "keywords": [
@@ -70,7 +70,9 @@
   "files": [
     "dist",
     "abis",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
-  "types": "./dist/index.d.ts"
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/rk-rishikesh/Tokyo#readme"
 }

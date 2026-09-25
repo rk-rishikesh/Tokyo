@@ -23,7 +23,7 @@ import {
   withEntry,
   type Entry,
   type Collection,
-} from '@recall/core'
+} from '@k01/core'
 import { MemoryAdapter } from '../src/memory.js'
 
 const PUBLISHER = '0x1111111111111111111111111111111111111111' as const

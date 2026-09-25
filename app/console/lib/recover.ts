@@ -12,7 +12,7 @@
  */
 import { decrypt as eciesDecrypt } from 'eciesjs'
 import { hexToBytes, type Hex } from 'viem'
-import { OWNER_KEY_MESSAGE, ownerKeyFromSignature } from '@recall/repo/owner-key'
+import { OWNER_KEY_MESSAGE, ownerKeyFromSignature } from '@k01/repo/owner-key'
 
 type Eth = { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> }
 export const injected = (): Eth | null =>

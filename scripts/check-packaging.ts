@@ -86,8 +86,8 @@ const clientFiles = (dir: string): string[] => {
 for (const file of clientFiles(join(root, 'app/console'))) {
   const src = readFileSync(file, 'utf8')
   if (!/^['"]use client['"]/m.test(src)) continue
-  if (/from ['"]@recall\/connect['"]/.test(src)) {
-    problems.push(`${file.replace(root, '')} is a client component importing the @recall/connect root — use a subpath such as @recall/connect/workspaces`)
+  if (/from ['"]@k01\/connect['"]/.test(src)) {
+    problems.push(`${file.replace(root, '')} is a client component importing the @k01/connect root — use a subpath such as @k01/connect/workspaces`)
   }
 }
 

@@ -1,6 +1,6 @@
 /** Wait for a transaction the owner sent from their own wallet. */
 import { NextResponse } from 'next/server'
-import { waitForTx } from '@recall/connect'
+import { waitForTx } from '@k01/connect'
 
 export const dynamic = 'force-dynamic'
 

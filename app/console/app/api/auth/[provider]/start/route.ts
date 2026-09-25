@@ -7,7 +7,7 @@
  */
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { authorizeUrl, isPubliclyReachable, newState, newVerifier, providerConfig, registerClient, SESSION_COOKIE, verifySession, type Provider } from '@recall/connect'
+import { authorizeUrl, isPubliclyReachable, newState, newVerifier, providerConfig, registerClient, SESSION_COOKIE, verifySession, type Provider } from '@k01/connect'
 
 export async function GET(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   const { provider } = await params

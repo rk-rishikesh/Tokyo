@@ -7,7 +7,7 @@
  * needed to offer Granola is that this route is publicly reachable.
  */
 import { NextResponse } from 'next/server'
-import { APP_NAME, APP_URL, baseUrl, callbackUrl, clientMetadataUrl, SCOPES } from '@recall/connect'
+import { APP_NAME, APP_URL, baseUrl, callbackUrl, clientMetadataUrl, SCOPES } from '@k01/connect'
 
 export async function GET() {
   return NextResponse.json(

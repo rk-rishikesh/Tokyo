@@ -54,8 +54,8 @@ import {
   serialiseCollection,
   COLLECTION_RECORDS,
   type Collection,
-} from '@recall/core'
-import { createStorage } from '@recall/storage'
+} from '@k01/core'
+import { createStorage } from '@k01/storage'
 
 const { values } = parseArgs({
   options: {

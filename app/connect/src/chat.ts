@@ -19,8 +19,8 @@
  *   - A refusal to act is not a failure. If nothing is connected, or the only
  *     matching tool writes, saying so beats guessing.
  */
-import { Repository, RepoStore, repoPath } from '@recall/repo'
-import type { Knowledge } from '@recall/core'
+import { Repository, RepoStore, repoPath } from '@k01/repo'
+import type { Knowledge } from '@k01/core'
 import { llmConfig, RateLimited, walkModels, type LlmConfig } from './llm.js'
 import { TOPIC_IDS } from './topics.js'
 import { callTool, listTools, MCP_ENDPOINTS, type McpServer, type McpTool } from './mcp-client.js'

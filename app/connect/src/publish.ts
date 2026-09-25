@@ -15,9 +15,9 @@
 import { createPublicClient, createWalletClient, http, type Hex, type PublicClient, type WalletClient } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
-import { findOwner, normalisePrivateKey } from '@recall/core'
-import { EnsPointer, Remote, Repository } from '@recall/repo'
-import { createStorage } from '@recall/storage'
+import { findOwner, normalisePrivateKey } from '@k01/core'
+import { EnsPointer, Remote, Repository } from '@k01/repo'
+import { createStorage } from '@k01/storage'
 
 export type PublishResult =
   | { status: 'published'; namespace: string; version: number; contenthash: string; tx: string | null; commits: number }

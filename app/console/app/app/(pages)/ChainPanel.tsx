@@ -1,4 +1,4 @@
-import { chainStatus, pendingOf } from '@recall/connect'
+import { chainStatus, pendingOf } from '@k01/connect'
 import { PublishToChain } from './PublishToChain'
 
 /**

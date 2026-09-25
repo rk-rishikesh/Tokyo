@@ -1,7 +1,7 @@
 # Two products, one repository.
 #
 #   engine/  the knowledge network itself: objects, storage, repositories,
-#            the CLI and the MCP server. Published to npm as @recall/*, and
+#            the CLI and the MCP server. Published to npm as @k01/*, and
 #            usable without ever running the demo.
 #   app/     the demo product built on top of it: connectors that observe real
 #            sources, and the console that renders both.

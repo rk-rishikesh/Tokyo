@@ -6,7 +6,7 @@
  * without the matching private key can use.
  */
 import { NextResponse } from 'next/server'
-import { publicRecords } from '@recall/connect'
+import { publicRecords } from '@k01/connect'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ namespace: string }> }) {
   const { namespace } = await params

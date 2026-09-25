@@ -1,5 +1,5 @@
 {
-  "name": "@recall/console",
+  "name": "@k01/console",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,10 +11,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@recall/connect": "workspace:*",
-    "@recall/core": "workspace:*",
-    "@recall/repo": "workspace:*",
-    "@recall/storage": "workspace:*",
+    "@k01/connect": "workspace:*",
+    "@k01/core": "workspace:*",
+    "@k01/repo": "workspace:*",
+    "@k01/storage": "workspace:*",
     "@remotion/player": "^4.0.527",
     "eciesjs": "^0.4.13",
     "next": "^15.2.0",

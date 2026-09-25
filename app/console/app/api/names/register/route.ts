@@ -12,8 +12,8 @@
  */
 import { randomBytes } from 'node:crypto'
 import { NextResponse } from 'next/server'
-import { abis, addresses } from '@recall/core'
-import { client, statusOf } from '@recall/connect'
+import { abis, addresses } from '@k01/core'
+import { client, statusOf } from '@k01/connect'
 import { toHex, zeroAddress, zeroHash, type Hex } from 'viem'
 
 export const dynamic = 'force-dynamic'

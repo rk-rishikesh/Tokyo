@@ -1,5 +1,5 @@
 {
-  "name": "@recall/repo",
+  "name": "@k01/repo",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,15 +22,15 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@recall/core": "workspace:*",
-    "@recall/storage": "workspace:*",
+    "@k01/core": "workspace:*",
+    "@k01/storage": "workspace:*",
     "viem": "^2.23.2"
   },
   "description": "Versioned knowledge repositories: commits, branches, proposals and the review workflow",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rk-rishikesh/knowledge-network.git",
+    "url": "git+https://github.com/rk-rishikesh/Tokyo.git",
     "directory": "engine/repo"
   },
   "keywords": [
@@ -46,7 +46,9 @@
   "files": [
     "dist",
     "abis",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
-  "types": "./dist/index.d.ts"
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/rk-rishikesh/Tokyo#readme"
 }

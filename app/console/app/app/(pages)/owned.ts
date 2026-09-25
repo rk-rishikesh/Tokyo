@@ -2,9 +2,9 @@
  * The owner's namespaces, read from the working copies this app keeps, joined
  * with what the network holds for each. Server-only.
  */
-import { accessOf, namespacesOf, type NamespaceAccess } from '@recall/connect'
-import { Repository } from '@recall/repo'
-import type { Commit, Knowledge, Proposal } from '@recall/core'
+import { accessOf, namespacesOf, type NamespaceAccess } from '@k01/connect'
+import { Repository } from '@k01/repo'
+import type { Commit, Knowledge, Proposal } from '@k01/core'
 
 export type Owned = {
   access: NamespaceAccess

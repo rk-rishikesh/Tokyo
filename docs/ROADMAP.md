@@ -145,7 +145,7 @@ you" critique the comparison page makes, currently true of us.
 ## P7 — The engine ships as packages
 
 Builds already emit NodeNext ESM with declarations, `exports` has a
-`development` condition, and `@recall` is free on npm. Publishing is free.
+`development` condition, and `@k01` is free on npm. Publishing is free.
 
 **Steps**
 
@@ -153,11 +153,11 @@ Builds already emit NodeNext ESM with declarations, `exports` has a
    API. Written for someone who has not read our source.
 2. Freeze the surface. Anything exported we do not intend to support moves
    behind a subpath or out of `index.ts`.
-3. Publish `@recall/core`, `storage`, `repo`, `cli`, `mcp`.
+3. Publish `@k01/core`, `storage`, `repo`, `cli`, `mcp`.
 4. The app depends on published versions, so the boundary is enforced by the
    registry and not only by `check:layering`.
 
-**Done when** `npm i @recall/repo` in an empty directory runs the README
+**Done when** `npm i @k01/repo` in an empty directory runs the README
 example.
 
 ---

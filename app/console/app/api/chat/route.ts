@@ -6,7 +6,7 @@
  */
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { approve, ask, readUser, SESSION_COOKIE, verifySession, type ChatTurn, type PendingAction } from '@recall/connect'
+import { approve, ask, readUser, SESSION_COOKIE, verifySession, type ChatTurn, type PendingAction } from '@k01/connect'
 
 export async function POST(req: Request) {
   const jar = await cookies()

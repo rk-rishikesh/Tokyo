@@ -13,8 +13,8 @@
  * own name, and every write is a commit or a proposal the owner can see,
  * question, review and undo.
  */
-import type { Commit, Hit, Knowledge, NewKnowledge, ObserveOptions, Observation, Proposal, Provenance, Source } from '@recall/core'
-import { searchSnapshot } from '@recall/core'
+import type { Commit, Hit, Knowledge, NewKnowledge, ObserveOptions, Observation, Proposal, Provenance, Source } from '@k01/core'
+import { searchSnapshot } from '@k01/core'
 import { Repository } from './repository.js'
 import { RepoStore, repoPath } from './store.js'
 
