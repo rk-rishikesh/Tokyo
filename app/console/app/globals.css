@@ -1,0 +1,305 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * One palette for the whole product.
+ *
+ * The marketing routes and the app routes used to be separate builds with
+ * separate palettes — a warm off-white and a neutral white — which read as two
+ * products the moment you moved between them. The values below are the warm set;
+ * the second block of names exists so app routes did not have to be rewritten,
+ * and every pair points at the same colour.
+ */
+:root {
+  --font-display: var(--font-serif);
+  /* canonical */
+  --bg: 40 20% 98%;
+  --surface: 0 0% 100%;
+  --raised: 40 16% 96%;
+  --line: 36 12% 88%;
+  --ink: 30 10% 12%;
+  --dim: 32 6% 44%;
+  --accent: 22 88% 48%;
+  --accent-soft: 28 90% 96%;
+
+  /* aliases used by the app routes — same colours, older names */
+  --background: 40 20% 98%;
+  --foreground: 30 10% 12%;
+  --card: 0 0% 100%;
+  --muted: 40 16% 96%;
+  --muted-foreground: 32 6% 44%;
+  --border: 36 12% 88%;
+
+  /* diff and status */
+  --added: 142 71% 29%;
+  --added-bg: 141 60% 95%;
+  --removed: 0 72% 44%;
+  --removed-bg: 0 70% 96%;
+  --warn: 32 81% 35%;
+  --warn-bg: 40 90% 94%;
+
+  /* actors, used by the explainer diagram */
+  --owner: 258 70% 52%;
+  --member: 190 80% 36%;
+  --propose: 142 55% 34%;
+
+  /* flow canvas */
+  --canvas: 40 24% 97%;
+  --dot: 36 14% 84%;
+  --chip: 14 60% 94%;
+  --active-ring: 14 58% 56%;
+  --active-badge: 130 32% 32%;
+  --wire: 36 12% 80%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: 30 10% 7%;
+    --surface: 30 9% 10%;
+    --raised: 30 8% 14%;
+    --line: 30 8% 20%;
+    --ink: 40 18% 93%;
+    --dim: 36 8% 58%;
+    --accent: 26 92% 60%;
+    --accent-soft: 26 40% 15%;
+
+    --background: 30 10% 7%;
+    --foreground: 40 18% 93%;
+    --card: 30 9% 10%;
+    --muted: 30 8% 14%;
+    --muted-foreground: 36 8% 58%;
+    --border: 30 8% 20%;
+
+    --added: 142 60% 55%;
+    --added-bg: 143 40% 13%;
+    --removed: 0 75% 68%;
+    --removed-bg: 0 40% 15%;
+    --warn: 40 90% 62%;
+    --warn-bg: 40 45% 14%;
+
+    --owner: 258 80% 74%;
+    --member: 188 70% 56%;
+    --propose: 142 50% 58%;
+
+    --canvas: 30 10% 9%;
+    --dot: 30 8% 22%;
+    --chip: 14 30% 20%;
+    --active-ring: 14 62% 62%;
+    --active-badge: 130 38% 52%;
+    --wire: 30 8% 26%;
+  }
+}
+
+/*
+ * The protocol pages: monochrome. Black, white and greys, with opacity doing
+ * the work colour used to. Status colours collapse to greys too — an added line
+ * is ink, a removed one is faded — so nothing on these pages is coloured
+ * except by weight.
+ */
+.theme-mono {
+  --font-display: var(--font-grotesk);
+  --bg: 0 0% 100%;
+  --surface: 0 0% 100%;
+  --raised: 0 0% 95.5%;
+  --line: 0 0% 89%;
+  --ink: 0 0% 7%;
+  --dim: 0 0% 46%;
+  --accent: 0 0% 7%;
+  --accent-soft: 0 0% 95%;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 7%;
+  --card: 0 0% 100%;
+  --muted: 0 0% 95.5%;
+  --muted-foreground: 0 0% 46%;
+  --border: 0 0% 89%;
+  --added: 0 0% 7%;
+  --added-bg: 0 0% 93%;
+  --removed: 0 0% 52%;
+  --removed-bg: 0 0% 97%;
+  --warn: 0 0% 22%;
+  --warn-bg: 0 0% 92%;
+  --owner: 0 0% 7%;
+  --member: 0 0% 35%;
+  --propose: 0 0% 55%;
+  --canvas: 0 0% 98.5%;
+  --dot: 0 0% 84%;
+  --chip: 0 0% 94%;
+  --active-ring: 0 0% 7%;
+  --active-badge: 0 0% 7%;
+  --wire: 0 0% 78%;
+  font-feature-settings: 'ss01', 'cv11';
+}
+@media (prefers-color-scheme: dark) {
+  .theme-mono {
+    --bg: 0 0% 4%;
+    --surface: 0 0% 6.5%;
+    --raised: 0 0% 10%;
+    --line: 0 0% 17%;
+    --ink: 0 0% 96%;
+    --dim: 0 0% 58%;
+    --accent: 0 0% 96%;
+    --accent-soft: 0 0% 12%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 6.5%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 58%;
+    --border: 0 0% 17%;
+    --added: 0 0% 96%;
+    --added-bg: 0 0% 13%;
+    --removed: 0 0% 50%;
+    --removed-bg: 0 0% 8%;
+    --warn: 0 0% 82%;
+    --warn-bg: 0 0% 14%;
+    --owner: 0 0% 96%;
+    --member: 0 0% 70%;
+    --propose: 0 0% 50%;
+    --canvas: 0 0% 5.5%;
+    --dot: 0 0% 20%;
+    --chip: 0 0% 12%;
+    --active-ring: 0 0% 96%;
+    --active-badge: 0 0% 96%;
+    --wire: 0 0% 26%;
+  }
+}
+/* The hero keeps the serif it was designed in. */
+.theme-mono .kn-hero { --font-display: var(--font-serif); }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: hsl(var(--bg));
+  color: hsl(var(--ink));
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nodes and steps re-label in place when the vocabulary changes. */
+@keyframes relabel {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: none; }
+}
+.relabel { animation: relabel 220ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .relabel { animation: none; }
+}
+
+/* The flow canvas: a faint dot grid, so cards read as placed on a surface. */
+.canvas {
+  background-color: hsl(var(--canvas));
+  background-image: radial-gradient(circle, hsl(var(--dot)) 1px, transparent 1px);
+  background-size: 18px 18px;
+  background-position: -9px -9px;
+}
+
+/* The product loop: knowledge flowing sources → network → consumers. */
+@keyframes flow { to { stroke-dashoffset: -24; } }
+.flow { stroke-dasharray: 6 6; animation: flow 1.2s linear infinite; }
+@keyframes pulse-node { 0%, 100% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.35); } 50% { box-shadow: 0 0 0 8px hsl(var(--accent) / 0); } }
+.pulse { animation: pulse-node 2.4s ease-out infinite; }
+@keyframes drift { 0% { offset-distance: 0%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .flow, .pulse { animation: none; } }
+
+/* ---------------------------------------------------------------------------
+ * Landing motion.
+ *
+ * CSS and SVG only. The reference for this page was built with a video renderer
+ * in mind, which would mean either shipping an MP4 or bundling a renderer into
+ * the client — both heavier than the thing they animate, and neither able to
+ * respond to the palette or the viewport.
+ *
+ * Everything here respects prefers-reduced-motion, because a page that moves
+ * for someone who asked it not to is a page that has stopped listening.
+ * ------------------------------------------------------------------------- */
+
+@keyframes kn-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.kn-fade { animation: kn-fade-in 0.6s ease-out both; }
+
+@keyframes kn-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.kn-rise { animation: kn-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* A slow wash behind the hero, so the page is not static before anything loads. */
+@keyframes kn-drift { 0%, 100% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(2%, -2%, 0) scale(1.06); } }
+.kn-aurora { animation: kn-drift 18s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kn-fade, .kn-rise, .kn-aurora { animation: none; opacity: 1; transform: none; }
+  svg animateMotion { display: none; }
+}
+
+/* The eight-frame thesis on the landing page: each frame holds 4s of a 32s loop. */
+.kn-thesis-frame { position: absolute; inset: 0; opacity: 0; animation: kn-thesis 32s infinite both; }
+.kn-thesis-dot { animation: kn-thesis-dot 32s infinite both; }
+@keyframes kn-thesis { 0% { opacity: 0; transform: translateY(8px); } 1.5% { opacity: 1; transform: none; } 11% { opacity: 1; transform: none; } 12.5% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 0; } }
+@keyframes kn-thesis-dot { 0% { background: hsl(var(--ink)); } 12.4% { background: hsl(var(--ink)); } 12.5%, 100% { background: hsl(var(--line)); } }
+@media (prefers-reduced-motion: reduce) {
+  .kn-thesis-stage { display: grid; gap: 12px; min-height: 0; }
+  .kn-thesis-frame { position: static; opacity: 1; animation: none; }
+  .kn-thesis-dots { display: none; }
+}
+
+/*
+ * Shared app components, re-voiced for the protocol pages only. The explorer
+ * (/namespaces, /k, /me) uses the same PageHeader and Card as the demo product;
+ * inside .theme-mono they take the protocol's grammar instead.
+ */
+.theme-mono .kn-page-header { margin-bottom: 3rem; padding-top: 1.5rem; }
+.theme-mono .kn-page-title {
+  font-family: var(--font-grotesk), var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 5vw, 4.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+.theme-mono .kn-page-sub { margin-top: 1rem; max-width: 46rem; font-size: 15px; line-height: 1.6; }
+.theme-mono .kn-card { border-radius: 24px; }
+
+/* The selected step's wires carry a slow flow, so direction reads without arrows alone. */
+@keyframes kn-wire-flow { to { stroke-dashoffset: -24; } }
+.kn-wire-flow { animation: kn-wire-flow 1.1s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .kn-wire-flow { animation: none; } }
+
+/* Pipeline wires: a hairline with an arrowhead and a dot running along it. */
+.kn-pipe-h, .kn-pipe-v { background: hsl(var(--ink) / 0.35); }
+.kn-pipe-h::after {
+  content: ''; position: absolute; right: -1px; top: -3px;
+  border-left: 6px solid hsl(var(--ink) / 0.5); border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent;
+}
+.kn-pipe-h::before {
+  content: ''; position: absolute; top: -2.5px; left: 0; width: 6px; height: 6px; border-radius: 9999px;
+  background: hsl(var(--ink)); animation: kn-pipe-run 2.4s ease-in-out infinite;
+}
+@keyframes kn-pipe-run { 0% { transform: translateX(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(26px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .kn-pipe-h::before { animation: none; opacity: 0; } }
+
+/* The tree's wires: a dot dropping between tiers, and the merge arrow's dash drifting toward main. */
+@keyframes kn-tree-drop { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(40px); opacity: 0; } }
+.kn-tree-dot { animation: kn-tree-drop 2.2s ease-in-out infinite; }
+@keyframes kn-tree-merge { to { stroke-dashoffset: 18; } }
+.kn-tree-merge { animation: kn-tree-merge 1.2s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .kn-tree-dot, .kn-tree-merge { animation: none; } }
+
+/*
+ * The product's components, in the same grammar as the protocol pages: filled
+ * and outlined buttons become pills, boxed cards get the larger radius. Scoped
+ * to .theme-mono and written as class pairs, so they win over the single
+ * utility they replace without !important.
+ */
+.theme-mono button.rounded-md, .theme-mono button.rounded-lg, .theme-mono button.rounded-xl,
+.theme-mono a.rounded-md.bg-ink, .theme-mono a.rounded-lg.bg-ink, .theme-mono a.rounded-xl.bg-ink,
+.theme-mono a.rounded-md.border, .theme-mono a.rounded-lg.border, .theme-mono a.rounded-xl.border { border-radius: 9999px; }
+.theme-mono .rounded-xl.border, .theme-mono .rounded-2xl.border, .theme-mono .rounded-lg.border.bg-card { border-radius: 22px; }
+.theme-mono input.rounded-md, .theme-mono input.rounded-lg, .theme-mono input.rounded-xl,
+.theme-mono textarea.rounded-lg, .theme-mono textarea.rounded-xl { border-radius: 16px; }
+
+/* When a page fills the nav slot, its default link steps aside. */
+.kn-nav-slot:has(> .kn-agent-bar) > .kn-nav-default { display: none; }
+
+/* The agent's loader: three dots, brisk while reading, slow while it waits. */
+@keyframes kn-loader { 0%, 80%, 100% { opacity: 0.18; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+.kn-loader-dot { animation: kn-loader 0.9s ease-in-out infinite; }
+.kn-loader-idle { animation-duration: 2.4s; }
+@media (prefers-reduced-motion: reduce) { .kn-loader-dot { animation: none; opacity: 0.6; } }
