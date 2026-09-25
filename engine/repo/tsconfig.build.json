@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.publish.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "noEmit": false
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/legacy/**",
+    "test/**"
+  ]
+}

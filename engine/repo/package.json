@@ -1,0 +1,52 @@
+{
+  "name": "@recall/repo",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./owner-key": {
+      "development": "./src/owner-key.ts",
+      "types": "./dist/owner-key.d.ts",
+      "default": "./dist/owner-key.js"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@recall/core": "workspace:*",
+    "@recall/storage": "workspace:*",
+    "viem": "^2.23.2"
+  },
+  "description": "Versioned knowledge repositories: commits, branches, proposals and the review workflow",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rk-rishikesh/knowledge-network.git",
+    "directory": "engine/repo"
+  },
+  "keywords": [
+    "ens",
+    "ipfs",
+    "knowledge",
+    "agent-memory",
+    "mcp"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "abis",
+    "README.md"
+  ],
+  "types": "./dist/index.d.ts"
+}
