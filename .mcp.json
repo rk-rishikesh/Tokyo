@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "knowledge": {
+      "command": "node",
+      "args": ["./engine/mcp/dist/knowledge-mcp.mjs"],
+      "env": { "KNOWLEDGE_NAMESPACE": "conventions.recalltest.eth", "KNOWLEDGE_AGENT": "rishikesh.eth" }
+    }
+  }
+}
