@@ -1,5 +1,5 @@
 import { NetworkStats } from '@/components/NetworkStats'
-import { Sources, SourcesCaveat } from '@/components/landing/Sources'
+import { Sources } from '@/components/landing/Sources'
 import { CallToAction, Footer, Question } from '@/components/landing/Sections'
 import { Hero } from '@/components/landing/Hero'
 import { WhyEns } from '@/components/landing/WhyEns'
@@ -71,9 +71,6 @@ export default function Page() {
           product starts from nothing. Here, the claims live under a name you own; an app is only ever a reader you
           allowed, or a writer whose proposals you review.
         </Statement>
-        <div className="mt-16">
-          <Media title="Agent B, reading your name." sub="Placeholder — footage to come." className="aspect-[16/7]" />
-        </div>
       </Section>
 
       {/* Specs ---------------------------------------------------------- */}
@@ -149,7 +146,6 @@ export default function Page() {
           </Lead>
         </div>
         <Sources />
-        <SourcesCaveat />
       </Section>
 
       {/* Why ENSv2 ------------------------------------------------------- */}
