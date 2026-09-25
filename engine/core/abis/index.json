@@ -1,0 +1,67 @@
+{
+  "source": "ensdomains/contracts-v2 (ENSv2) deployment set \"sepolia\"",
+  "commit": "48b3e2d39513b9dd32ef1850877a29009bc807b9",
+  "chainId": 11155111,
+  "contracts": {
+    "UniversalResolverV2": {
+      "address": "0x85edf8b6b7d4211e2b07aa687506b746357b92cf",
+      "sourceName": "src/universalResolver/UniversalResolverV2.sol",
+      "functions": 27
+    },
+    "UpgradableUniversalResolverProxy": {
+      "address": "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe",
+      "sourceName": "src/universalResolver/UpgradableUniversalResolverProxy.sol",
+      "functions": 4
+    },
+    "ETHRegistry": {
+      "address": "0x67b728a792e789a8978b30cf1b3b641f19354b43",
+      "sourceName": "src/registry/PermissionedRegistry.sol",
+      "functions": 42
+    },
+    "RootRegistry": {
+      "address": "0x11b5bfbe9078d826b1edbdd1cfc12f5828d9f50c",
+      "sourceName": "src/registry/PermissionedRegistry.sol",
+      "functions": 42
+    },
+    "UserRegistryImpl": {
+      "address": "0x840fa461059862ea466a711e8c98c8de732061c0",
+      "sourceName": "src/registry/UserRegistry.sol",
+      "functions": 47
+    },
+    "PermissionedResolverImpl": {
+      "address": "0x7e4b2d59938930168024201752ee5503df402303",
+      "sourceName": "src/resolver/PermissionedResolver.sol",
+      "functions": 49
+    },
+    "VerifiableFactory": {
+      "address": "0x118bc31a50d559f7015a8da26d54b3b030cdb70f",
+      "sourceName": "lib/verifiable-factory/src/VerifiableFactory.sol",
+      "functions": 3
+    },
+    "MockUSDC": {
+      "address": "0xd3322b29a7bdee707d1684676f149bf41aa3422f",
+      "sourceName": "test/mocks/MockERC20.sol",
+      "functions": 15
+    },
+    "MockDAI": {
+      "address": "0xe33a01a41ee4a68616b5278183aa88808326ed8e",
+      "sourceName": "test/mocks/MockERC20.sol",
+      "functions": 15
+    },
+    "ETHRegistrar": {
+      "address": "0xa4449a0dd2b83007553d9b1d28b583a46a805a30",
+      "sourceName": "src/registrar/ETHRegistrar.sol",
+      "functions": 23
+    },
+    "LabelStore": {
+      "address": "0xb03524289c16424f71802a1794c29c7bd1b9f577",
+      "sourceName": "src/utils/LabelStore.sol",
+      "functions": 5
+    },
+    "PublicResolverV2": {
+      "address": "0xd25f66dd4ff61486c2c5c1e6201a23576698d3df",
+      "sourceName": "src/resolver/PublicResolverV2.sol",
+      "functions": 38
+    }
+  }
+}

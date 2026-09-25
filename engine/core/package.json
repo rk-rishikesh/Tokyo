@@ -1,0 +1,76 @@
+{
+  "name": "@recall/core",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./contracts": {
+      "development": "./src/contracts.ts",
+      "types": "./dist/contracts.d.ts",
+      "default": "./dist/contracts.js"
+    },
+    "./roles": {
+      "development": "./src/roles.ts",
+      "types": "./dist/roles.d.ts",
+      "default": "./dist/roles.js"
+    },
+    "./resolve": {
+      "development": "./src/resolve.ts",
+      "types": "./dist/resolve.d.ts",
+      "default": "./dist/resolve.js"
+    },
+    "./crypto": {
+      "development": "./src/crypto.ts",
+      "types": "./dist/crypto.d.ts",
+      "default": "./dist/crypto.js"
+    },
+    "./knowledge": {
+      "development": "./src/knowledge/index.ts",
+      "types": "./dist/knowledge/index.d.ts",
+      "default": "./dist/knowledge/index.js"
+    },
+    "./abis/*": "./abis/*"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "viem": "^2.23.2",
+    "@ensdomains/content-hash": "^3.1.1",
+    "eciesjs": "^0.4.13",
+    "minisearch": "^7.1.2",
+    "@noble/curves": "^1.8.1",
+    "@noble/hashes": "^1.7.1"
+  },
+  "description": "Knowledge objects, merge and review rules, roles and crypto for the ENS knowledge network",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rk-rishikesh/knowledge-network.git",
+    "directory": "engine/core"
+  },
+  "keywords": [
+    "ens",
+    "ipfs",
+    "knowledge",
+    "agent-memory",
+    "mcp"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "abis",
+    "README.md"
+  ],
+  "types": "./dist/index.d.ts"
+}
