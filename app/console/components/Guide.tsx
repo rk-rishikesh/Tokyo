@@ -186,3 +186,36 @@ export function Contrast({ wrong, right, why }: { wrong: { title: string; items:
     </div>
   )
 }
+
+export type FlowStep = { title: string; sub: string; via?: string; strong?: boolean }
+
+/**
+ * A request travelling down a stack: one node per system it passes through,
+ * and on each wire what it carries. The first and last nodes are in ink —
+ * where the request starts and what comes back.
+ */
+export function CallFlow({ steps }: { steps: FlowStep[] }) {
+  return (
+    <figure className="h-full rounded-[28px] bg-canvas p-6 sm:p-8 [background-image:radial-gradient(hsl(var(--ink)/0.1)_1px,transparent_1px)] [background-size:20px_20px]">
+      <ol className="flex flex-col">
+        {steps.map((s, i) => (
+          <li key={s.title} className="flex flex-col">
+            <div className={`rounded-[18px] px-5 py-4 ${s.strong ? 'bg-ink text-bg' : 'border border-line bg-surface shadow-[0_1px_2px_rgba(0,0,0,0.03),0_10px_24px_-18px_rgba(0,0,0,0.3)]'}`}>
+              <div className="flex items-baseline gap-3">
+                <span className={`font-mono text-[12px] ${s.strong ? 'text-bg/55' : 'text-dim'}`}>{String(i + 1).padStart(2, '0')}</span>
+                <p className="text-[16px] font-medium tracking-[-0.02em]">{s.title}</p>
+              </div>
+              <p className={`mt-1 pl-8 text-[13.5px] leading-snug ${s.strong ? 'text-bg/65' : 'text-dim'}`}>{s.sub}</p>
+            </div>
+            {i < steps.length - 1 ? (
+              <div className="flex items-stretch gap-4 pl-8">
+                <span aria-hidden className="kn-flow-v relative block w-px bg-ink/30" />
+                <p className="py-3 font-mono text-[12.5px] leading-snug text-dim">{steps[i + 1]!.via ?? ''}</p>
+              </div>
+            ) : null}
+          </li>
+        ))}
+      </ol>
+    </figure>
+  )
+}

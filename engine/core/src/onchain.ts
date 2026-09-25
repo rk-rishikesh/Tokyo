@@ -51,8 +51,12 @@ const CHILD_ROLES = combineRoles(
 /** What a namespace should look like on chain once this is done. */
 export type Staged = { name: string; contenthash: Hex | null; access: string | null }
 
-/** Contracts deployed by an earlier step and not yet linked, so they are not deployed twice. */
-export type Deployed = { resolver?: Address; registry?: Address }
+/**
+ * Contracts deployed by an earlier step and not yet linked, so they are not
+ * deployed twice: the root's resolver, the root's registry for its children,
+ * and — for deeper names — the registry each parent name holds its children in.
+ */
+export type Deployed = { resolver?: Address; registry?: Address; registries?: Record<string, Address> }
 
 export type StepKind = 'deploy-resolver' | 'deploy-registry' | 'set-resolver' | 'set-subregistry' | 'set-parent' | 'register' | 'publish'
 
@@ -62,8 +66,8 @@ export type Step = {
   label: string
   to: Address
   data: Hex
-  /** A deploy step's future address, recorded so a retry does not deploy again. */
-  deploys?: { role: 'resolver' | 'registry'; address: Address }
+  /** A deploy step's future address, recorded so a retry does not deploy again. `name` is set for a nested name's registry. */
+  deploys?: { role: 'resolver' | 'registry'; address: Address; name?: string }
   /** Namespaces a publish step writes. */
   names?: string[]
 }
@@ -118,173 +122,66 @@ async function simulate(client: PublicClient, owner: Address, step: Step): Promi
   }
 }
 
-async function deployStep(client: PublicClient, owner: Address, role: 'resolver' | 'registry'): Promise<Step> {
+let saltSeq = 0n
+async function deployStep(client: PublicClient, owner: Address, role: 'resolver' | 'registry', name?: string): Promise<Step> {
   const implementation = role === 'resolver' ? addresses.permissionedResolverImpl : addresses.userRegistryImpl
   const init = role === 'resolver'
     ? encodeFunctionData({ abi: abis.resolver, functionName: 'initialize', args: [owner, OWNER_RESOLVER_ROLES, []] })
     : encodeFunctionData({ abi: abis.registry, functionName: 'initialize', args: [owner, OWNER_REGISTRY_ROLES] })
-  const salt = BigInt(Date.now()) * 1000n + (role === 'resolver' ? 1n : 2n)
+  // Several registries can be deployed in one batch, so every salt is distinct.
+  const salt = BigInt(Date.now()) * 1000n + (saltSeq++ % 1000n)
   const { result } = await client.simulateContract({
     account: owner, address: addresses.verifiableFactory, abi: abis.verifiableFactory, functionName: 'deployProxy', args: [implementation, salt, init],
   })
   return {
     kind: role === 'resolver' ? 'deploy-resolver' : 'deploy-registry',
-    label: role === 'resolver' ? 'Create the resolver your namespaces will share' : 'Create the registry your namespaces will live in',
+    label: role === 'resolver' ? 'Create the resolver your namespaces will share' : name ? `Create a registry for names under ${name}` : 'Create the registry your namespaces will live in',
     to: addresses.verifiableFactory,
     data: encodeFunctionData({ abi: abis.verifiableFactory, functionName: 'deployProxy', args: [implementation, salt, init] }),
-    deploys: { role, address: getAddress(result as Address) },
+    deploys: { role, address: getAddress(result as Address), ...(name ? { name } : {}) },
   }
 }
 
-/**
- * The next transaction that moves the chain toward `staged`.
- *
- * Only children one label below `root` are supported (`food.you.eth`), which
- * is every namespace this product creates. Deeper names are reported as not
- * current rather than guessed at.
- */
-export async function planNext(client: PublicClient, input: { root: string; owner: Address; staged: Staged[]; deployed?: Deployed }): Promise<Plan> {
-  const { root, staged } = input
-  const owner = getAddress(input.owner)
-  const deployed = input.deployed ?? {}
-  const { label, parent } = splitName(root)
-  if (parent !== 'eth') throw new PlanError(`${root} is not a .eth name`)
-
-  const onChainOwner = await findOwner(client, root).catch(() => zeroAddress)
-  if (BigInt(onChainOwner) === 0n) throw new PlanError(`${root} is not registered on Sepolia`)
-  if (getAddress(onChainOwner) !== owner) throw new PlanError(`${root} is owned by ${onChainOwner}, not by the connected wallet ${owner}`)
-
-  const ethRegistry = await getEthRegistry(client)
-  const labelId = BigInt(keccakLabel(label))
-  const rootResolver = (await findResolver(client, root)).resolver
-  const hasResolver = BigInt(rootResolver) !== 0n
-  const children = await getSubregistry(client, ethRegistry, label)
-  const hasChildren = BigInt(children) !== 0n
-  const parentLinked = hasChildren
-    ? await client.readContract({ address: children, abi: abis.registry, functionName: 'getParent' })
-      .then((r) => { const [p] = r as [Address, string]; return BigInt(p) !== 0n })
-      .catch(() => false)
-    : false
-
-  // What each namespace looks like now.
-  const namespaces: NamespaceChain[] = await Promise.all(staged.map(async (s) => {
-    const direct = s.name.endsWith(`.${root}`) && !s.name.slice(0, -(root.length + 1)).includes('.')
-    const isRoot = s.name === root
-    let registered = isRoot
-    let resolver: Address | null = isRoot && hasResolver ? rootResolver : null
-    if (direct && hasChildren) {
-      const childOwner = await findOwner(client, s.name).catch(() => zeroAddress)
-      registered = BigInt(childOwner) !== 0n
-      if (registered && getAddress(childOwner) !== owner) throw new PlanError(`${s.name} is owned by ${childOwner}`)
-      if (registered) {
-        const r = (await findResolver(client, s.name)).resolver
-        resolver = BigInt(r) !== 0n ? r : null
-      }
-    }
-    const rec = resolver ? await readRecords(client, resolver, s.name) : { contenthash: null, access: null }
-    const current = registered && !!resolver
-      && (rec.contenthash ?? null)?.toLowerCase() === (s.contenthash ?? null)?.toLowerCase()
-      && (rec.access ?? null) === (s.access ?? null)
-    return { name: s.name, registered, resolver, ...rec, current }
-  }))
-
-  const unregistered = namespaces.filter((n) => !n.registered).length
-  const setupRemaining = (hasResolver ? 0 : 2) + (hasChildren ? 0 : 2) + (parentLinked ? 0 : 1) + unregistered
-  const plan = (step: Step | null): Plan => ({ root, owner, step, setupRemaining, namespaces })
-
-  // ---- one-time: the shared resolver ----
-  if (!hasResolver) {
-    if (await hasCode(client, deployed.resolver)) {
-      return plan(await simulate(client, owner, {
-        kind: 'set-resolver', label: `Point ${root} at its resolver`, to: ethRegistry,
-        data: encodeFunctionData({ abi: abis.ethRegistry, functionName: 'setResolver', args: [labelId, deployed.resolver!] }),
-      }))
-    }
-    return plan(await deployStep(client, owner, 'resolver'))
-  }
-
-  // ---- one-time: somewhere for namespaces to be registered ----
-  if (!hasChildren) {
-    if (await hasCode(client, deployed.registry)) {
-      return plan(await simulate(client, owner, {
-        kind: 'set-subregistry', label: `Let ${root} have namespaces under it`, to: ethRegistry,
-        data: encodeFunctionData({ abi: abis.ethRegistry, functionName: 'setSubregistry', args: [labelId, deployed.registry!] }),
-      }))
-    }
-    return plan(await deployStep(client, owner, 'registry'))
-  }
-  if (!parentLinked) {
-    return plan(await simulate(client, owner, {
-      kind: 'set-parent', label: `Link the registry back to ${root}`, to: children,
-      data: encodeFunctionData({ abi: abis.registry, functionName: 'setParent', args: [ethRegistry, label] }),
-    }))
-  }
-
-  // ---- one-time per namespace ----
-  const missing = namespaces.find((n) => !n.registered && n.name.endsWith(`.${root}`))
-  if (missing) {
-    const childLabel = missing.name.slice(0, -(root.length + 1))
-    if (childLabel.includes('.')) throw new PlanError(`${missing.name} is more than one level below ${root}; only direct namespaces are supported`)
-    const expiry = BigInt(Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60)
-    return plan(await simulate(client, owner, {
-      kind: 'register', label: `Register ${missing.name}`, to: children,
-      data: encodeFunctionData({ abi: abis.registry, functionName: 'register', args: [childLabel, owner, zeroAddress, rootResolver, CHILD_ROLES, expiry] }),
-    }))
-  }
-
-  // ---- the publish itself: every stale namespace on one resolver, one transaction ----
-  const stale = namespaces.filter((n) => !n.current && n.resolver)
-  if (!stale.length) return plan(null)
-  const target = stale[0]!.resolver!
-  const group = stale.filter((n) => n.resolver && getAddress(n.resolver) === getAddress(target))
-  const calls: Hex[] = []
-  for (const n of group) {
-    const s = staged.find((x) => x.name === n.name)!
-    const node = namehash(n.name)
-    if ((n.contenthash ?? '').toLowerCase() !== (s.contenthash ?? '').toLowerCase() && s.contenthash) {
-      calls.push(encodeFunctionData({ abi: abis.resolver, functionName: 'setContenthash', args: [node, s.contenthash] }))
-    }
-    if ((n.access ?? null) !== (s.access ?? null)) {
-      calls.push(encodeFunctionData({ abi: abis.resolver, functionName: 'setText', args: [node, ACCESS_TEXT_KEY, s.access ?? ''] }))
-    }
-  }
-  if (!calls.length) return plan(null)
-  return plan(await simulate(client, owner, {
-    kind: 'publish',
-    label: group.length === 1 ? `Publish ${group[0]!.name}` : `Publish ${group.length} namespaces in one transaction`,
-    to: target,
-    data: encodeFunctionData({ abi: abis.resolver, functionName: 'multicall', args: [calls] }),
-    names: group.map((n) => n.name),
-  }))
-}
-
 // ---------------------------------------------------------------------------
-// Everything at once, for wallets that batch
+// Planning — any depth
 // ---------------------------------------------------------------------------
+
+export type BatchCall = { to: Address; data: Hex; label: string; kind: StepKind; deploys?: Step['deploys']; names?: string[] }
 
 export type Batch = {
   root: string
   owner: Address
   /** Every call still needed, in order. Empty when the chain is current. */
-  calls: { to: Address; data: Hex; label: string }[]
+  calls: BatchCall[]
   /** Contracts the batch deploys, at the addresses the factory will give them. */
-  deploys: { resolver?: Address; registry?: Address }
+  deploys: Deployed
 }
 
+const depth = (name: string) => name.split('.').length
+const parentOf = (name: string) => name.slice(name.indexOf('.') + 1)
+const firstLabel = (name: string) => name.slice(0, name.indexOf('.'))
+
 /**
- * The whole remaining sequence as one list of calls, for a wallet that can send
- * them in a single confirmation (EIP-5792 `wallet_sendCalls`).
+ * The whole remaining sequence, as calls in dependency order.
  *
- * `planNext` works one step at a time because each step is simulated against
- * the state the previous one left, and a batch cannot be simulated that way.
- * What makes a batch possible is that nothing here needs to be discovered: the
- * factory's addresses are predictable before the deploys run (the first deploy
- * is simulated to learn them), and every later call only needs those addresses.
- * If any call in the batch reverts, the wallet reverts all of them.
+ * ENSv2 names nest to any depth: a name can have children once it has its own
+ * subregistry. So `japan.travel.you.eth` needs `travel.you.eth` to exist *and*
+ * to hold a registry of its own, and that registry to be registered in
+ * `you.eth`'s. This walks from the root down, registering every name on the
+ * way — the namespaces and the parents between them — and giving a registry to
+ * each name that has children below it. Every name shares the root's resolver,
+ * because records are keyed by namehash; that is what lets one multicall
+ * publish every namespace at any depth.
+ *
+ * Nothing here needs to be discovered mid-way: the factory's addresses are
+ * predictable before the deploys run, so the list can be sent as one batch
+ * (EIP-5792) or one call at a time. If any call in a batch reverts, the wallet
+ * reverts all of them.
  */
 export async function planBatch(client: PublicClient, input: { root: string; owner: Address; staged: Staged[]; deployed?: Deployed }): Promise<Batch> {
-  const { root, staged } = input
+  const { root } = input
   const owner = getAddress(input.owner)
+  const reuse = input.deployed ?? {}
   const { label, parent } = splitName(root)
   if (parent !== 'eth') throw new PlanError(`${root} is not a .eth name`)
 
@@ -293,77 +190,152 @@ export async function planBatch(client: PublicClient, input: { root: string; own
   if (getAddress(onChainOwner) !== owner) throw new PlanError(`${root} is owned by ${onChainOwner}, not by the connected wallet ${owner}`)
 
   const ethRegistry = await getEthRegistry(client)
-  const labelId = BigInt(keccakLabel(label))
-  let resolver = (await findResolver(client, root)).resolver
-  let children = await getSubregistry(client, ethRegistry, label)
-  const calls: Batch['calls'] = []
-  const deploys: Batch['deploys'] = {}
+  const calls: BatchCall[] = []
+  const deploys: Deployed = {}
+  const fresh = new Set<string>() // registries this batch creates: nothing is in them yet
+  const staged = input.staged.filter((s) => s.name === root || s.name.endsWith(`.${root}`))
 
-  // A contract deployed by an earlier, interrupted run is reused, not redeployed.
-  const reuse = input.deployed ?? {}
+  // ---- the root: a resolver, and a registry for what is under it ----
+  let resolver = (await findResolver(client, root)).resolver
+  const freshResolver = BigInt(resolver) === 0n && !(await hasCode(client, reuse.resolver))
   if (BigInt(resolver) === 0n) {
-    if (await hasCode(client, reuse.resolver)) {
-      resolver = reuse.resolver!
-    } else {
+    if (await hasCode(client, reuse.resolver)) resolver = reuse.resolver!
+    else {
       const d = await deployStep(client, owner, 'resolver')
       resolver = d.deploys!.address
       deploys.resolver = resolver
-      calls.push({ to: d.to, data: d.data, label: d.label })
+      calls.push({ ...d, kind: 'deploy-resolver' })
     }
-    calls.push({ to: ethRegistry, label: `Point ${root} at its resolver`, data: encodeFunctionData({ abi: abis.ethRegistry, functionName: 'setResolver', args: [labelId, resolver] }) })
+    calls.push({ kind: 'set-resolver', to: ethRegistry, label: `Point ${root} at its resolver`, data: encodeFunctionData({ abi: abis.ethRegistry, functionName: 'setResolver', args: [BigInt(keccakLabel(label)), resolver] }) })
   }
 
-  const hadChildren = BigInt(children) !== 0n
-  if (!hadChildren) {
-    if (await hasCode(client, reuse.registry)) {
-      children = reuse.registry!
-    } else {
-      const d = await deployStep(client, owner, 'registry')
-      children = d.deploys!.address
-      deploys.registry = children
-      calls.push({ to: d.to, data: d.data, label: d.label })
-    }
-    calls.push({ to: ethRegistry, label: `Let ${root} have namespaces under it`, data: encodeFunctionData({ abi: abis.ethRegistry, functionName: 'setSubregistry', args: [labelId, children] }) })
-  }
-  const parentLinked = hadChildren
-    ? await client.readContract({ address: children, abi: abis.registry, functionName: 'getParent' })
-      .then((r) => { const [p] = r as [Address, string]; return BigInt(p) !== 0n })
-      .catch(() => false)
-    : false
-  if (!parentLinked) {
-    calls.push({ to: children, label: `Link the registry back to ${root}`, data: encodeFunctionData({ abi: abis.registry, functionName: 'setParent', args: [ethRegistry, label] }) })
-  }
-
-  // Namespaces: register what is missing, then publish everything stale on the shared resolver.
-  const expiry = BigInt(Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60)
-  const writes: Hex[] = []
-  for (const s of staged) {
-    if (s.name !== root && !s.name.endsWith(`.${root}`)) continue
-    const childLabel = s.name === root ? null : s.name.slice(0, -(root.length + 1))
-    if (childLabel?.includes('.')) continue
-    let target = resolver
-    if (childLabel) {
-      const registered = hadChildren && BigInt(await findOwner(client, s.name).catch(() => zeroAddress)) !== 0n
-      if (!registered) {
-        calls.push({ to: children, label: `Register ${s.name}`, data: encodeFunctionData({ abi: abis.registry, functionName: 'register', args: [childLabel, owner, zeroAddress, resolver, CHILD_ROLES, expiry] }) })
-      } else {
-        const r = (await findResolver(client, s.name)).resolver
-        if (BigInt(r) !== 0n) target = r
+  const regOf = new Map<string, Address>()
+  const needsChildren = staged.some((s) => s.name !== root)
+  if (needsChildren) {
+    let children = await getSubregistry(client, ethRegistry, label)
+    if (BigInt(children) === 0n) {
+      if (await hasCode(client, reuse.registry)) children = reuse.registry!
+      else {
+        const d = await deployStep(client, owner, 'registry')
+        children = d.deploys!.address
+        deploys.registry = children
+        fresh.add(children.toLowerCase())
+        calls.push({ ...d, kind: 'deploy-registry' })
       }
+      calls.push({ kind: 'set-subregistry', to: ethRegistry, label: `Let ${root} have namespaces under it`, data: encodeFunctionData({ abi: abis.ethRegistry, functionName: 'setSubregistry', args: [BigInt(keccakLabel(label)), children] }) })
     }
-    if (getAddress(target) !== getAddress(resolver)) continue // a namespace on another resolver publishes on its own
-    const rec = deploys.resolver ? { contenthash: null, access: null } : await readRecords(client, resolver, s.name)
+    const linked = fresh.has(children.toLowerCase()) ? false : await client.readContract({ address: children, abi: abis.registry, functionName: 'getParent' })
+      .then((r) => BigInt((r as [Address, string])[0]) !== 0n).catch(() => false)
+    if (!linked) calls.push({ kind: 'set-parent', to: children, label: `Link the registry back to ${root}`, data: encodeFunctionData({ abi: abis.registry, functionName: 'setParent', args: [ethRegistry, label] }) })
+    regOf.set(root, children)
+  }
+
+  // ---- every name between the root and each namespace, shallowest first ----
+  const needed = new Set<string>()
+  for (const s of staged) {
+    for (let n = s.name; n !== root && n.endsWith(`.${root}`); n = parentOf(n)) needed.add(n)
+  }
+  const hasKids = new Set([...needed].map(parentOf).filter((p) => p !== root && needed.has(p)))
+  const expiry = BigInt(Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60)
+  const onOtherResolver = new Set<string>()
+
+  for (const name of [...needed].sort((a, b) => depth(a) - depth(b))) {
+    const parentReg = regOf.get(parentOf(name))!
+    const childLabel = firstLabel(name)
+    const inFresh = fresh.has(parentReg.toLowerCase())
+    const nameOwner = inFresh ? zeroAddress : await findOwner(client, name).catch(() => zeroAddress)
+    const registered = BigInt(nameOwner) !== 0n
+    if (registered && getAddress(nameOwner) !== owner) throw new PlanError(`${name} is owned by ${nameOwner}`)
+
+    // A name with children below it needs its own registry.
+    let sub: Address = zeroAddress
+    if (hasKids.has(name)) {
+      const existing = registered ? await getSubregistry(client, parentReg, childLabel) : zeroAddress
+      if (BigInt(existing) !== 0n) sub = existing
+      else if (await hasCode(client, reuse.registries?.[name])) sub = reuse.registries![name]!
+      else {
+        const d = await deployStep(client, owner, 'registry', name)
+        sub = d.deploys!.address
+        deploys.registries = { ...(deploys.registries ?? {}), [name]: sub }
+        fresh.add(sub.toLowerCase())
+        calls.push({ ...d, kind: 'deploy-registry' })
+      }
+      regOf.set(name, sub)
+    }
+
+    if (!registered) {
+      calls.push({ kind: 'register', to: parentReg, label: `Register ${name}`, data: encodeFunctionData({ abi: abis.registry, functionName: 'register', args: [childLabel, owner, sub, resolver, CHILD_ROLES, expiry] }) })
+    } else if (hasKids.has(name) && fresh.has(sub.toLowerCase())) {
+      calls.push({ kind: 'set-subregistry', to: parentReg, label: `Let ${name} have names under it`, data: encodeFunctionData({ abi: abis.registry, functionName: 'setSubregistry', args: [BigInt(keccakLabel(childLabel)), sub] }) })
+    }
+    if (hasKids.has(name) && fresh.has(sub.toLowerCase())) {
+      calls.push({ kind: 'set-parent', to: sub, label: `Link ${name}'s registry back to it`, data: encodeFunctionData({ abi: abis.registry, functionName: 'setParent', args: [parentReg, childLabel] }) })
+    }
+    if (registered) {
+      const r = (await findResolver(client, name)).resolver
+      if (BigInt(r) !== 0n && getAddress(r) !== getAddress(resolver)) onOtherResolver.add(name)
+    }
+  }
+
+  // ---- the publish: every staged namespace on the shared resolver, one multicall ----
+  const writes: Hex[] = []
+  const names: string[] = []
+  for (const s of staged) {
+    if (onOtherResolver.has(s.name)) continue // a namespace on another resolver publishes on its own
+    const rec = freshResolver ? { contenthash: null, access: null } : await readRecords(client, resolver, s.name)
     const node = namehash(s.name)
+    let touched = false
     if (s.contenthash && (rec.contenthash ?? '').toLowerCase() !== s.contenthash.toLowerCase()) {
       writes.push(encodeFunctionData({ abi: abis.resolver, functionName: 'setContenthash', args: [node, s.contenthash] }))
+      touched = true
     }
     if ((rec.access ?? null) !== (s.access ?? null)) {
       writes.push(encodeFunctionData({ abi: abis.resolver, functionName: 'setText', args: [node, ACCESS_TEXT_KEY, s.access ?? ''] }))
+      touched = true
     }
+    if (touched) names.push(s.name)
   }
   if (writes.length) {
-    calls.push({ to: resolver, label: `Publish ${writes.length} record${writes.length === 1 ? '' : 's'}`, data: encodeFunctionData({ abi: abis.resolver, functionName: 'multicall', args: [writes] }) })
+    calls.push({
+      kind: 'publish', to: resolver, names,
+      label: names.length === 1 ? `Publish ${names[0]}` : `Publish ${names.length} namespaces in one transaction`,
+      data: encodeFunctionData({ abi: abis.resolver, functionName: 'multicall', args: [writes] }),
+    })
   }
-
   return { root, owner, calls, deploys }
+}
+
+/** Where each staged namespace stands on chain, at any depth. */
+async function statusOf(client: PublicClient, root: string, staged: Staged[]): Promise<NamespaceChain[]> {
+  return Promise.all(staged.map(async (s) => {
+    const registered = s.name === root || BigInt(await findOwner(client, s.name).catch(() => zeroAddress)) !== 0n
+    // An unregistered name resolves through its parent's resolver, so only a registered one has records of its own.
+    const r = registered ? (await findResolver(client, s.name)).resolver : zeroAddress
+    const resolver = BigInt(r) !== 0n ? r : null
+    const rec = resolver ? await readRecords(client, resolver, s.name) : { contenthash: null, access: null }
+    const current = registered && !!resolver
+      && (rec.contenthash ?? '').toLowerCase() === (s.contenthash ?? '').toLowerCase()
+      && (rec.access ?? null) === (s.access ?? null)
+    return { name: s.name, registered, resolver, ...rec, current }
+  }))
+}
+
+/**
+ * The next single transaction, for wallets that cannot batch.
+ *
+ * It is the first call of the full plan, simulated as the owner so a step that
+ * would revert is reported here rather than in the wallet. Asked again after it
+ * lands, the plan is recomputed from the chain, so an interrupted run resumes.
+ */
+export async function planNext(client: PublicClient, input: { root: string; owner: Address; staged: Staged[]; deployed?: Deployed }): Promise<Plan> {
+  const owner = getAddress(input.owner)
+  const [batch, namespaces] = await Promise.all([planBatch(client, input), statusOf(client, input.root, input.staged)])
+  const first = batch.calls[0]
+  let step: Step | null = null
+  if (first) {
+    const s: Step = { kind: first.kind, label: first.label, to: first.to, data: first.data, ...(first.deploys ? { deploys: first.deploys } : {}), ...(first.names ? { names: first.names } : {}) }
+    // A deploy was simulated when it was planned; every other call is simulated now.
+    step = first.kind.startsWith('deploy-') ? s : await simulate(client, owner, s)
+  }
+  return { root: input.root, owner, step, setupRemaining: batch.calls.filter((c) => c.kind !== 'publish').length, namespaces }
 }

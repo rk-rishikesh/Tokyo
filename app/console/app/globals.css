@@ -303,3 +303,15 @@ body {
 .kn-loader-dot { animation: kn-loader 0.9s ease-in-out infinite; }
 .kn-loader-idle { animation-duration: 2.4s; }
 @media (prefers-reduced-motion: reduce) { .kn-loader-dot { animation: none; opacity: 0.6; } }
+
+/* CallFlow: an arrowhead at the foot of each wire, and a dot running down it. */
+.kn-flow-v::after {
+  content: ''; position: absolute; bottom: -1px; left: -3.5px;
+  border-top: 6px solid hsl(var(--ink) / 0.5); border-left: 4px solid transparent; border-right: 4px solid transparent;
+}
+.kn-flow-v::before {
+  content: ''; position: absolute; left: -2.5px; top: 0; width: 6px; height: 6px; border-radius: 9999px;
+  background: hsl(var(--ink)); animation: kn-flow-drop 2s ease-in-out infinite;
+}
+@keyframes kn-flow-drop { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(36px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .kn-flow-v::before { animation: none; opacity: 0; } }

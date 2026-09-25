@@ -39,7 +39,10 @@ function recordDeploy(root: string, step: Step): void {
   if (!step.deploys) return
   // The address is a prediction until the transaction lands; the planner only
   // links a recorded address once it has code, and settleDeploys waits for that.
-  const d = { ...readDeployed(root), [step.deploys.role]: step.deploys.address, pendingAt: Date.now() }
+  const cur = readDeployed(root)
+  const d = step.deploys.name
+    ? { ...cur, registries: { ...(cur.registries ?? {}), [step.deploys.name]: step.deploys.address }, pendingAt: Date.now() }
+    : { ...cur, [step.deploys.role]: step.deploys.address, pendingAt: Date.now() }
   mkdirSync(dirname(deployedPath(root)), { recursive: true })
   writeFileSync(deployedPath(root), JSON.stringify(d, null, 2))
 }
@@ -80,7 +83,7 @@ async function settleDeploys(root: string): Promise<void> {
   // older recorded address with no code was never sent, and waiting on it
   // would slow every publish for nothing.
   if (!d.pendingAt || Date.now() - d.pendingAt > 5 * 60_000) return
-  for (const address of [d.resolver, d.registry]) {
+  for (const address of [d.resolver, d.registry, ...Object.values(d.registries ?? {})]) {
     if (!address) continue
     for (let i = 0; i < 12; i++) {
       const code = await chainClient().getCode({ address }).catch(() => undefined)
@@ -279,9 +282,9 @@ export async function chainBatch(owner: string, wallet: Address): Promise<Batch>
   const root = rootOf(owner)
   const staged = await stageAll(owner)
   const batch = await planBatch(chainClient(), { root, owner: wallet, staged: staged.filter((s) => s.contenthash), deployed: readDeployed(root) })
-  for (const role of ['resolver', 'registry'] as const) {
-    const address = batch.deploys[role]
-    if (address) recordDeploy(root, { kind: role === 'resolver' ? 'deploy-resolver' : 'deploy-registry', label: '', to: address, data: '0x', deploys: { role, address } })
+  // Record every contract the batch will deploy, nested names' registries too.
+  for (const c of batch.calls) {
+    if (c.deploys) recordDeploy(root, { kind: c.kind, label: c.label, to: c.to, data: c.data, deploys: c.deploys })
   }
   return batch
 }
