@@ -1,0 +1,13 @@
+{
+  "//": "Build settings for packages that go to npm. The workspace uses bundler resolution because every consumer here is a bundler or tsx; a published package cannot assume that, so it emits real .js with NodeNext resolution and declaration files beside it.",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": false,
+    "customConditions": []
+  }
+}

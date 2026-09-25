@@ -1,0 +1,23 @@
+# Two products, one repository.
+#
+#   engine/  the knowledge network itself: objects, storage, repositories,
+#            the CLI and the MCP server. Published to npm as @recall/*, and
+#            usable without ever running the demo.
+#   app/     the demo product built on top of it: connectors that observe real
+#            sources, and the console that renders both.
+#
+# The split is a dependency rule, not just folders — engine/ must never import
+# from app/. A protocol that needs its own demo to function is not a protocol.
+#
+#   agents/  programs that are *not* the app — Agent B reads a person's memory
+#            with its own key after they grant it, and may import engine/ only.
+packages:
+  - 'engine/*'
+  - 'app/*'
+  - 'agents/*'
+
+allowBuilds:
+  bufferutil: false
+  esbuild: true
+  keccak: false
+  utf-8-validate: false

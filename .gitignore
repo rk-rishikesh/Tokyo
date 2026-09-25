@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.next/
+out/
+cache/
+broadcast/
+.env
+.env.local
+*.tsbuildinfo
+.DS_Store
+.recall/
+.next-verify/
+# Any dist dir a NEXT_DIST_DIR run creates. `.next-dev` was missing, so a dev
+# server's build artifacts were committed and then blocked a merge.
+.next-*/
+
+# Foundry dependencies — restore with `forge install` in engine/contracts.
+engine/contracts/lib/

@@ -1,0 +1,52 @@
+{
+  "name": "recall",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ENS-native versioned knowledge network — engine/ is the protocol, app/ is the demo built on it",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @recall/console dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "check": "pnpm check:layering && pnpm check:packaging && pnpm check:config && pnpm check:abi && pnpm check:deployment && pnpm resolve:check && pnpm test",
+    "check:abi": "node --conditions=development --import tsx scripts/check-abi-usage.ts",
+    "resolve:check": "node --conditions=development --import tsx scripts/check-resolve.ts",
+    "mcp": "pnpm --filter @recall/mcp start",
+    "check:deployment": "node --conditions=development --import tsx scripts/check-deployment.ts",
+    "preflight": "node --conditions=development --import tsx scripts/preflight.ts",
+    "register:name": "node --conditions=development --import tsx scripts/register-name.ts",
+    "memory": "pnpm --filter @recall/cli start --",
+    "build:mcp": "pnpm --filter @recall/mcp build",
+    "build:cli": "pnpm --filter @recall/cli build",
+    "demo:connect": "node --conditions=development --import tsx scripts/demo-connect.ts",
+    "connect": "pnpm --filter @recall/connect start",
+    "build:connect": "pnpm --filter @recall/connect build",
+    "demo:connect:publish": "node --conditions=development --import tsx scripts/demo-connect.ts --publish",
+    "check:layering": "node --conditions=development --import tsx scripts/check-layering.ts",
+    "build:engine": "pnpm --filter \"./engine/**\" build",
+    "check:packaging": "node --conditions=development --import tsx scripts/check-packaging.ts",
+    "check:oauth": "node --conditions=development --import tsx scripts/check-oauth.ts",
+    "check:config": "node --conditions=development --import tsx scripts/check-config.ts",
+    "reset:local": "node --conditions=development --import tsx scripts/reset-local.ts",
+    "docs:pdf": "python3 scripts/md2html.py docs/PRD.md /tmp/prd.html && \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=docs/PRD.pdf /tmp/prd.html",
+    "agent-b": "pnpm --filter agent-b start",
+    "agent-b:read": "pnpm --filter agent-b read"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "@recall/core": "workspace:*",
+    "@recall/storage": "workspace:*",
+    "dotenv": "^16.4.7",
+    "viem": "^2.23.2"
+  }
+}
