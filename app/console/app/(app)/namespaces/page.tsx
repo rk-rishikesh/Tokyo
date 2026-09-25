@@ -1,6 +1,9 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { findOwner } from '@knowledge01/core'
+import { serverClient } from '@/lib/chain'
 import { Badge, Empty, PageHeader } from '@/components/ui'
-import { defaultBranch, knownNamespaces, loadAll, openProposals, snapshotOf, tree, versionOf, type RepoView, type Tree } from '@/lib/repoview'
+import { defaultBranch, knownNamespaces, loadAll, loadRepo, openProposals, snapshotOf, tree, versionOf, type RepoView, type Tree } from '@/lib/repoview'
 
 export const dynamic = 'force-dynamic'
 
@@ -126,13 +129,45 @@ function Family({ t }: { t: Tree }) {
   )
 }
 
-export default async function Namespaces() {
+/**
+ * Look a name up on ENS. A readable namespace goes straight to its page; any
+ * other outcome is explained here, because "not found" hides the difference
+ * between a free name, an empty one and an encrypted one.
+ */
+async function lookup(raw: string): Promise<{ name: string; message: string } | null> {
+  const name = raw.trim().toLowerCase().replace(/^https?:\/\/[^/]+\/k\//, '')
+  if (!name) return null
+  if (!/^[a-z0-9-]+(\.[a-z0-9-]+)*\.eth$/.test(name)) return { name, message: 'That is not an ENS name — try something like cancer-research.eth.' }
+  let readable = false
+  try { readable = !!(await loadRepo(name)) }
+  catch (e) {
+    return { name, message: /decrypt|content key|private/i.test(e instanceof Error ? e.message : '') ? 'This namespace is encrypted, and this explorer does not hold its key. Only agents it was granted to can read it.' : 'This name could not be read right now. Try again in a moment.' }
+  }
+  if (readable) redirect(`/k/${encodeURIComponent(name)}`)
+  const owner = await findOwner(serverClient(), name).catch(() => null)
+  return owner && BigInt(owner) !== 0n
+    ? { name, message: `Registered on Sepolia to ${owner.slice(0, 6)}…${owner.slice(-4)}, but no knowledge has been published under it yet.` }
+    : { name, message: 'This name is not registered on Sepolia, so there is no memory under it.' }
+}
+
+export default async function Namespaces({ searchParams }: { searchParams: Promise<{ name?: string }> }) {
+  const { name: query = '' } = await searchParams
+  const result = await lookup(query)
   const views = await loadAll()
   const roots = tree(views)
   const missing = knownNamespaces().filter((n) => !views.some((v) => v.namespace === n))
   return (
     <>
       <PageHeader title="Knowledge network" subtitle="Namespaces this explorer can read, as a hierarchy. Each is an ENS name whose contenthash points at a versioned, reviewed body of knowledge with its own owner, policy and sources." />
+      <form action="/namespaces" method="get" className="mb-6 flex max-w-2xl gap-2" role="search">
+        <input name="name" defaultValue={query} placeholder="Look up any ENS name — e.g. treasury.eth" aria-label="ENS name" autoComplete="off" spellCheck={false} className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-4 py-2.5 font-mono text-[14.5px] outline-none focus:border-ink/40" />
+        <button className="rounded-xl bg-ink px-5 py-2.5 text-[14px] text-bg transition-opacity hover:opacity-85">Search</button>
+      </form>
+      {result ? (
+        <div className="mb-6 max-w-2xl rounded-xl border border-line bg-raised/50 px-4 py-3 text-[14px]">
+          <span className="font-mono font-semibold">{result.name}</span> <span className="text-dim">— {result.message}</span>
+        </div>
+      ) : null}
       {roots.length ? <div className="space-y-3">{roots.map((t) => <Family key={t.name} t={t} />)}</div>
         : <Empty>No namespaces. Set <code>NEXT_PUBLIC_KNOWLEDGE_NAMESPACES=cancer-research.eth</code> or run <code>knowledge init cancer-research.eth</code> on this machine.</Empty>}
       {missing.length ? <p className="mt-4 text-[13.5px] text-muted-foreground">Configured but unreadable here: {missing.join(', ')}</p> : null}
