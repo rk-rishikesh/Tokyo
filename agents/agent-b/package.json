@@ -1,0 +1,20 @@
+{
+  "name": "agent-b",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "An agent that is not the app: its own key, its own state, and nothing from app/ — it reads a person's memory from the network after they grant it",
+  "scripts": {
+    "start": "node --conditions=development --import tsx src/server.ts",
+    "read": "node --conditions=development --import tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@recall/core": "workspace:*",
+    "@recall/repo": "workspace:*",
+    "viem": "^2.23.2",
+    "@recall/storage": "workspace:*",
+    "dotenv": "^16.4.7"
+  }
+}
