@@ -19,8 +19,8 @@
  * It knows nothing about any particular source. Sources register themselves in
  * `sources.ts`; this iterates them.
  */
-import { similarity } from '@k01/core'
-import { Repository, RepoStore, repoPath } from '@k01/repo'
+import { similarity } from '@knowledge01/core'
+import { Repository, RepoStore, repoPath } from '@knowledge01/repo'
 import { llmConfig } from './llm.js'
 import { ingest, type Outcome } from './ingest.js'
 import { subjectFor, topicFor } from './routing.js'
@@ -217,7 +217,7 @@ async function localWallet(owner: string): Promise<string | undefined> {
   try {
     const { createPublicClient, http } = await import('viem')
     const { sepolia } = await import('viem/chains')
-    const { findOwner } = await import('@k01/core')
+    const { findOwner } = await import('@knowledge01/core')
     const client = createPublicClient({ chain: sepolia, transport: http(process.env.SEPOLIA_RPC_URL?.trim() || 'https://ethereum-sepolia-rpc.publicnode.com') })
     const a = await findOwner(client as never, owner.split('.').slice(-2).join('.'))
     return BigInt(a) === 0n ? undefined : a

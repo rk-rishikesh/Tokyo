@@ -15,8 +15,8 @@
  * settles exactly that finding. The commit an answer makes is the owner's own
  * explicit decision, so the findings it would raise about itself are cleared.
  */
-import type { Finding, Knowledge } from '@k01/core'
-import { Repository } from '@k01/repo'
+import type { Finding, Knowledge } from '@knowledge01/core'
+import { Repository } from '@knowledge01/repo'
 import { namespacesOf } from './sharing.js'
 
 export type DecisionKind = 'conflict' | 'duplicate' | 'check'

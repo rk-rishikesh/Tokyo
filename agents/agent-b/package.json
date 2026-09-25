@@ -11,10 +11,10 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@k01/core": "workspace:*",
-    "@k01/repo": "workspace:*",
+    "@knowledge01/core": "workspace:*",
+    "@knowledge01/repo": "workspace:*",
     "viem": "^2.23.2",
-    "@k01/storage": "workspace:*",
+    "@knowledge01/storage": "workspace:*",
     "dotenv": "^16.4.7"
   }
 }

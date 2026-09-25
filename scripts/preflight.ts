@@ -33,7 +33,7 @@ import {
   RegistryRoles,
   normalisePrivateKey,
   SEPOLIA_CHAIN_ID,
-} from '@k01/core'
+} from '@knowledge01/core'
 
 const { values } = parseArgs({
   options: {

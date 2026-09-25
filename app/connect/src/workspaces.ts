@@ -12,7 +12,7 @@
  * sources belong to whoever signed in, so anyone can connect them from anywhere.
  * `workspacesFor` picks the correct set; nothing else should filter this list.
  */
-import type { SourceKind } from '@k01/core'
+import type { SourceKind } from '@knowledge01/core'
 import { windowPhrase } from './policy.js'
 
 export type Scope = 'read:wallet' | 'read:history' | 'read:workspaces' | 'read:commands' | 'read:repos' | 'read:sessions' | 'read:calendar' | 'read:mail-metadata' | 'read:issues' | 'read:meetings' | 'read:orders'

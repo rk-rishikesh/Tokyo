@@ -2,7 +2,7 @@
  * What a person can do with a name they typed: continue, or register it.
  */
 import { NextResponse } from 'next/server'
-import { statusOf } from '@k01/connect'
+import { statusOf } from '@knowledge01/connect'
 
 export const dynamic = 'force-dynamic'
 

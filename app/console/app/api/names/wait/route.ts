@@ -8,7 +8,7 @@
  * signed".
  */
 import { NextResponse } from 'next/server'
-import { ownsName, rememberName } from '@k01/connect'
+import { ownsName, rememberName } from '@knowledge01/connect'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60

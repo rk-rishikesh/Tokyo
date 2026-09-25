@@ -1,4 +1,4 @@
-# @k01/repo
+# @knowledge01/repo
 
 Versioned knowledge repositories: commits, branches, proposals and review.
 
@@ -7,13 +7,13 @@ default branch, and a policy that decides who may land what. Everything here is
 local and free; nothing touches ENS or IPFS until you push.
 
 ```bash
-npm i @k01/repo
+npm i @knowledge01/repo
 ```
 
 ## A namespace, a claim, a commit
 
 ```ts
-import { Repository } from '@k01/repo'
+import { Repository } from '@knowledge01/repo'
 
 const repo = Repository.init('conventions.acme.eth', 'you.eth')
 
@@ -73,8 +73,8 @@ still works completely.
 
 ## Related
 
-- [`@k01/core`](../core) — what a claim is, and how two of them merge
-- [`@k01/storage`](../storage) — IPFS and contenthash encoding
-- [`@k01/cli`](../cli) — the same operations from a terminal
+- [`@knowledge01/core`](../core) — what a claim is, and how two of them merge
+- [`@knowledge01/storage`](../storage) — IPFS and contenthash encoding
+- [`@knowledge01/cli`](../cli) — the same operations from a terminal
 
 MIT

@@ -8,10 +8,10 @@ importers:
 
   .:
     dependencies:
-      '@k01/core':
+      '@knowledge01/core':
         specifier: workspace:*
         version: link:engine/core
-      '@k01/storage':
+      '@knowledge01/storage':
         specifier: workspace:*
         version: link:engine/storage
       dotenv:
@@ -39,13 +39,13 @@ importers:
 
   agents/agent-b:
     dependencies:
-      '@k01/core':
+      '@knowledge01/core':
         specifier: workspace:*
         version: link:../../engine/core
-      '@k01/repo':
+      '@knowledge01/repo':
         specifier: workspace:*
         version: link:../../engine/repo
-      '@k01/storage':
+      '@knowledge01/storage':
         specifier: workspace:*
         version: link:../../engine/storage
       dotenv:
@@ -57,13 +57,13 @@ importers:
 
   app/connect:
     dependencies:
-      '@k01/core':
+      '@knowledge01/core':
         specifier: workspace:*
         version: link:../../engine/core
-      '@k01/repo':
+      '@knowledge01/repo':
         specifier: workspace:*
         version: link:../../engine/repo
-      '@k01/storage':
+      '@knowledge01/storage':
         specifier: workspace:*
         version: link:../../engine/storage
       dotenv:
@@ -79,16 +79,16 @@ importers:
 
   app/console:
     dependencies:
-      '@k01/connect':
+      '@knowledge01/connect':
         specifier: workspace:*
         version: link:../connect
-      '@k01/core':
+      '@knowledge01/core':
         specifier: workspace:*
         version: link:../../engine/core
-      '@k01/repo':
+      '@knowledge01/repo':
         specifier: workspace:*
         version: link:../../engine/repo
-      '@k01/storage':
+      '@knowledge01/storage':
         specifier: workspace:*
         version: link:../../engine/storage
       '@remotion/player':
@@ -137,13 +137,13 @@ importers:
 
   engine/cli:
     devDependencies:
-      '@k01/core':
+      '@knowledge01/core':
         specifier: workspace:*
         version: link:../core
-      '@k01/repo':
+      '@knowledge01/repo':
         specifier: workspace:*
         version: link:../repo
-      '@k01/storage':
+      '@knowledge01/storage':
         specifier: workspace:*
         version: link:../storage
       dotenv:
@@ -181,13 +181,13 @@ importers:
 
   engine/mcp:
     devDependencies:
-      '@k01/core':
+      '@knowledge01/core':
         specifier: workspace:*
         version: link:../core
-      '@k01/repo':
+      '@knowledge01/repo':
         specifier: workspace:*
         version: link:../repo
-      '@k01/storage':
+      '@knowledge01/storage':
         specifier: workspace:*
         version: link:../storage
       '@modelcontextprotocol/sdk':
@@ -202,10 +202,10 @@ importers:
 
   engine/repo:
     dependencies:
-      '@k01/core':
+      '@knowledge01/core':
         specifier: workspace:*
         version: link:../core
-      '@k01/storage':
+      '@knowledge01/storage':
         specifier: workspace:*
         version: link:../storage
       viem:
@@ -217,7 +217,7 @@ importers:
       '@ensdomains/content-hash':
         specifier: ^3.1.1
         version: 3.1.1
-      '@k01/core':
+      '@knowledge01/core':
         specifier: workspace:*
         version: link:../core
       '@noble/hashes':

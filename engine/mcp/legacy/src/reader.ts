@@ -15,10 +15,10 @@ import {
   parseCollection,
   parseRevoked,
   type Collection,
-} from '@k01/core'
-import { createStorage, type StorageAdapter, type StorageRef } from '@k01/storage'
+} from '@knowledge01/core'
+import { createStorage, type StorageAdapter, type StorageRef } from '@knowledge01/storage'
 import { hexToBytes, type Hex, type PublicClient } from 'viem'
-import type { Identity } from '@k01/storage'
+import type { Identity } from '@knowledge01/storage'
 import type { Cache } from './cache.js'
 
 /** Record keys on the collection name, per PRD §5.2. */

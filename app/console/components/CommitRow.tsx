@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { Commit } from '@k01/core'
+import type { Commit } from '@knowledge01/core'
 import { Badge, Mono } from './ui'
 
 export function CommitRow({ c, namespace, isHead, version, proposalNumber, cid, gatewayUrl }: { c: Commit; namespace: string; isHead?: boolean; version?: number; proposalNumber?: number; cid?: string; gatewayUrl?: string | null }) {

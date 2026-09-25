@@ -6,7 +6,7 @@ Two files make any Claude Code session a consumer and contributor of your team's
 
 ```json
 { "mcpServers": { "knowledge": {
-    "command": "npx", "args": ["-y", "@k01/mcp"],
+    "command": "npx", "args": ["-y", "@knowledge01/mcp"],
     "env": { "KNOWLEDGE_NAMESPACE": "conventions.recalltest.eth", "KNOWLEDGE_AGENT": "<your-name>.eth" } } } }
 ```
 

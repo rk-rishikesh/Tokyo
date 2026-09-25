@@ -3,7 +3,7 @@
  */
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { challengeMessage, newState } from '@k01/connect'
+import { challengeMessage, newState } from '@knowledge01/connect'
 
 export async function POST(req: Request) {
   // No session required: this is how a session begins.

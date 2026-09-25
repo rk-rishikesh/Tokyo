@@ -24,10 +24,10 @@ import {
   AccessDenied, NotPublished, Remote, RepoStore, Repository, grantAccess, localNetwork, localNetworkDir,
   readManifest, reposDir, resolveNamespace, revokeAccess,
   type AccessGrant, type AccessManifest, type AccessRole, type Network, type ResolvedNamespace,
-} from '@k01/repo'
+} from '@knowledge01/repo'
 import type { Hex } from 'viem'
-import { encodeObject } from '@k01/core'
-import { createStorage } from '@k01/storage'
+import { encodeObject } from '@knowledge01/core'
+import { createStorage } from '@knowledge01/storage'
 
 let cached: { key: string; net: Network } | null = null
 

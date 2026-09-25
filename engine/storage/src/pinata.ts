@@ -14,7 +14,7 @@ import {
   rekey,
   unwrapKey,
   wrapKey,
-} from '@k01/core'
+} from '@knowledge01/core'
 import type { Hex } from 'viem'
 import {
   CODECS,

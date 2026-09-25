@@ -1,4 +1,4 @@
-import { brokenConnections, llmConfig, progress, readActivity, readGrants, workspacesFor, type ActivityEntry } from '@k01/connect'
+import { brokenConnections, llmConfig, progress, readActivity, readGrants, workspacesFor, type ActivityEntry } from '@knowledge01/connect'
 import { ownerOf, viewer } from '@/lib/session'
 import { SignIn } from './SignIn'
 import { Canvas, type Stage } from './Canvas'

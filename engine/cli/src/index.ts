@@ -15,12 +15,12 @@
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
-import { searchSnapshot, generateContentKey, shortId, checkSubjectAddressing, renderFindings, SOURCE_KINDS, type NamespaceKind, type Resolution, type Source, type SourceKind } from '@k01/core'
+import { searchSnapshot, generateContentKey, shortId, checkSubjectAddressing, renderFindings, SOURCE_KINDS, type NamespaceKind, type Resolution, type Source, type SourceKind } from '@knowledge01/core'
 import { recoverMessageAddress, type Hex } from 'viem'
-import { findOwner } from '@k01/core'
+import { findOwner } from '@knowledge01/core'
 import { importWikipedia } from './wikipedia.js'
 import { applyImport, planImport, readExport, VENDORS, type Vendor } from './memory-export.js'
-import { Repository, RepoStore, repoPath } from '@k01/repo'
+import { Repository, RepoStore, repoPath } from '@knowledge01/repo'
 import { actAs, localNamespaces, openRepo, publicClient, remoteFor, resolveNamespace, walletClient } from './context.js'
 import { fmt } from './format.js'
 import { registerNamespace } from './register.js'
@@ -387,7 +387,7 @@ async function main(): Promise<void> {
       const remote = remoteFor(repo)
       const cids: string[] = []
       if (v.from) {
-        const { getContenthash } = await import('@k01/core')
+        const { getContenthash } = await import('@knowledge01/core')
         const ch = await getContenthash(publicClient(), v.from)
         if (!ch || ch === '0x') throw new Error(`${v.from} has nothing published`)
         cids.push(...(await remote.inboxFrom(ch)))

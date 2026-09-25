@@ -14,7 +14,7 @@ import { existsSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { decodeObject, publicKeyFromPrivate, unwrapKey } from '@k01/core'
+import { decodeObject, publicKeyFromPrivate, unwrapKey } from '@knowledge01/core'
 import {
   AccessDenied, OWNER_KEY_MESSAGE, Repository, grantAccess, localNetwork, ownerKeyFromSignature,
   readManifest, resolveNamespace, revokeAccess,

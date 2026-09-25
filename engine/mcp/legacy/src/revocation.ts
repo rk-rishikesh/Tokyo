@@ -7,8 +7,8 @@
  * stays valid across updates, which is exactly the behaviour a revocation must
  * cut through.
  */
-import { getText, parseRevoked, REVOCATION_CACHE_MS, type RevocationCheck } from '@k01/core'
-import { COLLECTION_RECORDS } from '@k01/core'
+import { getText, parseRevoked, REVOCATION_CACHE_MS, type RevocationCheck } from '@knowledge01/core'
+import { COLLECTION_RECORDS } from '@knowledge01/core'
 import type { PublicClient } from 'viem'
 
 type CacheEntry = { check: RevocationCheck }

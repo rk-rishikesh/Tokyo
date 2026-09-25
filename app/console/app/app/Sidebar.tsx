@@ -13,7 +13,7 @@
  */
 import { Monogram } from '@/components/Monogram'
 import { useState } from 'react'
-import type { WorkspaceDef } from '@k01/connect/workspaces'
+import type { WorkspaceDef } from '@knowledge01/connect/workspaces'
 import { ConnectButton } from './Consent'
 
 export type SidebarSource = {

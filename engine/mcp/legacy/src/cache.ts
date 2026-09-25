@@ -12,7 +12,7 @@
 import { mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import type { Collection } from '@k01/core'
+import type { Collection } from '@knowledge01/core'
 import type { Hex } from 'viem'
 
 export type PinState =

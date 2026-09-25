@@ -6,7 +6,7 @@
  * it is — there is a box for a name we did not think to check.
  */
 import { NextResponse } from 'next/server'
-import { candidateNames, namesOwnedBy } from '@k01/connect'
+import { candidateNames, namesOwnedBy } from '@knowledge01/connect'
 
 export const dynamic = 'force-dynamic'
 

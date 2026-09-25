@@ -19,7 +19,7 @@
  * the interface exists so a collection that outgrows that can swap in something
  * stronger without touching the resolution, entitlement or decryption path.
  */
-import { CollectionIndex, type SearchHit, type Collection } from '@k01/core'
+import { CollectionIndex, type SearchHit, type Collection } from '@knowledge01/core'
 
 export interface RetrievalEngine {
   readonly name: string

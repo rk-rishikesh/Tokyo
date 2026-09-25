@@ -1,4 +1,4 @@
-import type { SnapshotDiff, Knowledge as Memory } from '@k01/core'
+import type { SnapshotDiff, Knowledge as Memory } from '@knowledge01/core'
 import { Badge, Mono } from './ui'
 
 const show = (v: unknown) => (Array.isArray(v) ? v.join(', ') : typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v ?? '—'))

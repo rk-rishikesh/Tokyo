@@ -16,7 +16,7 @@
  */
 import { createPublicClient, http, verifyMessage, type Address } from 'viem'
 import { sepolia } from 'viem/chains'
-import { findOwner } from '@k01/core/resolve'
+import { findOwner } from '@knowledge01/core/resolve'
 
 /** The text a wallet is asked to sign. Human-readable, scoped, and single-use. */
 export function challengeMessage(opts: { address: string; name: string; nonce: string; domain: string; issuedAt?: string }): string {

@@ -1,5 +1,5 @@
 {
-  "name": "@k01/core",
+  "name": "@knowledge01/core",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",

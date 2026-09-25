@@ -10,9 +10,9 @@ import { join } from 'node:path'
 import { createPublicClient, createWalletClient, http, type PublicClient, type WalletClient } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
-import { normalisePrivateKey } from '@k01/core'
-import { EnsPointer, Remote, Repository, RepoStore, repoPath, reposDir } from '@k01/repo'
-import { createStorage } from '@k01/storage'
+import { normalisePrivateKey } from '@knowledge01/core'
+import { EnsPointer, Remote, Repository, RepoStore, repoPath, reposDir } from '@knowledge01/repo'
+import { createStorage } from '@knowledge01/storage'
 
 for (const p of ['.env', '../.env', '../../.env']) if (existsSync(p)) loadEnv({ path: p })
 

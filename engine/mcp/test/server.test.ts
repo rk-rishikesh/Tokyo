@@ -5,7 +5,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Repository } from '@k01/repo'
+import { Repository } from '@knowledge01/repo'
 
 let client: Client; let reviewer: Client; let cacheDir: string
 const mk = (env: Record<string, string>) => new StdioClientTransport({ command: 'node', args: ['--conditions=development', '--import', 'tsx', new URL('../src/index.ts', import.meta.url).pathname], env: { ...process.env, RECALL_CACHE_DIR: cacheDir, PRIVATE_KEY: '', ...env } })

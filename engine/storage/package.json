@@ -1,5 +1,5 @@
 {
-  "name": "@k01/storage",
+  "name": "@knowledge01/storage",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -27,7 +27,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@k01/core": "workspace:*",
+    "@knowledge01/core": "workspace:*",
     "viem": "^2.23.2",
     "@ensdomains/content-hash": "^3.1.1",
     "@noble/hashes": "^1.7.1",

@@ -18,9 +18,9 @@ import {
   getContenthash,
   sourceKind,
   type Commit, type Knowledge, type Lookup, type Proposal, type Refs, type Snapshot, type SourceConnection, type SourceKind,
-} from '@k01/core'
-import { RepoStore, repoPath, reposDir } from '@k01/repo'
-import { createStorage, decodeContenthash } from '@k01/storage'
+} from '@knowledge01/core'
+import { RepoStore, repoPath, reposDir } from '@knowledge01/repo'
+import { createStorage, decodeContenthash } from '@knowledge01/storage'
 import { serverClient } from './chain'
 
 export type RepoView = {

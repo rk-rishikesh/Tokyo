@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import type { Knowledge } from '@k01/core'
-import { sourceKind } from '@k01/core'
+import type { Knowledge } from '@knowledge01/core'
+import { sourceKind } from '@knowledge01/core'
 import { Badge, Mono } from './ui'
 import { Arrow } from '@/components/Arrow'
 

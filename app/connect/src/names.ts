@@ -17,8 +17,8 @@ import { sepolia } from 'viem/chains'
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { reposDir } from '@k01/repo'
-import { findExpiry, findOwner, findParentRegistry } from '@k01/core/resolve'
+import { reposDir } from '@knowledge01/repo'
+import { findExpiry, findOwner, findParentRegistry } from '@knowledge01/core/resolve'
 
 export type OwnedName = {
   name: string

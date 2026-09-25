@@ -1,4 +1,4 @@
-import type { AgentView } from '@k01/connect'
+import type { AgentView } from '@knowledge01/connect'
 import type { Owned } from '../owned'
 
 /**

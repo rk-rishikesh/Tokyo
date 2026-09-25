@@ -9,7 +9,7 @@
  * Refs are the CIDv1 of the stored bytes, so they are stable and content-addressed
  * exactly like the real thing.
  */
-import { decryptBytes, encryptBytes, rekey, unwrapKey, wrapKey } from '@k01/core'
+import { decryptBytes, encryptBytes, rekey, unwrapKey, wrapKey } from '@knowledge01/core'
 import { sha256 } from '@noble/hashes/sha2'
 import { base32 } from '@scure/base'
 import type { Hex } from 'viem'

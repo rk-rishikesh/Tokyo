@@ -14,8 +14,8 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
-import type { Commit, NamespaceKind, Refs, Snapshot } from '@k01/core'
-import { emptyRefs, normalisePolicy, validateCommit } from '@k01/core'
+import type { Commit, NamespaceKind, Refs, Snapshot } from '@knowledge01/core'
+import { emptyRefs, normalisePolicy, validateCommit } from '@knowledge01/core'
 
 export type RepoConfig = {
   namespace: string

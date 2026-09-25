@@ -1,4 +1,4 @@
-import { accessOf, namespacesOf } from '@k01/connect'
+import { accessOf, namespacesOf } from '@knowledge01/connect'
 import { ownerOf, viewer } from '@/lib/session'
 import { answerAccessRequest } from '../../actions'
 import { Lock, SignInFirst, Title, short } from '../ui'

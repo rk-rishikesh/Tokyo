@@ -11,7 +11,7 @@
  */
 import { FALLBACK_TOPIC, typeForTopic } from './topics.js'
 import { confidenceFor } from './policy.js'
-import type { SourceKind } from '@k01/core'
+import type { SourceKind } from '@knowledge01/core'
 
 /** An event as a connector hands it over, before any decision about it. */
 export type ConnectorEvent = {

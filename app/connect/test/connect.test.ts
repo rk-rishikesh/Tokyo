@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Repository, RepoStore, repoPath } from '@k01/repo'
+import { Repository, RepoStore, repoPath } from '@knowledge01/repo'
 import { fromSlack, slackChallenge } from '../src/connectors.js'
 import { ingest, readActivity } from '../src/ingest.js'
 import { isKnowledge, route, subjectFor, topicFor } from '../src/routing.js'
@@ -1497,7 +1497,7 @@ describe('decisions: findings as plain questions with one-click answers', () => 
     const { tmpdir } = await import('node:os')
     const { join } = await import('node:path')
     process.env.RECALL_CACHE_DIR = mkdtempSync(join(tmpdir(), 'decisions-'))
-    const { Repository } = await import('@k01/repo')
+    const { Repository } = await import('@knowledge01/repo')
     const repo = Repository.init('notes.me.eth', 'me.eth', { contentKey: 'ab'.repeat(32), kind: 'organisation' })
     const src = [{ type: 'observation' as const, kind: 'application' as const, name: 'Granola' }]
     repo.remember({ claim: 'Works with Nick', subject: 'Works', topic: 'notes', sources: src })
@@ -1520,7 +1520,7 @@ describe('decisions: findings as plain questions with one-click answers', () => 
     const d = decisionsOf('me.eth').find((x) => x.kind === 'conflict')!
     answerDecision('me.eth', d.namespace, d.commit, d.index, 'both')
     expect(decisionsOf('me.eth').filter((x) => x.kind === 'conflict')).toHaveLength(0)
-    const { Repository } = await import('@k01/repo')
+    const { Repository } = await import('@knowledge01/repo')
     expect(Object.values(Repository.open('notes.me.eth').headSnapshot('main')).map((k) => k.claim).sort()).toEqual(['Works with Nick', 'Works with Sneha'])
   })
 
@@ -1529,7 +1529,7 @@ describe('decisions: findings as plain questions with one-click answers', () => 
     const { decisionsOf, answerDecision } = await import('../src/decisions.js')
     const d = decisionsOf('me.eth').find((x) => x.kind === 'conflict')!
     answerDecision('me.eth', d.namespace, d.commit, d.index, 'replace')
-    const { Repository } = await import('@k01/repo')
+    const { Repository } = await import('@knowledge01/repo')
     const repo = Repository.open('notes.me.eth')
     expect(Object.values(repo.headSnapshot('main')).map((k) => k.claim)).toEqual([d.claim.claim])
     expect(repo.log('main', 10)[0]!.message).toMatch(/^Replaced /)

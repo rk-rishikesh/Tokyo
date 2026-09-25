@@ -1,4 +1,4 @@
-import { renderConflict, renderDiff, renderFindings, renderWhy, shortId, type Commit, type Hit, type Knowledge, type Proposal, type Provenance, type SnapshotDiff } from '@k01/core'
+import { renderConflict, renderDiff, renderFindings, renderWhy, shortId, type Commit, type Hit, type Knowledge, type Proposal, type Provenance, type SnapshotDiff } from '@knowledge01/core'
 
 const dim = (s: string) => `\x1b[2m${s}\x1b[0m`
 const bold = (s: string) => `\x1b[1m${s}\x1b[0m`

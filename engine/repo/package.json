@@ -1,5 +1,5 @@
 {
-  "name": "@k01/repo",
+  "name": "@knowledge01/repo",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,8 +22,8 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@k01/core": "workspace:*",
-    "@k01/storage": "workspace:*",
+    "@knowledge01/core": "workspace:*",
+    "@knowledge01/storage": "workspace:*",
     "viem": "^2.23.2"
   },
   "description": "Versioned knowledge repositories: commits, branches, proposals and the review workflow",

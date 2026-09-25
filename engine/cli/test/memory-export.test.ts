@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Repository } from '@k01/repo'
+import { Repository } from '@knowledge01/repo'
 import { applyImport, extractMemories, planImport, readExport, subjectFor, topicFor, VENDORS } from '../src/memory-export.js'
 
 const scratch = () => { const d = mkdtempSync(join(tmpdir(), 'import-')); process.env.RECALL_CACHE_DIR = d; return d }

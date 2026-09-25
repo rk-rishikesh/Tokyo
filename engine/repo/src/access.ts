@@ -24,7 +24,7 @@
  * and a sealed key is useless to anyone but the holder of the matching private
  * key — which is what makes it safe to publish.
  */
-import { decodeObject, encodeObject, generateContentKey, wrapKey } from '@k01/core'
+import { decodeObject, encodeObject, generateContentKey, wrapKey } from '@knowledge01/core'
 import { keccak256, type Hex } from 'viem'
 import { ACCESS_RECORD, type Network } from './network.js'
 import { Remote } from './remote.js'

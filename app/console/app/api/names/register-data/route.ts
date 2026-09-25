@@ -7,7 +7,7 @@
  * server never holds a key.
  */
 import { NextResponse } from 'next/server'
-import { abis, addresses } from '@k01/core'
+import { abis, addresses } from '@knowledge01/core'
 import { encodeFunctionData, zeroAddress, zeroHash, type Hex } from 'viem'
 
 export const dynamic = 'force-dynamic'

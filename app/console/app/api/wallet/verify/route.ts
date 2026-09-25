@@ -13,7 +13,7 @@
  */
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { rememberName, SESSION, SESSION_COOKIE, signSession, upsertWalletUser, verifyNameControl } from '@k01/connect'
+import { rememberName, SESSION, SESSION_COOKIE, signSession, upsertWalletUser, verifyNameControl } from '@knowledge01/connect'
 
 export async function POST(req: Request) {
   const jar = await cookies()

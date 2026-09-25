@@ -1,9 +1,9 @@
-# @k01/cli
+# @knowledge01/cli
 
 A terminal client for ENS-native versioned knowledge namespaces.
 
 ```bash
-npm i -g @k01/cli
+npm i -g @knowledge01/cli
 ```
 
 ## A namespace of your own
@@ -49,7 +49,7 @@ knowledge policy --publish interval --interval-minutes 60
 
 ## Related
 
-- [`@k01/repo`](../repo) — what these commands do underneath
-- [`@k01/mcp`](../mcp) — the same operations for an agent
+- [`@knowledge01/repo`](../repo) — what these commands do underneath
+- [`@knowledge01/mcp`](../mcp) — the same operations for an agent
 
 MIT

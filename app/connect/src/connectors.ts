@@ -5,7 +5,7 @@
  * that a product posts to. Nothing here is scripted — a connector reads real
  * data or it is not listed.
  */
-import type { SourceKind } from '@k01/core'
+import type { SourceKind } from '@knowledge01/core'
 import type { ConnectorEvent } from './routing.js'
 
 export type ConnectorDef = { id: string; name: string; kind: SourceKind; trigger: string; endpoint: string }

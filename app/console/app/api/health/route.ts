@@ -6,7 +6,7 @@
  * cannot sign anyone in.
  */
 import { NextResponse } from 'next/server'
-import { configProblems, deploymentMode } from '@k01/connect/config'
+import { configProblems, deploymentMode } from '@knowledge01/connect/config'
 
 export const dynamic = 'force-dynamic'
 

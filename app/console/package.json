@@ -1,5 +1,5 @@
 {
-  "name": "@k01/console",
+  "name": "@knowledge01/console",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,10 +11,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@k01/connect": "workspace:*",
-    "@k01/core": "workspace:*",
-    "@k01/repo": "workspace:*",
-    "@k01/storage": "workspace:*",
+    "@knowledge01/connect": "workspace:*",
+    "@knowledge01/core": "workspace:*",
+    "@knowledge01/repo": "workspace:*",
+    "@knowledge01/storage": "workspace:*",
     "@remotion/player": "^4.0.527",
     "eciesjs": "^0.4.13",
     "next": "^15.2.0",

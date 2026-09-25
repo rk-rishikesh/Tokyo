@@ -12,8 +12,8 @@
  */
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { agentsOf, answerDecision, grant, namespacesOf, type Answer, publishShared, revoke, shareNamespace, tick, tickUser, accessToken, unshareNamespace } from '@k01/connect'
-import { Repository } from '@k01/repo'
+import { agentsOf, answerDecision, grant, namespacesOf, type Answer, publishShared, revoke, shareNamespace, tick, tickUser, accessToken, unshareNamespace } from '@knowledge01/connect'
+import { Repository } from '@knowledge01/repo'
 import { ownerOf, viewer } from '@/lib/session'
 
 export async function connectWorkspace(workspaceId: string): Promise<void> {

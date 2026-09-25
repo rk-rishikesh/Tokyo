@@ -38,7 +38,7 @@ import {
   normalisePrivateKey,
   RegistryRoles,
   STABLECOIN_DECIMALS,
-} from '@k01/core'
+} from '@knowledge01/core'
 
 const { values } = parseArgs({
   options: {

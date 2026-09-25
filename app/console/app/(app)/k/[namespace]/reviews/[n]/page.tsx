@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Badge, Card, Empty, Mono } from '@/components/ui'
 import { DiffView } from '@/components/DiffView'
-import { diffSnapshots } from '@k01/core'
+import { diffSnapshots } from '@knowledge01/core'
 import { proposalsOf, snapshotOf } from '@/lib/repoview'
 import { NamespaceHeader, load, type Params, type Query } from '../../_shared'
 

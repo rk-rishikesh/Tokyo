@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import type { Hex } from 'viem'
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
 import { recoverMessageAddress } from 'viem'
-import { MemoryAdapter } from '@k01/storage'
+import { MemoryAdapter } from '@knowledge01/storage'
 import { Remote, Repository, type Pointer } from '../src/index.js'
 
 const scratch = () => { const d = mkdtempSync(join(tmpdir(), 'knowledge-w-')); process.env.RECALL_CACHE_DIR = d; return d }

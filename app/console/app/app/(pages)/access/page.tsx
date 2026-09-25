@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { accessOf, agentsOf, namespacesOf, pendingOf, readActivity, readOwnerKey } from '@k01/connect'
+import { accessOf, agentsOf, namespacesOf, pendingOf, readActivity, readOwnerKey } from '@knowledge01/connect'
 import { ownerOf, viewer } from '@/lib/session'
 import { grantToAgent, revokeAgentEverywhere, revokeFromAgent } from '../../actions'
 import { OwnerKeySetup } from '../OwnerKey'

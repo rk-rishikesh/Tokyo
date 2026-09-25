@@ -15,7 +15,7 @@ const nextConfig = {
   // disk. Setting NEXT_DIST_DIR lets a verification build go somewhere else.
   distDir: process.env.NEXT_DIST_DIR || '.next',
   // The workspace packages ship TypeScript source rather than a build step.
-  transpilePackages: ['@k01/core', '@k01/storage', '@k01/repo', '@k01/connect'],
+  transpilePackages: ['@knowledge01/core', '@knowledge01/storage', '@knowledge01/repo', '@knowledge01/connect'],
   webpack: (config, { isServer }) => {
     // Those packages use ESM-style `./foo.js` specifiers that resolve to `./foo.ts`
     // on disk. Without this alias webpack looks for files that are never emitted.

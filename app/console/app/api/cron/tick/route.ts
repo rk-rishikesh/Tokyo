@@ -11,7 +11,7 @@
  * everyone's model quota is a denial-of-service button.
  */
 import { NextResponse } from 'next/server'
-import { tickAll } from '@k01/connect'
+import { tickAll } from '@knowledge01/connect'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300

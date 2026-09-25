@@ -19,8 +19,8 @@
 import {
   decodeObject, encodeObject, missing, validateCommit, verifyCommit,
   type Commit, type ProposalBundle, type Refs,
-} from '@k01/core'
-import type { StorageAdapter, StorageRef } from '@k01/storage'
+} from '@knowledge01/core'
+import type { StorageAdapter, StorageRef } from '@knowledge01/storage'
 import type { Hex } from 'viem'
 import { Repository } from './repository.js'
 

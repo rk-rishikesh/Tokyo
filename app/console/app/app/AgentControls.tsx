@@ -1,6 +1,6 @@
 'use client'
 
-import { AGENT } from '@k01/connect/policy'
+import { AGENT } from '@knowledge01/connect/policy'
 import { useEffect, useRef, useState } from 'react'
 import { runAgent } from './actions'
 

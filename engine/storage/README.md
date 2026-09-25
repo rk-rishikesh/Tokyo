@@ -1,4 +1,4 @@
-# @k01/storage
+# @knowledge01/storage
 
 IPFS storage and ENS contenthash encoding for a knowledge network.
 
@@ -7,13 +7,13 @@ carry it. Everything goes through one adapter interface, so a namespace does not
 know whether it is stored on Pinata, on a Bee node, or in memory for a test.
 
 ```bash
-npm i @k01/storage
+npm i @knowledge01/storage
 ```
 
 ## Adapters
 
 ```ts
-import { pinataAdapter, memoryAdapter } from '@k01/storage'
+import { pinataAdapter, memoryAdapter } from '@knowledge01/storage'
 
 const storage = process.env.PINATA_JWT
   ? pinataAdapter({ jwt: process.env.PINATA_JWT, gateway: process.env.PINATA_GATEWAY })
@@ -35,7 +35,7 @@ publish a pointer that resolves nowhere, so this does it with
 before returning it.
 
 ```ts
-import { encodeContenthash, decodeContenthash } from '@k01/storage'
+import { encodeContenthash, decodeContenthash } from '@knowledge01/storage'
 
 const hex = encodeContenthash(`ipfs://${cid}`)
 decodeContenthash(hex) // ipfs://bafy… — and it threw if it would not have
@@ -43,7 +43,7 @@ decodeContenthash(hex) // ipfs://bafy… — and it threw if it would not have
 
 ## Related
 
-- [`@k01/core`](../core) — what is being stored
-- [`@k01/repo`](../repo) — what decides when to store it
+- [`@knowledge01/core`](../core) — what is being stored
+- [`@knowledge01/repo`](../repo) — what decides when to store it
 
 MIT

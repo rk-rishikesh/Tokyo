@@ -1,4 +1,4 @@
-import { topicLabel, typeLabel } from '@k01/connect/topics'
+import { topicLabel, typeLabel } from '@knowledge01/connect/topics'
 /**
  * Turn commits into sentences a memory owner can read.
  *
@@ -6,7 +6,7 @@ import { topicLabel, typeLabel } from '@k01/connect/topics'
  * who changed it, and when. Everything here is derived from the same objects the
  * developer view shows as diffs — it is a relabelling, not a different record.
  */
-import type { Commit, Knowledge as Memory } from '@k01/core'
+import type { Commit, Knowledge as Memory } from '@knowledge01/core'
 import type { RepoView } from './repoview'
 
 export type Event = {

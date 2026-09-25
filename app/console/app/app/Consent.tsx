@@ -7,7 +7,7 @@
  */
 import { Monogram } from '@/components/Monogram'
 import { useState, useTransition } from 'react'
-import { providerLabel, type WorkspaceDef } from '@k01/connect/workspaces'
+import { providerLabel, type WorkspaceDef } from '@knowledge01/connect/workspaces'
 import { connectWorkspace, disconnectWorkspace } from './actions'
 
 const providerName = (p?: string) => (p ? providerLabel(p).name : 'the provider')
