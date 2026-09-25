@@ -74,7 +74,9 @@ const pad = (hex: string): string => hex.replace(/^0x/, '').padStart(64, '0')
 const num = (v: string): string => pad(BigInt(v).toString(16))
 const addr = (a: string): string => pad(a.toLowerCase().replace(/^0x/, ''))
 
-export function Onboarding() {
+export type SignedIn = { name: string; address: string | null }
+
+export function Onboarding({ signedIn }: { signedIn?: SignedIn } = {}) {
   const [step, setStep] = useState<Step>('wallet')
   const [address, setAddress] = useState<string | null>(null)
   const [names, setNames] = useState<OwnedName[]>([])
@@ -262,7 +264,30 @@ export function Onboarding() {
     <div className="space-y-4">
       <Steps current={step} />
 
-      {step === 'wallet' ? (
+      {step === 'wallet' && signedIn ? (
+        <Panel
+          title="You're signed in"
+          body="Your memory is written under this name. Continue where you left off, or sign in with another wallet."
+        >
+          <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-line bg-raised/50 px-4 py-3">
+            <span className="h-2.5 w-2.5 rounded-full bg-added" aria-hidden />
+            <div className="min-w-0">
+              <p className="font-mono text-[15px] font-semibold">{signedIn.name}</p>
+              {signedIn.address ? <p className="font-mono text-[12.5px] text-dim">{signedIn.address.slice(0, 6)}…{signedIn.address.slice(-4)} · Sepolia</p> : <p className="text-[12.5px] text-dim">this machine&rsquo;s owner</p>}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <a href="/app" className="rounded-xl bg-ink px-5 py-3 text-[15px] font-medium text-bg transition-opacity hover:opacity-90">Continue to your agent →</a>
+            {signedIn.address ? (
+              <button onClick={() => void connectWallet()} disabled={!!busy} className="rounded-xl border border-line px-4 py-3 text-[14px] text-dim transition-colors hover:text-ink disabled:opacity-50">
+                {busy ?? 'Use a different wallet'}
+              </button>
+            ) : null}
+          </div>
+        </Panel>
+      ) : null}
+
+      {step === 'wallet' && !signedIn ? (
         <Panel
           title="Connect your wallet"
           body="Your wallet decides where your memory lives. Nothing is spent to sign in."

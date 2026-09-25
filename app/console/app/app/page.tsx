@@ -29,7 +29,8 @@ const ago = (iso: string) => {
  * an agent that watches everything is tolerable because it cannot act on what
  * it sees, and one that acts is tolerable because you asked it to.
  */
-export default async function AgentApp() {
+export default async function AgentApp({ searchParams }: { searchParams: Promise<{ start?: string }> }) {
+  const { start } = await searchParams
   const v = await viewer()
   const owner = ownerOf(v)
   const userId = v.mode === 'hosted' ? v.user?.id : undefined
@@ -40,6 +41,14 @@ export default async function AgentApp() {
   const sources = workspacesFor({ hosted, ...(hosted ? { providers: v.providers } : {}) })
 
   if (hosted && !v.user) return <SignIn providers={v.providers} sources={sources} />
+  // Arriving from the demos: always the start screen, showing who is signed in
+  // rather than asking again.
+  if (start !== undefined) {
+    const signedIn = v.mode === 'hosted'
+      ? { name: v.user!.namespace, address: v.user!.wallet?.address ?? null }
+      : { name: v.owner, address: null }
+    return <SignIn providers={hosted ? v.providers : []} sources={sources} signedIn={signedIn} />
+  }
 
   const connectedProviders = new Set(hosted ? (v.user?.tokens ?? []).map((t) => t.provider) : [])
   const broken = new Map(userId ? brokenConnections(userId).map((b) => [b.provider as string, b.detail]) : [])

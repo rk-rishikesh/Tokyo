@@ -1,7 +1,7 @@
 import type { WorkspaceDef } from '@knowledge01/connect/workspaces'
 import { Monogram } from '@/components/Monogram'
 import { localSources } from '@knowledge01/connect/workspaces'
-import { Onboarding } from './Onboarding'
+import { Onboarding, type SignedIn } from './Onboarding'
 
 /**
  * What someone sees before anything of theirs exists.
@@ -16,7 +16,7 @@ import { Onboarding } from './Onboarding'
  * that arrives once someone has already committed is the pattern this is
  * arguing against.
  */
-export function SignIn({ sources }: { providers: string[]; sources: WorkspaceDef[] }) {
+export function SignIn({ sources, signedIn }: { providers: string[]; sources: WorkspaceDef[]; signedIn?: SignedIn }) {
   return (
     <main className="w-full px-5 pb-20 pt-14 sm:px-8 sm:pt-20 lg:px-10">
       <p className="text-[14px] leading-tight text-ink">Your memory.<br />Owned by you.</p>
@@ -28,7 +28,7 @@ export function SignIn({ sources }: { providers: string[]; sources: WorkspaceDef
             agent learns is written under it, and stays readable if this site disappears tomorrow.
           </p>
         </div>
-        <div className="lg:pt-2"><Onboarding /></div>
+        <div className="lg:pt-2"><Onboarding {...(signedIn ? { signedIn } : {})} /></div>
       </div>
 
       <section className="mt-24 border-t border-line pt-10">

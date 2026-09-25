@@ -12,7 +12,7 @@ const DEMOS = [
     cta: 'See the flow',
   },
   {
-    href: '/app',
+    href: '/app?start=1',
     kicker: 'Personal memory',
     title: 'Owned Instinct',
     body: 'An agent that learns you from the apps you already use — like Instinct, except the memory is under an ENS name you own, every claim cites its source, and any agent you grant can read it.',
