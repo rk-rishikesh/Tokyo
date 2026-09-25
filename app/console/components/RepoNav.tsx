@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export type RepoTab = 'knowledge' | 'branches' | 'contributors' | 'history' | 'reviews' | 'findings' | 'diff'
+export type RepoTab = 'knowledge' | 'branches' | 'contributors' | 'history' | 'reviews' | 'findings' | 'diff' | 'info'
 
 /** GitHub + Wikipedia: one namespace, six tabs. Branch is carried in the query so every tab agrees. */
 export function RepoNav({ namespace, active, branch, counts }: { namespace: string; active: RepoTab; branch?: string; counts?: Partial<Record<RepoTab, number>> }) {
@@ -12,8 +12,9 @@ export function RepoNav({ namespace, active, branch, counts }: { namespace: stri
     { key: 'contributors', href: `${base}/contributors${q}`, label: 'Contributors' },
     { key: 'history', href: `${base}/history${q}`, label: 'History' },
     { key: 'reviews', href: `${base}/reviews`, label: 'Reviews' },
-    { key: 'findings', href: `${base}/findings`, label: 'Findings' },
+    { key: 'findings', href: `${base}/findings`, label: 'To check' },
     { key: 'diff', href: `${base}/diff`, label: 'Diff' },
+    { key: 'info', href: `${base}/info`, label: 'Info' },
   ]
   return (
     <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-border">

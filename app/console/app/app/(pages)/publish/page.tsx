@@ -3,8 +3,8 @@ import { Badge, Card } from '@/components/ui'
 import { loadRepo } from '@/lib/repoview'
 import { STATUS_TONE } from '@/lib/status'
 import { ownerOf, viewer } from '@/lib/session'
-import { namespacesOf, pendingOf } from '@recall/connect'
-import { decideProposal } from '../../actions'
+import { decisionsOf, namespacesOf, pendingOf, type Decision } from '@recall/connect'
+import { answerFinding, decideProposal } from '../../actions'
 import { ChainPanel } from '../ChainPanel'
 import { SignInFirst, Title, ago } from '../ui'
 import { Arrow } from '@/components/Arrow'
@@ -36,6 +36,7 @@ export default async function Publish() {
     pendingOf(owner),
     Promise.all(mine.map((n) => loadRepo(n).catch(() => null))),
   ])
+  const decisions = decisionsOf(owner)
   const proposals = views.flatMap((view) => view
     ? Object.values(view.refs.proposals ?? {}).filter((p) => !['committed', 'rejected'].includes(p.status)).map((proposal) => ({ view, proposal }))
     : [])
@@ -49,6 +50,18 @@ export default async function Publish() {
       >
         What you&rsquo;re about to publish.
       </Title>
+
+      {decisions.length ? (
+        <section className="mb-12">
+          <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="font-display text-[clamp(1.8rem,3vw,2.6rem)] font-normal leading-none tracking-[-0.045em]">Needs your decision.</h2>
+            <p className="text-[14px] text-dim">{decisions.length} question{decisions.length === 1 ? '' : 's'} · answer each once</p>
+          </div>
+          <div className="grid gap-4 xl:grid-cols-2">
+            {decisions.map((d) => <DecisionCard key={`${d.commit}-${d.index}`} d={d} />)}
+          </div>
+        </section>
+      ) : null}
 
       <ChainPanel owner={owner} />
 
@@ -159,6 +172,42 @@ export default async function Publish() {
       <p className="mt-16 max-w-2xl text-[14px] leading-relaxed text-dim">
         Proposals on namespaces you do not own are reviewed by their own reviewers, on the namespace itself — see them in the <Link href="/namespaces" className="text-ink underline-offset-4 hover:underline">explorer</Link>.
       </p>
+    </div>
+  )
+}
+
+function ClaimBox({ label, k }: { label: string; k: NonNullable<Decision['other']> }) {
+  return (
+    <div className="flex-1 rounded-[18px] border border-line bg-bg p-4">
+      <p className="text-[12.5px] text-dim">{label}</p>
+      <p className="mt-1.5 text-[16px] leading-snug tracking-[-0.015em]">{k.claim}</p>
+      <p className="mt-2 text-[13px] text-dim">
+        {k.sources.map((s) => s.name ?? s.type).join(', ') || 'no source'} · {Math.round(k.confidence * 100)}% · {k.created_at.slice(0, 10)}
+      </p>
+    </div>
+  )
+}
+
+/** One question, both claims, and the answers as buttons. */
+function DecisionCard({ d }: { d: Decision }) {
+  return (
+    <div className="rounded-[24px] border border-line bg-surface p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-[20px] tracking-[-0.02em]">{d.question}</h3>
+        <span className="font-mono text-[12.5px] text-dim">{d.namespace}</span>
+      </div>
+      <p className="mt-1 text-[14px] text-dim">{d.why}</p>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+        <ClaimBox label={d.other ? 'New' : 'Claim'} k={d.claim} />
+        {d.other ? <ClaimBox label="Already in your memory" k={d.other} /> : null}
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {d.answers.map((a, i) => (
+          <form key={a.id} action={answerFinding.bind(null, d.namespace, d.commit, d.index, a.id)}>
+            <button className={`rounded-full px-4 py-2 text-[14px] transition ${i === 0 ? 'bg-ink text-bg hover:opacity-85' : 'border border-line hover:bg-raised'}`}>{a.label}</button>
+          </form>
+        ))}
+      </div>
     </div>
   )
 }

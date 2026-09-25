@@ -1490,3 +1490,54 @@ describe('the Ethereum wallet source', () => {
     if (!r.ok) expect(r.reason).toBe('not-connected')
   })
 })
+
+describe('decisions: findings as plain questions with one-click answers', () => {
+  const setup = async () => {
+    const { mkdtempSync } = await import('node:fs')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    process.env.RECALL_CACHE_DIR = mkdtempSync(join(tmpdir(), 'decisions-'))
+    const { Repository } = await import('@recall/repo')
+    const repo = Repository.init('notes.me.eth', 'me.eth', { contentKey: 'ab'.repeat(32), kind: 'organisation' })
+    const src = [{ type: 'observation' as const, kind: 'application' as const, name: 'Granola' }]
+    repo.remember({ claim: 'Works with Nick', subject: 'Works', topic: 'notes', sources: src })
+    repo.remember({ claim: 'Works with Sneha', subject: 'Works', topic: 'notes', sources: src })
+    return repo
+  }
+
+  it('phrases a conflict as a question with both claims', async () => {
+    await setup()
+    const { decisionsOf } = await import('../src/decisions.js')
+    const d = decisionsOf('me.eth').find((x) => x.kind === 'conflict')
+    expect(d?.question).toBe('Do these disagree?')
+    expect([d?.claim.claim, d?.other?.claim].sort()).toEqual(['Works with Nick', 'Works with Sneha'])
+    expect(d?.answers.map((a) => a.id)).toEqual(['both', 'replace', 'keep-old'])
+  })
+
+  it('"both are true" keeps both and settles the question', async () => {
+    await setup()
+    const { decisionsOf, answerDecision } = await import('../src/decisions.js')
+    const d = decisionsOf('me.eth').find((x) => x.kind === 'conflict')!
+    answerDecision('me.eth', d.namespace, d.commit, d.index, 'both')
+    expect(decisionsOf('me.eth').filter((x) => x.kind === 'conflict')).toHaveLength(0)
+    const { Repository } = await import('@recall/repo')
+    expect(Object.values(Repository.open('notes.me.eth').headSnapshot('main')).map((k) => k.claim).sort()).toEqual(['Works with Nick', 'Works with Sneha'])
+  })
+
+  it('"new one replaces the old" removes the old, in history, and raises nothing new', async () => {
+    await setup()
+    const { decisionsOf, answerDecision } = await import('../src/decisions.js')
+    const d = decisionsOf('me.eth').find((x) => x.kind === 'conflict')!
+    answerDecision('me.eth', d.namespace, d.commit, d.index, 'replace')
+    const { Repository } = await import('@recall/repo')
+    const repo = Repository.open('notes.me.eth')
+    expect(Object.values(repo.headSnapshot('main')).map((k) => k.claim)).toEqual([d.claim.claim])
+    expect(repo.log('main', 10)[0]!.message).toMatch(/^Replaced /)
+    expect(decisionsOf('me.eth').filter((x) => x.kind === 'conflict')).toHaveLength(0)
+  })
+
+  it('files "Works with Nick" under Nick, so colleagues stop colliding', async () => {
+    const { route } = await import('../src/routing.js')
+    expect(route({ text: 'Works with Nick' } as never, { owner: 'me.eth' }).subject).toBe('Nick')
+  })
+})

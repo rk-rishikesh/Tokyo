@@ -86,8 +86,10 @@ export function subjectFor(text: string, topic: string): string {
   const cleaned = text
     .replace(/^(we|i|they|the team)\s+/i, '')
     .replace(/^(decided|agreed|will|are|have|chose)\s+(to\s+)?/i, '')
-    // Pattern claims name their object: "Uses GitHub for…" → GitHub, "Works on Loops House (host)" → Loops House.
-    .replace(/^(uses?|holds?|is active|works? on|tracks? work in|deploys? on|designs? in|keeps? documentation in|reads?)\s+/i, '')
+    // Pattern claims name their object: "Uses GitHub for…" → GitHub, "Works on Loops House (host)" → Loops House,
+    // "Works with Nick" → Nick. Without the last, every colleague shared one subject, "Works",
+    // and two colleagues read as a contradiction.
+    .replace(/^(uses?|holds?|is active|works? on|works? with|meets? with|tracks? work in|deploys? on|designs? in|keeps? documentation in|reads?)\s+/i, '')
     .replace(/^(a|an|the|that)\s+/i, '')
     .replace(/\s*\([^)]*\)\s*$/, '')
     .trim()

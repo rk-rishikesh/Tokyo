@@ -235,6 +235,22 @@ export class Repository {
     this.store.writeRefs(refs)
   }
 
+  /**
+   * Settle one finding on a commit, leaving the others. A commit that added
+   * three claims can raise three questions, and answering one must not
+   * silently answer the rest.
+   */
+  resolveFinding(commitId: string, index: number): void {
+    const refs = this.store.readRefs()
+    const c = this.resolve(commitId)
+    const list = refs.findings[c.id]
+    if (!list || !list[index]) return
+    list.splice(index, 1)
+    if (list.length) refs.findings[c.id] = list
+    else delete refs.findings[c.id]
+    this.store.writeRefs(refs)
+  }
+
   log(branch = this.branch, limit = 50): Commit[] {
     const head = this.store.readRefs().branches[branch]
     return head ? log(this.store.getCommit, head, limit) : []

@@ -12,7 +12,7 @@
  */
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { agentsOf, grant, namespacesOf, publishShared, revoke, shareNamespace, tick, tickUser, accessToken, unshareNamespace } from '@recall/connect'
+import { agentsOf, answerDecision, grant, namespacesOf, type Answer, publishShared, revoke, shareNamespace, tick, tickUser, accessToken, unshareNamespace } from '@recall/connect'
 import { Repository } from '@recall/repo'
 import { ownerOf, viewer } from '@/lib/session'
 
@@ -144,6 +144,14 @@ export async function decideProposal(namespace: string, number: number, verdict:
   const p = repo.review(number, verdict)
   if (p.status === 'approved') repo.land(number)
   await publishShared([namespace]).catch(() => [])
+  revalidatePath('/app/publish')
+  revalidatePath('/app/memory')
+}
+
+/** Answer one of the owner's open questions (a conflict, a duplicate, a claim with no source). */
+export async function answerFinding(namespace: string, commit: string, index: number, answer: Answer): Promise<void> {
+  const owner = await ownerOrThrow()
+  answerDecision(owner, namespace, commit, index, answer)
   revalidatePath('/app/publish')
   revalidatePath('/app/memory')
 }

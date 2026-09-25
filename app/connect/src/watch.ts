@@ -190,7 +190,9 @@ export async function tick(opts: { owner: string; recentDays?: number; useModel?
         connector: g.workspaceId, sourceName: o.source, sourceKind: 'application',
         text: o.item.text, actor: 'you', ref: o.item.ref, trigger: o.item.marker,
         context: o.item.context, by: o.by, ...(o.weak ? { weak: true } : {}), at: new Date().toISOString(),
-      }, { owner: opts.owner, create: true, quiet: true, ...(opts.userId ? { userId: opts.userId } : {}) })
+      // personal: these are one person's own sources writing about that person,
+      // so the namespace needs no approval gate and the newest fact wins.
+      }, { owner: opts.owner, create: true, quiet: true, personal: true, ...(opts.userId ? { userId: opts.userId } : {}) })
       // Only report things that actually changed the namespace — but learn the
       // wording either way. A claim the namespace already held is still a claim
       // later extractions should recognise as a restatement rather than re-add,
