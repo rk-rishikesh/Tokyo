@@ -1,0 +1,50 @@
+{
+  "name": "@recall/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "knowledge": "./dist/knowledge.mjs"
+  },
+  "scripts": {
+    "start": "node --conditions=development --import tsx src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@recall/core": "workspace:*",
+    "@recall/repo": "workspace:*",
+    "@recall/storage": "workspace:*",
+    "dotenv": "^16.4.7",
+    "viem": "^2.23.2"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.5"
+  },
+  "description": "Command-line client for ENS-native versioned knowledge namespaces",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rk-rishikesh/knowledge-network.git",
+    "directory": "engine/cli"
+  },
+  "keywords": [
+    "ens",
+    "ipfs",
+    "knowledge",
+    "agent-memory",
+    "mcp"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "abis",
+    "README.md"
+  ],
+  "exports": {},
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts"
+}
