@@ -1,0 +1,59 @@
+{
+  "name": "@recall/storage",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./contenthash": {
+      "development": "./src/contenthash.ts",
+      "types": "./dist/contenthash.d.ts",
+      "default": "./dist/contenthash.js"
+    },
+    "./types": {
+      "development": "./src/types.ts",
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    }
+  },
+  "scripts": {
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@recall/core": "workspace:*",
+    "viem": "^2.23.2",
+    "@ensdomains/content-hash": "^3.1.1",
+    "@noble/hashes": "^1.7.1",
+    "@scure/base": "^1.2.4"
+  },
+  "description": "IPFS storage adapters and ENS contenthash encoding for the knowledge network",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rk-rishikesh/knowledge-network.git",
+    "directory": "engine/storage"
+  },
+  "keywords": [
+    "ens",
+    "ipfs",
+    "knowledge",
+    "agent-memory",
+    "mcp"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "abis",
+    "README.md"
+  ],
+  "types": "./dist/index.d.ts"
+}
