@@ -20,7 +20,8 @@ export type Line =
 const TYPE_MS = 22
 const PAUSE: Record<Line['kind'], number> = { cmd: 500, prompt: 700, tool: 650, out: 220, say: 900, gap: 300 }
 
-export function Terminal({ script, title = 'terminal' }: { script: Line[]; title?: string }) {
+/** `fill`: take the parent's height (wide screens) instead of a fixed one. */
+export function Terminal({ script, title = 'terminal', fill = false }: { script: Line[]; title?: string; fill?: boolean }) {
   const [shown, setShown] = useState(0)
   const [typed, setTyped] = useState(0)
   const [done, setDone] = useState(false)
@@ -54,13 +55,13 @@ export function Terminal({ script, title = 'terminal' }: { script: Line[]; title
 
   const visible = script.slice(0, shown + (typed ? 1 : 0))
   return (
-    <div className="overflow-hidden rounded-2xl border border-ink/20 bg-[#0e0f11] text-[#e6e6e6] shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)]">
+    <div className={`${fill ? 'flex h-full flex-col' : ''} overflow-hidden rounded-2xl border border-ink/20 bg-[#0e0f11] text-[#e6e6e6] shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)]`}>
       <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">
         <span className="h-3 w-3 rounded-full bg-white/15" /><span className="h-3 w-3 rounded-full bg-white/15" /><span className="h-3 w-3 rounded-full bg-white/15" />
         <span className="ml-2 font-mono text-[12px] text-white/50">{title}</span>
         <button onClick={() => setRun((r) => r + 1)} className="ml-auto rounded-md px-2 py-0.5 text-[12px] text-white/60 transition-colors hover:bg-white/10 hover:text-white">{done ? 'Replay' : 'Restart'}</button>
       </div>
-      <div ref={box} className="h-[520px] overflow-y-auto p-4 font-mono text-[12.5px] leading-[1.6]" aria-live="off">
+      <div ref={box} className={`${fill ? 'h-[520px] lg:h-auto lg:min-h-0 lg:flex-1' : 'h-[520px]'} overflow-y-auto p-4 font-mono text-[12.5px] leading-[1.6]`} aria-live="off">
         {visible.map((line, i) => {
           const partial = i === shown && typed ? ('text' in line ? line.text.slice(0, typed) : '') : 'text' in line ? line.text : ''
           const caret = i === shown && typed ? <span className="ml-px inline-block h-[1.1em] w-[7px] translate-y-[3px] bg-white/70" /> : null

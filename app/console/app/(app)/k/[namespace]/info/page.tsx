@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { Arrow } from '@/components/Arrow'
+import { onchainRoles, policyMembers } from '@knowledge01/core'
+import { serverClient } from '@/lib/chain'
 import { defaultBranch, logOf, openProposals, versionOf } from '@/lib/repoview'
 import { NamespaceHeader, load, type Params } from '../_shared'
 
@@ -28,6 +30,8 @@ export default async function Info({ params }: { params: Params }) {
   const open = openProposals(view)
   const refsUrl = view.refsRef ? view.gatewayUrl(view.refsRef) : null
   const isPublic = view.refs.policy.readers === 'public'
+  // Who may publish, as ENS enforces it — not as the policy claims it.
+  const chain = await onchainRoles(serverClient(), view.namespace, policyMembers(view.refs.policy)).catch(() => null)
 
   return (
     <>
@@ -52,6 +56,25 @@ export default async function Info({ params }: { params: Params }) {
           {view.refsRef ? (
             refsUrl ? <a href={refsUrl} target="_blank" rel="noreferrer" className="break-all font-mono text-[14px] underline-offset-4 hover:underline">{view.refsRef}</a> : <p className="break-all font-mono text-[14px]">{view.refsRef}</p>
           ) : <p className="text-dim">Not published yet.</p>}
+        </Row>
+        <Row label="Who can write, on ENS">
+          {!chain?.resolver ? <p className="text-dim">{chain ? 'Not registered on chain yet, so only the policy applies.' : 'Could not read ENS right now.'}</p> : (
+            <>
+              <ul className="space-y-2">
+                {chain.roles.map((r) => (
+                  <li key={r.name} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span className="w-20 text-[13px] capitalize text-dim">{r.role}</span>
+                    <span className="font-mono text-[14px]">{r.name}</span>
+                    {r.account ? <a href={`https://sepolia.etherscan.io/address/${r.account}`} target="_blank" rel="noreferrer" className="font-mono text-[12.5px] text-dim underline-offset-4 hover:underline">{r.account.slice(0, 6)}…{r.account.slice(-4)}</a> : <span className="text-[12.5px] text-dim">no owner on ENS</span>}
+                    <span className={`rounded-full px-2 py-0.5 text-[12px] ${r.canPublish || r.canPropose ? 'bg-ink text-bg' : 'border border-line text-dim'}`}>{r.canGrant ? 'publishes · can grant' : r.canPublish ? 'publishes' : r.role === 'contributor' ? (r.canPropose ? 'can propose' : 'cannot propose') : 'cannot publish'}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-[13px] leading-relaxed text-dim">
+                Read live from the namespace&apos;s resolver <a href={`https://sepolia.etherscan.io/address/${chain.resolver}`} target="_blank" rel="noreferrer" className="font-mono underline-offset-4 hover:underline">{chain.resolver.slice(0, 6)}…{chain.resolver.slice(-4)}</a>. Publishing is <span className="font-mono">setContenthash</span>, which needs <span className="font-mono">ROLE_SET_CONTENTHASH</span>. Named contributors can instead write <span className="font-mono">ROLE_SET_DATA</span> on their own key, <span className="font-mono">knowledge.proposal.&lt;name&gt;</span>, to point the owner at a proposal. The owner grants both with <span className="font-mono">knowledge roles --sync</span>.{view.refs.policy.contributors === 'anyone' ? ' Anyone may contribute here, so proposals arrive as bundles rather than through ENS.' : ''}
+              </p>
+            </>
+          )}
         </Row>
         <Row label="Who can read it">
           <p>{isPublic ? 'Anyone. It is stored as plain text, so any agent can read it.' : 'Only people and agents holding its key. Everything is stored encrypted.'}</p>

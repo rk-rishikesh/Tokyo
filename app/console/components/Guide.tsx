@@ -16,9 +16,9 @@ export function Hero({ kicker, title, sub, actions }: { kicker: string; title: s
     <section className="w-full px-5 pb-14 pt-14 sm:px-8 sm:pt-20 lg:px-10">
       <p className="text-[14px] leading-tight text-ink">{kicker}</p>
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
-        <h1 className="text-balance font-display text-[clamp(2.8rem,6.4vw,6rem)] font-normal leading-[0.94] tracking-[-0.045em]">{title}</h1>
+        <h1 className="text-balance font-display text-[clamp(2.8rem,6.4vw,6rem)] font-normal leading-[0.94] tracking-[-0.025em]">{title}</h1>
         <div>
-          <p className="text-pretty font-display text-[clamp(1.3rem,2.2vw,2.1rem)] leading-[1.14] tracking-[-0.035em] text-dim">{sub}</p>
+          <p className="text-pretty font-sans font-light text-[clamp(1.2rem,2vw,1.85rem)] leading-[1.3] tracking-[-0.015em] text-dim">{sub}</p>
           {actions ? <div className="mt-9 flex flex-wrap gap-3">{actions}</div> : null}
         </div>
       </div>
@@ -30,7 +30,7 @@ export function Section({ title, intro, children, id }: { title: string; intro?:
   return (
     <section id={id} className="border-t border-line py-16 sm:py-20">
       <div className="mb-10 grid gap-6 lg:grid-cols-2">
-        <h2 className="font-display text-[clamp(1.8rem,3.2vw,2.9rem)] font-normal leading-[0.98] tracking-[-0.045em]">{title}</h2>
+        <h2 className="font-display text-[clamp(1.8rem,3.2vw,2.9rem)] font-normal leading-[0.98] tracking-[-0.025em]">{title}</h2>
         {intro ? <p className="max-w-2xl text-[15px] leading-relaxed text-dim">{intro}</p> : null}
       </div>
       {children}
@@ -69,7 +69,7 @@ export function Diagram({ children, caption }: { children: string; caption?: str
 export function Callout({ title, children, tone = 'accent' }: { title: string; children: ReactNode; tone?: 'accent' | 'plain' }) {
   return (
     <div className={`rounded-[28px] p-8 ${tone === 'accent' ? 'bg-ink text-bg' : 'bg-raised'}`}>
-      <h3 className="font-display text-[clamp(1.4rem,2.2vw,2rem)] font-normal leading-tight tracking-[-0.04em]">{title}</h3>
+      <h3 className="font-display text-[clamp(1.4rem,2.2vw,2rem)] font-normal leading-tight tracking-[-0.025em]">{title}</h3>
       <div className={`mt-4 max-w-3xl space-y-3 text-[14.5px] leading-relaxed ${tone === 'accent' ? 'text-bg/75' : 'text-dim'}`}>{children}</div>
     </div>
   )

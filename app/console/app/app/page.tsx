@@ -144,9 +144,7 @@ export default async function AgentApp({ searchParams }: { searchParams: Promise
           model={llmConfig()?.model ?? null}
         />
 
-        <div className="min-h-0 flex-1"><Canvas stages={stages} namespace={owner!} /></div>
-
-        {owner ? <PromptBar namespace={owner} /> : null}
+        <PromptBar namespace={owner} canvas={<Canvas stages={stages} namespace={owner!} />} />
       </div>
 
       {/* What it saw, kept to the side so the canvas stays the subject. */}

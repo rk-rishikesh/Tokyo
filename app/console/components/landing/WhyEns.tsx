@@ -65,7 +65,7 @@ export function WhyEns() {
             <span className="font-mono text-[12.5px] text-dim">{String(i + 1).padStart(2, '0')}</span>
             <span className="text-[12.5px] text-dim">{f.ens}</span>
           </div>
-          <h3 className="mt-6 font-display text-[clamp(1.4rem,2.2vw,2rem)] font-normal leading-[1.02] tracking-[-0.04em]">{f.title}.</h3>
+          <h3 className="mt-6 font-display text-[clamp(1.4rem,2.2vw,2rem)] font-normal leading-[1.02] tracking-[-0.025em]">{f.title}.</h3>
           <p className="mt-3 text-[14px] leading-relaxed text-dim">{f.body}</p>
           <p className="mt-4 text-[14px] leading-relaxed text-dim/70">
             <span className="text-ink/60">Without it —</span> {f.without}

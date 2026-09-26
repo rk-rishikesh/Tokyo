@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import { CitedPills, PendingTrace, Reads, splitCitations, UserBubble, type TraceCall } from '@/components/chat/AgentTrace'
 
 type Claim = { id: string; subject: string | null; claim: string; topic: string | null; sources: string[]; contributor: string }
 type Memory = { namespace: string; version: number; claims: Claim[] }
@@ -15,7 +16,7 @@ type Loaded = {
 }
 type Paid = { namespace: string; price: string | null; network: string | null; payTo: string | null; epochDays: number | null; holds: boolean; validUntil: string | null; buyer: string | null }
 type Purchase = { namespace: string; amount: string; asset: string; network: string; tx: string | null; validUntil: string }
-type Turn = { role: 'user' | 'assistant'; content: string; model?: string; purchase?: Purchase | null; usedPaid?: string | null; paidError?: string }
+type Turn = { role: 'user' | 'assistant'; content: string; model?: string; purchase?: Purchase | null; usedPaid?: string | null; paidError?: string; trace?: TraceCall[]; versions?: Record<string, number> }
 
 const PROMPTS = [
   'Give me a portfolio report',
@@ -80,8 +81,8 @@ export function TreasuryChat({ initialName, initialWallets }: { initialName: str
     setTurns((t) => [...t, { role: 'user', content: question }]); setQ(''); setBusy(true)
     try {
       const r = await fetch('/api/onchain/ask', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ question, name: loaded.user.name, wallets, history }) })
-      const body = (await r.json()) as { answer?: string; model?: string; error?: string; purchase?: Purchase | null; paid?: { namespace: string } | null; paidError?: string }
-      setTurns((t) => [...t, { role: 'assistant', content: body.answer ?? body.error ?? 'No answer.', ...(body.model ? { model: body.model } : {}), purchase: body.purchase ?? null, usedPaid: body.paid?.namespace ?? null, ...(body.paidError ? { paidError: body.paidError } : {}) }])
+      const body = (await r.json()) as { answer?: string; model?: string; error?: string; purchase?: Purchase | null; paid?: { namespace: string } | null; paidError?: string; trace?: TraceCall[]; versions?: Record<string, number> }
+      setTurns((t) => [...t, { role: 'assistant', content: body.answer ?? body.error ?? 'No answer.', ...(body.model ? { model: body.model } : {}), purchase: body.purchase ?? null, usedPaid: body.paid?.namespace ?? null, ...(body.paidError ? { paidError: body.paidError } : {}), ...(body.trace ? { trace: body.trace } : {}), ...(body.versions ? { versions: body.versions } : {}) }])
       // A purchase changes what Agent B holds; show it.
       if (body.purchase && loaded?.paid) setLoaded({ ...loaded, paid: { ...loaded.paid, holds: true, validUntil: body.purchase.validUntil } })
     } catch { setTurns((t) => [...t, { role: 'assistant', content: 'The request failed.' }]) }
@@ -92,9 +93,9 @@ export function TreasuryChat({ initialName, initialWallets }: { initialName: str
   const tracked = loaded?.wallets.filter((w) => w.role === 'tracked').length ?? 0
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+    <div className="grid gap-6 lg:h-[calc(100vh-61px-5rem)] lg:grid-cols-[360px_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:overflow-hidden">
       {/* What Agent B reads ----------------------------------------------- */}
-      <aside className="space-y-4">
+      <aside className="space-y-4 lg:min-h-0 lg:overflow-y-auto lg:pb-2">
         <Link href={`/demo/onchain${initialWallets[0] ? `?wallet=${initialWallets[0]}` : ''}`} className="text-[13.5px] text-dim hover:text-ink">← Dashboard</Link>
 
         <section className="rounded-2xl border border-line bg-surface p-5 text-[13.5px]">
@@ -125,7 +126,13 @@ export function TreasuryChat({ initialName, initialWallets }: { initialName: str
           <Step n={3} title="Wallets on Base" hint="read live" />
           {loaded?.wallets.map((w) => (
             <Row key={w.address} ok title={<span><span className="font-medium">{w.label}</span> <span className={`ml-1 rounded px-1.5 py-px text-[11px] ${w.role === 'yours' ? 'bg-ink text-bg' : 'border border-line text-dim'}`}>{w.role === 'yours' ? 'yours' : 'tracked'}</span></span>}
-              detail={`${compact(w.totalUsd)} · ${w.holdings.slice(0, 3).map((h) => h.symbol).join(', ') || 'nothing priced'} · ${w.movements} movements · ${w.via}`} />
+              detail={`${compact(w.totalUsd)} · ${w.holdings.slice(0, 3).map((h) => h.symbol).join(', ') || 'nothing priced'} · ${w.movements} movements · ${w.via}`}
+              extra={
+                <p className="mt-1.5 text-[12px] text-dim">
+                  {w.via === 'demo wallet' ? <span className="mr-1">Connected demo address</span> : null}
+                  <a href={`https://basescan.org/address/${w.address}`} target="_blank" rel="noreferrer" className="break-all font-mono text-ink/80 underline decoration-line underline-offset-2 hover:text-ink">{w.address}</a>
+                </p>
+              } />
           ))}
           {loaded?.walletErrors.map((e) => <Row key={e.input} ok={false} title={<span className="font-mono">{e.input}</span>} detail={e.error} />)}
           {!loaded && loading ? <p className="mt-2 text-dim">Reading through MultiBaas…</p> : null}
@@ -149,22 +156,23 @@ export function TreasuryChat({ initialName, initialWallets }: { initialName: str
       </aside>
 
       {/* Portfolio Intelligence ------------------------------------------- */}
-      <section className="flex h-[calc(100vh-9rem)] min-h-[560px] flex-col rounded-2xl border border-line bg-surface">
-        <div className="border-b border-line px-5 py-3">
+      <section className="flex h-[calc(100vh-61px-5rem)] min-h-[480px] flex-col lg:h-auto lg:min-h-0">
+        <div className="px-1 pb-4">
           <p className="text-[15px] font-semibold">Agent B <span className="ml-1 text-[12.5px] font-normal text-dim">Portfolio Intelligence</span></p>
           <p className="text-[12.5px] text-dim">Inherits treasury.eth, adds your memory, reads Base. Recommends; never signs.</p>
         </div>
-        <div ref={scroller} className="flex-1 space-y-5 overflow-y-auto p-5">
+        <div ref={scroller} className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain px-1 pb-6">
           {!turns.length ? (
             <div>
               <p className="text-[14.5px] text-dim">Ask about your holdings, transactions, yield or history. Answers come back as a short report, with every figure cited.</p>
               <div className="mt-4 flex flex-wrap gap-2">{PROMPTS.map((p) => <button key={p} disabled={!loaded} onClick={() => ask(p)} className="rounded-full border border-line px-3 py-1.5 text-left text-[13px] hover:bg-raised disabled:opacity-50">{p}</button>)}</div>
             </div>
           ) : turns.map((t, i) => t.role === 'user' ? (
-            <div key={i} className="ml-auto w-fit max-w-[80%] rounded-2xl bg-ink px-4 py-2.5 text-[14.5px] text-bg">{t.content}</div>
+            <UserBubble key={i}>{t.content}</UserBubble>
           ) : (
-            <div key={i} className="max-w-[92%]">
-              <Report text={t.content} />
+            <div key={i} className="max-w-[92%] space-y-4">
+              {t.trace?.length ? <Reads trace={t.trace} open={i === turns.length - 1} /> : null}
+              <Answer text={t.content} versions={t.versions} />
               {t.purchase ? (
                 <p className="mt-3 w-fit rounded-xl border border-line px-3 py-2 text-[12.5px]">
                   <span className="font-medium">Bought {t.purchase.namespace} from Agent A</span>
@@ -176,10 +184,10 @@ export function TreasuryChat({ initialName, initialWallets }: { initialName: str
               {t.model ? <p className="mt-2 text-[11.5px] text-dim">answered by {t.model}</p> : null}
             </div>
           ))}
-          {busy ? <p className="text-[13.5px] text-dim">Reading treasury.eth, your memory and Base{/whale|flow|mov|transfer|week/i.test(turns.at(-1)?.content ?? '') && !loaded?.paid?.holds ? ', and buying whale flows from Agent A over x402' : ''}…</p> : null}
+          {busy ? <div className="max-w-[92%]"><PendingTrace namespace="treasury.eth" query={turns.at(-1)?.content ?? ''} /></div> : null}
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); void ask(q) }} className="flex gap-2 border-t border-line p-3">
-          <input value={q} onChange={(e) => setQ(e.target.value)} disabled={!loaded} placeholder={loaded ? 'Ask Agent B…' : 'Loading…'} className="min-w-0 flex-1 rounded-xl border border-line bg-raised/50 px-3 py-2 text-[14.5px] outline-none focus:border-accent/50 disabled:opacity-60" />
+        <form onSubmit={(e) => { e.preventDefault(); void ask(q) }} className="flex gap-2 rounded-2xl border border-line bg-surface p-2 shadow-[0_16px_40px_-28px_hsl(var(--ink)/0.45)]">
+          <input value={q} onChange={(e) => setQ(e.target.value)} disabled={!loaded} placeholder={loaded ? 'Ask Agent B…' : 'Loading…'} className="min-w-0 flex-1 rounded-xl bg-transparent px-3 py-2 text-[14.5px] outline-none focus:border-accent/50 disabled:opacity-60" />
           <button disabled={busy || !q.trim() || !loaded} className="rounded-xl bg-ink px-4 py-2 text-[13.5px] text-bg disabled:opacity-40">Ask</button>
         </form>
       </section>
@@ -187,16 +195,22 @@ export function TreasuryChat({ initialName, initialWallets }: { initialName: str
   )
 }
 
-/** The answer as a report: "## " starts a section, "• " a point, and [citations] recede. */
+/** The answer, its citations lifted out of the text into pills under it. */
+function Answer({ text, versions }: { text: string; versions?: Record<string, number> }) {
+  const { text: clean, cites } = splitCitations(text, versions)
+  return <div className="space-y-3"><Report text={clean} /><CitedPills cites={cites} /></div>
+}
+
+/** The answer as a report: "## " starts a section, "• " a point. */
 function Report({ text }: { text: string }) {
-  const cite = (s: string) => s.split(/(\[[^\]]+\])/g).map((p, i) => (p.startsWith('[') && p.endsWith(']') ? <span key={i} className="text-[12px] text-dim">{p}</span> : p))
+  const cite = (s: string) => s
   return (
     <div className="space-y-1.5 text-[14.5px] leading-relaxed">
       {text.split('\n').filter((l) => l.trim()).map((l, i) => {
         const line = l.trim()
         if (line.startsWith('## ')) return <p key={i} className="pt-2 text-[12px] font-medium uppercase tracking-[0.08em] text-dim">{line.slice(3)}</p>
         if (line.startsWith('• ')) return <p key={i} className="flex gap-2 pl-1"><span className="text-dim">•</span><span>{cite(line.slice(2))}</span></p>
-        return <p key={i} className={i === 0 ? 'text-[15.5px] font-medium' : ''}>{cite(line)}</p>
+        return <p key={i} className={i === 0 ? 'text-[17px] leading-snug tracking-[-0.01em]' : ''}>{cite(line)}</p>
       })}
     </div>
   )
@@ -211,11 +225,11 @@ function Step({ n, title, hint }: { n: number; title: string; hint: string }) {
   )
 }
 
-function Row({ ok, title, detail }: { ok: boolean; title: React.ReactNode; detail: string }) {
+function Row({ ok, title, detail, extra }: { ok: boolean; title: React.ReactNode; detail: string; extra?: React.ReactNode }) {
   return (
     <div className="mt-3 flex gap-2.5">
       <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${ok ? 'bg-ink' : 'border border-line'}`} aria-hidden />
-      <div className="min-w-0"><p>{title}</p><p className="text-[12.5px] text-dim">{detail}</p></div>
+      <div className="min-w-0"><p>{title}</p><p className="text-[12.5px] text-dim">{detail}</p>{extra}</div>
     </div>
   )
 }

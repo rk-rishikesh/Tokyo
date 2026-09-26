@@ -150,7 +150,7 @@ answer:  "Olaparib, a PARP inhibitor … (cancer-research.eth v42, FDA approval 
             ]} />
           </div>
           <div className="mt-6"><Steps steps={[
-            { title: 'Give an agent the network', body: <>One MCP server serves every namespace; the agent names one per call.</>, code: `claude mcp add knowledge -e KNOWLEDGE_AGENT=my-agent.eth -- npx -y @knowledge01/mcp` },
+            { title: 'Give an agent the network', body: <>One MCP server serves every namespace; the agent names one per call.</>, code: `claude mcp add knowledge -e KNOWLEDGE_AGENT=<your-name.eth> -- npx -y @knowledge01/mcp` },
             { title: 'Read from a terminal', body: <>Pull once, then search offline.</>, code: `knowledge init cancer-research.eth && knowledge pull\nknowledge search "PARP inhibitor ovarian"\nknowledge why k_6374f147a677        # sources, contributor, reviewers, version` },
             { title: 'Read in the browser', body: <>The explorer shows the same objects: <Link href="/namespaces" className="text-accent hover:underline">/k/cancer-research.eth</Link>. A personal namespace also has a plain-language view at <code>/me/&lt;name&gt;</code>.</> },
             { title: 'Build an application', body: <>The SDK is a thin facade over the same repository.</>, code: `import { Namespace } from '@knowledge01/repo'\nconst research = Namespace.for('cancer-research.eth')\nresearch.search('PARP inhibitor ovarian')                 // Hit[] with sources and reviewers\nresearch.contribute({ title: 'Add olaparib approval', items: [...] })   // → proposal\n\nconst alice = Namespace.for('alice.eth', { agent: 'shopping-agent' })  // personal memory\nalice.observe({ observation: 'User prefers Nike running shoes', topic: 'shopping', confidence: 0.87 })` },

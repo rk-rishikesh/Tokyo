@@ -43,8 +43,8 @@ export type ChatAnswer = {
   reply: string
   /** Claims that informed the answer, so it can be traced like a claim can. */
   used: { claim: string; namespace: string; sources: string[] }[]
-  /** Reads the agent performed while answering. */
-  called: { tool: string; ok: boolean }[]
+  /** Reads the agent performed while answering, with enough to show each one. */
+  called: { tool: string; ok: boolean; server?: string; args?: Record<string, unknown>; preview?: string; error?: string }[]
   /** Writes it wants to make, which need a yes. */
   pending: PendingAction[]
   model: string | null
@@ -238,7 +238,10 @@ export async function ask(
         continue
       }
       const result = await callTool(servers, tools, call.name, call.args)
-      called.push({ tool: call.name, ok: result.ok })
+      called.push({
+        tool: call.name, ok: result.ok, ...(tool ? { server: tool.server } : {}), args: call.args,
+        ...(result.ok ? { preview: result.text.replace(/\s+/g, ' ').trim().slice(0, 240) } : { error: result.error }),
+      })
       messages.push({
         role: 'tool',
         tool_call_id: call.id,

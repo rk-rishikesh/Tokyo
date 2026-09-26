@@ -3,18 +3,10 @@ import { redirect } from 'next/navigation'
 import { findOwner } from '@knowledge01/core'
 import { serverClient } from '@/lib/chain'
 import { Badge, Empty, PageHeader } from '@/components/ui'
-import { defaultBranch, knownNamespaces, loadAll, loadRepo, openProposals, snapshotOf, tree, versionOf, type RepoView, type Tree } from '@/lib/repoview'
+import { ExplorerShell } from '@/components/explorer/ExplorerShell'
+import { defaultBranch, knownNamespaces, loadAll, loadRepo, openProposals, snapshotOf, versionOf, type RepoView } from '@/lib/repoview'
 
 export const dynamic = 'force-dynamic'
-
-/** Chevron for a node with children; turns when its own <details> is open. */
-function Chevron() {
-  return (
-    <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0 text-muted-foreground transition-transform [details[open]>summary_&]:rotate-90" aria-hidden>
-      <path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
 
 function Lock() {
   return (
@@ -56,76 +48,32 @@ function Tags({ v }: { v: RepoView }) {
   )
 }
 
-function Stats({ v }: { v: RepoView }) {
-  const b = defaultBranch(v); const open = openProposals(v).length
-  const claims = Object.keys(snapshotOf(v, b)).length
-  const owner = v.refs.policy.owner
-  return (
-    <span className="ml-auto flex items-center gap-4 text-[13.5px] text-muted-foreground">
-      {open ? <span className="text-ink">{open} to review</span> : null}
-      {owner && owner !== v.namespace ? <span>owner {owner}</span> : null}
-      <span className="tabular-nums">{claims} claim{claims === 1 ? '' : 's'}</span>
-      <span className="w-8 text-right font-mono tabular-nums text-ink">v{versionOf(v, b)}</span>
-    </span>
-  )
-}
-
-/** A namespace with claims, or just a name that holds others. */
+/** A namespace with claims, not just a name that holds others. */
 const hasClaims = (v: RepoView | null): v is RepoView => !!v && (v.source === 'ens' || Object.keys(snapshotOf(v, defaultBranch(v))).length > 0)
 
-function ChildRow({ t, parent, depth }: { t: Tree; parent: string; depth: number }) {
-  const line = (
-    <div className="flex flex-wrap items-center gap-3 py-3 pr-5" style={{ paddingLeft: 20 + depth * 24 }}>
-      {t.children.length ? <Chevron /> : <span className="w-4 shrink-0" aria-hidden />}
-      {hasClaims(t.view) ? (
-        <Link href={`/k/${encodeURIComponent(t.name)}`} className="flex flex-wrap items-center gap-3 hover:underline">
-          <Name name={t.name} parent={parent} />
-          {t.view.refs.title ? <span className="text-[14.5px] text-dim">{t.view.refs.title}</span> : null}
-        </Link>
-      ) : <Name name={t.name} parent={parent} />}
-      {hasClaims(t.view) ? <><Tags v={t.view} /><Stats v={t.view} /></> : null}
-    </div>
-  )
-  if (!t.children.length) return <li className="transition-colors hover:bg-raised/60">{line}</li>
+/** A namespace this explorer can open, as one card of the overview. */
+function Card({ v }: { v: RepoView }) {
+  const b = defaultBranch(v)
+  const claims = Object.keys(snapshotOf(v, b)).length
+  const open = openProposals(v).length
+  const parent = v.refs.parent ?? (v.namespace.split('.').length > 2 ? v.namespace.split('.').slice(1).join('.') : undefined)
   return (
-    <li>
-      <details open>
-        <summary className="cursor-pointer list-none transition-colors hover:bg-raised/60 [&::-webkit-details-marker]:hidden">{line}</summary>
-        <ul className="divide-y divide-line border-t border-line">{t.children.map((c) => <ChildRow key={c.name} t={c} parent={t.name} depth={depth + 1} />)}</ul>
-      </details>
-    </li>
-  )
-}
-
-function Family({ t }: { t: Tree }) {
-  const v = hasClaims(t.view) ? t.view : null
-  const count = (x: Tree): number => x.children.reduce((n, c) => n + 1 + count(c), 0)
-  const n = count(t)
-  const header = (
-    <div className="flex flex-wrap items-center gap-3 p-5">
-      {t.children.length ? <Chevron /> : null}
-      <Monogram name={t.name} />
-      <div className="flex min-w-0 flex-col">
-        {v ? (
-          <Link href={`/k/${encodeURIComponent(t.name)}`} className="hover:underline"><Name name={t.name} size="root" /></Link>
-        ) : <Name name={t.name} size="root" />}
-        <span className="text-[13.5px] text-dim">
-          {v?.refs.title ?? t.view?.refs.title ?? 'Name only — no claims of its own'}
-          {n ? ` · ${n} namespace${n === 1 ? '' : 's'} under it` : ''}
-        </span>
+    <Link href={`/k/${encodeURIComponent(v.namespace)}`} className="group flex flex-col gap-3 rounded-[18px] border border-line bg-surface p-5 transition-colors hover:border-ink/25">
+      <div className="flex items-start gap-3">
+        <Monogram name={parent ?? v.namespace} />
+        <div className="min-w-0">
+          <p className="truncate group-hover:underline"><Name name={v.namespace} parent={parent} /></p>
+          <p className="truncate text-[13.5px] text-dim">{v.refs.title ?? (parent ? `under ${parent}` : 'Untitled')}</p>
+        </div>
+        <span className="ml-auto font-mono text-[13px] tabular-nums text-ink">v{versionOf(v, b)}</span>
       </div>
-      {v ? <><Tags v={v} /><Stats v={v} /></> : null}
-    </div>
-  )
-  return (
-    <section className="overflow-hidden rounded-[22px] border border-line bg-surface">
-      {t.children.length ? (
-        <details open>
-          <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">{header}</summary>
-          <ul className="divide-y divide-line border-t border-line">{t.children.map((c) => <ChildRow key={c.name} t={c} parent={t.name} depth={0} />)}</ul>
-        </details>
-      ) : header}
-    </section>
+      {v.refs.description ? <p className="line-clamp-2 text-[13.5px] leading-relaxed text-dim">{v.refs.description}</p> : null}
+      <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12.5px] text-dim">
+        <Tags v={v} />
+        <span className="tabular-nums">{claims} claim{claims === 1 ? '' : 's'}</span>
+        {open ? <span className="text-ink">{open} to review</span> : null}
+      </div>
+    </Link>
   )
 }
 
@@ -153,25 +101,51 @@ async function lookup(raw: string): Promise<{ name: string; message: string } | 
 export default async function Namespaces({ searchParams }: { searchParams: Promise<{ name?: string }> }) {
   const { name: query = '' } = await searchParams
   const result = await lookup(query)
-  const views = await loadAll()
-  const roots = tree(views)
+  const views = (await loadAll()).filter(hasClaims)
   const missing = knownNamespaces().filter((n) => !views.some((v) => v.namespace === n))
+  const claims = views.reduce((n, v) => n + Object.keys(snapshotOf(v, defaultBranch(v))).length, 0)
+  const sealed = views.filter((v) => v.refs.policy.readers === 'key').length
   return (
-    <>
-      <PageHeader title="Knowledge network" subtitle="Namespaces this explorer can read, as a hierarchy. Each is an ENS name whose contenthash points at a versioned, reviewed body of knowledge with its own owner, policy and sources." />
-      <form action="/namespaces" method="get" className="mb-6 flex max-w-2xl gap-2" role="search">
-        <input name="name" defaultValue={query} placeholder="Look up any ENS name — e.g. treasury.eth" aria-label="ENS name" autoComplete="off" spellCheck={false} className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-4 py-2.5 font-mono text-[14.5px] outline-none focus:border-ink/40" />
-        <button className="rounded-xl bg-ink px-5 py-2.5 text-[14px] text-bg transition-opacity hover:opacity-85">Search</button>
+    <ExplorerShell>
+      <PageHeader title="Knowledge network" subtitle="Every namespace is an ENS name whose contenthash points at a versioned, reviewed body of knowledge with its own owner, policy and sources. Pick one on the left, or look any name up." />
+      <form action="/namespaces" method="get" role="search" className="rounded-2xl border border-line bg-surface p-3 shadow-[0_18px_40px_-32px_hsl(var(--ink)/0.35)] focus-within:border-ink/30">
+        <input name="name" defaultValue={query} placeholder="Look up any ENS name — e.g. treasury.eth" aria-label="ENS name" autoComplete="off" spellCheck={false} className="w-full bg-transparent px-2 pb-6 pt-2 font-mono text-[16px] outline-none placeholder:text-dim" />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-1.5">
+            {views.slice(0, 4).map((v) => <Link key={v.namespace} href={`/k/${encodeURIComponent(v.namespace)}`} className="rounded-full bg-raised px-3 py-1 font-mono text-[12.5px] text-ink/75 transition-colors hover:text-ink">{v.namespace}</Link>)}
+          </div>
+          <button className="ml-auto rounded-xl bg-ink px-5 py-2 text-[14px] text-bg transition-opacity hover:opacity-85">Look up</button>
+        </div>
       </form>
       {result ? (
-        <div className="mb-6 max-w-2xl rounded-xl border border-line bg-raised/50 px-4 py-3 text-[14px]">
+        <div className="mt-3 rounded-xl border border-line bg-raised/50 px-4 py-3 text-[14px]">
           <span className="font-mono font-semibold">{result.name}</span> <span className="text-dim">— {result.message}</span>
         </div>
       ) : null}
-      {roots.length ? <div className="space-y-3">{roots.map((t) => <Family key={t.name} t={t} />)}</div>
-        : <Empty>No namespaces. Set <code>NEXT_PUBLIC_KNOWLEDGE_NAMESPACES=cancer-research.eth</code> or run <code>knowledge init cancer-research.eth</code> on this machine.</Empty>}
-      {missing.length ? <p className="mt-4 text-[13.5px] text-muted-foreground">Configured but unreadable here: {missing.join(', ')}</p> : null}
-      <p className="mt-6 text-[13.5px] text-muted-foreground">Browse · search · resolve · inspect · compare versions · inspect sources · inspect contributors — open a namespace.</p>
-    </>
+
+      <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
+        {[
+          ['Namespaces', views.length],
+          ['Claims', claims],
+          ['Encrypted', sealed + missing.length],
+          ['Open reviews', views.reduce((n, v) => n + openProposals(v).length, 0)],
+        ].map(([label, n]) => (
+          <div key={label} className="bg-surface px-5 py-4">
+            <dt className="text-[12px] uppercase tracking-[0.08em] text-dim">{label}</dt>
+            <dd className="mt-1 font-display text-[2rem] leading-none tabular-nums">{n}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <section className="mt-10">
+        <h2 className="mb-4 font-display text-[1.6rem] font-normal leading-tight">Readable here</h2>
+        {views.length ? (
+          <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">{views.map((v) => <Card key={v.namespace} v={v} />)}</div>
+        ) : <Empty>No namespace is readable from this deployment yet.</Empty>}
+        {missing.length ? (
+          <p className="mt-5 text-[13.5px] text-dim">Also on the network, encrypted: {missing.map((n, i) => <span key={n}>{i ? ', ' : ''}<span className="font-mono text-ink/75">{n}</span></span>)}.</p>
+        ) : null}
+      </section>
+    </ExplorerShell>
   )
 }

@@ -41,7 +41,7 @@ export function Title({ children, size = 'md', className = '', as = 'h2' }: { ch
     xl: 'text-[clamp(3.6rem,9vw,8.6rem)]',
   }[size]
   const Tag = as
-  return <Tag className={`font-display font-normal leading-[0.94] tracking-[-0.045em] ${scale} ${className}`}>{children}</Tag>
+  return <Tag className={`font-display font-normal leading-[0.94] tracking-[-0.025em] ${scale} ${className}`}>{children}</Tag>
 }
 
 /** The small two-line label that sits on the left of a split section. */
@@ -52,7 +52,7 @@ export function Label({ children, className = '' }: { children: ReactNode; class
 /** A large paragraph, set as prose rather than as a heading. */
 export function Lead({ children, tone = 'ink', className = '' }: { children: ReactNode; tone?: 'ink' | 'dim'; className?: string }) {
   return (
-    <p className={`font-display text-[clamp(1.35rem,2.35vw,2.35rem)] font-normal leading-[1.12] tracking-[-0.035em] ${tone === 'dim' ? 'text-dim' : 'text-ink'} ${className}`}>
+    <p className={`font-sans font-light text-[clamp(1.25rem,2.1vw,2rem)] leading-[1.3] tracking-[-0.015em] ${tone === 'dim' ? 'text-dim' : 'text-ink'} ${className}`}>
       {children}
     </p>
   )

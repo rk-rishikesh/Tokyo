@@ -1,17 +1,20 @@
 import Link from 'next/link'
 import { HoldingsBars } from '@/components/demo/HoldingsBars'
+import { Chips, Step, Steps } from '@/components/demo/Steps'
 import { FlowGraph, type GraphEdge, type GraphNode } from '@/components/motion/FlowGraph'
 import { readBaseWallet, type BaseWallet } from '@/lib/basePortfolio'
 import { DEMO_WALLET, WATCHED } from '@/lib/baseWatch'
 import { multibaasConfigured } from '@/lib/multibaas'
 import { loadMemory, loadTreasury, SIGNALS, TREASURY, type Claim } from '@/lib/treasuryAgent'
-import { manifestOf, NETWORK_NAME } from '@/lib/x402'
+import { manifestOf } from '@/lib/x402'
 import type { AccessManifest } from '@knowledge01/repo'
 
 export const metadata = { title: 'Demo — treasury dashboard' }
 export const dynamic = 'force-dynamic'
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`
+/** $221.1M rather than $221,061,500: a table of whales is read by magnitude. */
+const compactUsd = (n: number) => (n >= 1e9 ? `$${(n / 1e9).toFixed(2)}B` : n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : n >= 1e4 ? `$${(n / 1e3).toFixed(1)}k` : usd(n))
 /** Whole percents, except small shares: $43 of $9,004 is 0.5%, not 0%. */
 const pct = (n: number) => (n > 0 && n < 0.1 ? '<0.1%' : n < 1 ? `${n.toFixed(1)}%` : `${n.toFixed(0)}%`)
 const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`
@@ -46,15 +49,9 @@ export default async function TreasuryDashboard({ searchParams }: { searchParams
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[12px] uppercase tracking-[0.12em] text-dim">Treasury dashboard · Base mainnet · via MultiBaas</p>
-          <h1 className="mt-2 text-[clamp(1.9rem,3.6vw,3rem)] font-semibold leading-[1.02] tracking-[-0.035em]">Know what you hold. Know what to do.</h1>
+          <h1 className="mt-2 text-[clamp(1.9rem,3.6vw,3rem)] font-normal leading-[1.02] tracking-[-0.02em]">Know what you hold. Know what to do.</h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <form action="/demo/onchain" method="get" className="flex gap-2">
-            <input name="wallet" defaultValue={wallet ?? ''} placeholder="Your Base wallet 0x…" spellCheck={false} className="w-[260px] rounded-xl border border-line bg-surface px-3 py-2 font-mono text-[13.5px] outline-none focus:border-ink/40" />
-            <button className="rounded-xl border border-line px-4 py-2 text-[13.5px] hover:bg-raised">Load</button>
-          </form>
-          <Link href={`/demo/onchain/chat${wallet ? `?wallet=${wallet}` : ''}`} className="rounded-xl bg-ink px-4 py-2 text-[13.5px] text-bg hover:opacity-85">Ask Agent B →</Link>
-        </div>
+        <Link href={`/demo/onchain/chat${wallet ? `?wallet=${wallet}` : ''}`} className="rounded-xl bg-ink px-4 py-2 text-[13.5px] text-bg hover:opacity-85">Ask Agent B →</Link>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -67,18 +64,41 @@ export default async function TreasuryDashboard({ searchParams }: { searchParams
       )}
 
       <Card title="Watched treasuries" note="Agent A · Market Scout · via MultiBaas">
-        <div className="overflow-x-auto">
-          <table className="w-full text-[14px]">
-            <thead><tr className="text-left text-[12px] uppercase tracking-wide text-dim"><th className="py-2 font-normal">Wallet</th><th className="font-normal">Value</th><th className="font-normal">Stablecoins</th><th className="font-normal">Largest</th></tr></thead>
-            <tbody className="divide-y divide-line">
-              {watched.map((w) => (
-                <tr key={w.address}>
-                  <td className="py-2.5"><span className="font-medium">{w.label}</span> <span className="font-mono text-[12px] text-dim">{short(w.address)}</span></td>
-                  <td className="font-mono">{usd(w.totalUsd)}</td>
-                  <td>{pct(stablePct(w))}</td>
-                  <td className="font-mono">{largest(w) ? `${largest(w)!.symbol} ${pct(largest(w)!.pct)}` : '—'}</td>
-                </tr>
-              ))}
+        <div className="-mx-1 overflow-x-auto">
+          <table className="w-full text-[14px] tabular-nums">
+            <thead>
+              <tr className="text-[11.5px] uppercase tracking-[0.08em] text-dim">
+                <th className="px-1 pb-2 text-left font-normal">Wallet</th>
+                <th className="px-1 pb-2 text-right font-normal">Value</th>
+                <th className="px-1 pb-2 text-right font-normal">Stable</th>
+                <th className="w-[42%] px-1 pb-2 pl-6 text-left font-normal">Largest asset</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line border-t border-line">
+              {[...watched].sort((x, y) => y.totalUsd - x.totalUsd).map((w) => {
+                const top = largest(w)
+                return (
+                  <tr key={w.address} className="transition-colors hover:bg-raised/50">
+                    <td className="px-1 py-3">
+                      <a href={`https://basescan.org/address/${w.address}`} target="_blank" rel="noreferrer" className="group block">
+                        <span className="block font-medium text-ink group-hover:underline">{w.label.startsWith('Unlabelled') ? 'Base whale' : w.label}</span>
+                        <span className="block font-mono text-[11.5px] text-dim">{short(w.address)}</span>
+                      </a>
+                    </td>
+                    <td className="px-1 py-3 text-right font-medium">{compactUsd(w.totalUsd)}</td>
+                    <td className="px-1 py-3 text-right text-dim">{pct(stablePct(w))}</td>
+                    <td className="px-1 py-3 pl-6">
+                      {top ? (
+                        <span className="flex items-center gap-2.5">
+                          <span className="w-12 font-medium">{top.symbol}</span>
+                          <span className="h-1.5 min-w-12 flex-1 overflow-hidden rounded-full bg-raised" aria-hidden><span className="block h-full rounded-full bg-ink" style={{ width: `${Math.min(100, top.pct)}%` }} /></span>
+                          <span className="w-10 text-right text-dim">{pct(top.pct)}</span>
+                        </span>
+                      ) : <span className="text-dim">—</span>}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -86,84 +106,48 @@ export default async function TreasuryDashboard({ searchParams }: { searchParams
       </div>
 
       <section className="mt-10">
-        <h2 className="text-[18px] font-semibold tracking-[-0.02em]">How it works</h2>
-        <p className="mb-4 mt-1 max-w-3xl text-[15px] leading-relaxed text-dim">Agent B <span className="text-[13px]">(Portfolio Intelligence)</span> always reads <Link href={`/k/${TREASURY}`} className="font-mono text-ink underline">{TREASURY}</Link>, which Agent A <span className="text-[13px]">(Market Scout)</span> writes. Give it an ENS name and it adds your memory on top: which wallets are yours, which you track, which coins you watch, what you spend and how much risk you take. It reads those wallets live on Base (balances through MultiBaas, history through Blockscout) and answers with a short report in which every figure is cited. When a question needs this week&apos;s whale flows, Agent B buys them: <Link href={`/k/${SIGNALS}`} className="font-mono text-ink underline">{SIGNALS}</Link> is sealed, and {signals?.offers?.[0]?.price ?? '$0.01'} USDC over x402 gets it a grant sealed to its own key until the week ends. That is cheaper than watching every transfer itself.</p>
-        <FlowGraph cardH={150} nodes={NODES(treasury?.version, treasury?.claims.length, signals?.offers?.[0]?.price)} edges={EDGES} label="MultiBaas reads Base mainnet for Agent A (Market Scout), which writes prices, yields and whale readings to treasury.eth, and sealed 7-day whale flows to signals.treasury.eth. Agent B (Portfolio Intelligence) inherits treasury.eth, buys signals.treasury.eth over x402, adds your memory and your wallets, and answers with a report." />
+        <h2 className="font-display text-[1.9rem] font-normal leading-tight tracking-[-0.01em]">How it works</h2>
+        <p className="mb-4 mt-1 max-w-3xl text-[15px] leading-relaxed text-dim">Agent A fills a shared memory; you connect your wallet; Agent B reads both and answers.</p>
         <HowItWorks treasury={treasury?.claims ?? []} version={treasury?.version} memory={demoMemory?.claims ?? []} memoryVersion={demoMemory?.version} watched={watched.length} signals={signals} />
+        <FlowGraph cardH={150} cardW={400} nodes={NODES(treasury?.version, treasury?.claims.length, signals?.offers?.[0]?.price)} edges={EDGES} label="MultiBaas reads Base mainnet for Agent A (Market Scout), which writes prices, yields and whale readings to treasury.eth, and sealed 7-day whale flows to signals.treasury.eth. Agent B (Portfolio Intelligence) inherits treasury.eth, buys signals.treasury.eth over x402, adds your memory and your wallets, and answers with a report." />
       </section>
     </>
   )
 }
 
 const DEMO_MEMORY = 'personal.eth'
-/** A reading without its date: the card already says when. */
-/** Addresses shortened for reading; the claim itself keeps them whole. */
-const shortAll = (c: string) => c.replace(/0x[0-9a-fA-F]{40}/g, (a) => short(a))
-const undated = (c: string) => c.replace(/,?\s*(as of|on)\s+\d{1,2}\s+\w+\.?\s+\d{4}$/, '')
 
 function HowItWorks({ treasury, version, memory, memoryVersion, watched, signals }: { treasury: Claim[]; version?: number; memory: Claim[]; memoryVersion?: number; watched: number; signals: AccessManifest | null }) {
   const offer = signals?.offers?.find((o) => o.role === 'read')
-  const sales = (signals?.grants ?? []).filter((g) => g.payment)
-  const of = (topic: string) => treasury.filter((c) => c.topic === topic)
-  const prices = of('prices').map((c) => c.subject?.replace(/ price$/, '')).filter(Boolean)
-  const byTopic = (t: string) => memory.filter((c) => c.topic === t)
+  const count = (topic: string) => treasury.filter((c) => c.topic === topic).length
   return (
-    <div className="mt-4 grid gap-4 lg:grid-cols-3">
-      <Card title="1 · Agent A writes" note={version ? `${TREASURY} v${version} · ${treasury.length} claims` : TREASURY}>
-        <Group label="Prices and 24h moves">{prices.join(', ') || '—'}</Group>
-        <Group label="Yields on Base">
-          <ul className="space-y-1">{of('yields').map((c) => <li key={c.id}>{undated(c.claim)}</li>)}</ul>
-        </Group>
-        <Group label="Whale readings">{watched} large Base wallets, read through MultiBaas, plus a stablecoin benchmark</Group>
-        <Group label="Playbook">{of('policy').map((c) => c.subject).join(', ') || '—'} · set by the owner, never by an agent</Group>
-        <Group label={`Paid tier · ${SIGNALS}`}>
-          {offer ? `Sealed 7-day whale flows. ${offer.price} ${offer.asset} per ${offer.epochDays}-day grant on ${NETWORK_NAME[offer.network] ?? offer.network}, paid to ${short(offer.payTo)} over x402.` : 'Not on sale.'}
-          {sales.length ? <ul className="mt-1 space-y-0.5 text-[12.5px] text-dim">{sales.map((g) => <li key={g.id}>Sold to {g.agent} · {g.payment!.amount} {g.payment!.asset} · until {g.validUntil?.slice(0, 10)}</li>)}</ul> : null}
-        </Group>
-      </Card>
-
-      <Card title="2 · Your memory adds" note={memoryVersion ? `example: ${DEMO_MEMORY} v${memoryVersion}` : 'optional'}>
-        {memory.length ? (
-          <>
-            <Group label="Your wallet">{byTopic('wallets').map((c) => shortAll(c.claim)).join(' · ') || '—'}</Group>
-            <Group label="Wallets you track"><ul className="space-y-1">{byTopic('tracking').map((c) => <li key={c.id}>{shortAll(c.claim)}</li>)}</ul></Group>
-            <Group label="Coins you watch">{byTopic('watchlist').map((c) => c.claim).join(' · ') || '—'}</Group>
-            <Group label="How you invest"><ul className="space-y-1">{byTopic('preferences').map((c) => <li key={c.id}>{c.claim}</li>)}</ul></Group>
-          </>
-        ) : <p className="text-[13.5px] text-dim">Any ENS name with memory under it. Its claims say which wallets are yours, which to track, which coins you watch and how you invest.</p>}
-        <p className="mt-3 text-[12.5px] text-dim">Your preferences override the playbook where they differ.</p>
-      </Card>
-
-      <Card title="3 · Agent B answers" note="recommends; never signs">
-        <Group label="Reads live on Base">Balances of 10 assets through MultiBaas, transaction history through Blockscout, for your wallets and the ones you track</Group>
-        <Group label="Answers">Holdings, transactions, yield and historical activity, in plain questions</Group>
-        <Group label="As a report">A one-line answer with the key number, then short sections: Holdings, Activity, Yield, Watchlist, What to consider</Group>
-        <Group label="Buys what it lacks">When a question needs this week&apos;s whale flows, it pays Agent A over x402 for {SIGNALS}, once per epoch, and reads it with its own key</Group>
-        <Group label="Cited">Every figure names its source: {TREASURY}, {SIGNALS}, your memory, or the wallet it was read from</Group>
-        <Link href={`/demo/onchain/chat?name=${DEMO_MEMORY}`} className="mt-4 inline-block rounded-xl bg-ink px-4 py-2 text-[13.5px] text-bg hover:opacity-85">Try it with {DEMO_MEMORY} →</Link>
-      </Card>
-    </div>
+    <Steps row className="mb-8">
+      <Step n={1} title="Agent A fills the memory">
+        <p>Token prices, yields on Base and whale readings, plus the playbook, stored in <Link href={`/k/${TREASURY}`} className="font-mono text-ink underline">{TREASURY}</Link>. Fresh whale flows sit in a paid tier.</p>
+        <Chips items={[`${count('prices')} prices`, `${count('yields')} yields`, `${watched} whales`, `${count('policy')}-rule playbook`, version ? `${TREASURY} v${version}` : null, offer ? `paid tier · ${offer.price}/week` : null]} />
+      </Step>
+      <Step n={2} title="You connect">
+        <p>Your Base wallet, and your own memory if you have one: wallets you track, coins you watch, how you invest.</p>
+        <Chips items={['Base wallet via MultiBaas', memory.length ? `example: ${DEMO_MEMORY} v${memoryVersion} · ${memory.length} claims` : 'ENS memory, optional']} />
+      </Step>
+      <Step n={3} title="Agent B reads both and answers">
+        <p>Holdings, transactions, yield and history, with every figure cited. It buys the paid tier only when a question needs it.</p>
+        <Link href={`/demo/onchain/chat?name=${DEMO_MEMORY}`} className="flex w-fit rounded-xl bg-ink px-4 py-2 text-[13.5px] text-bg hover:opacity-85">Try it with {DEMO_MEMORY} →</Link>
+      </Step>
+    </Steps>
   )
 }
 
-function Group({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="mt-3 first:mt-0">
-      <p className="text-[11.5px] uppercase tracking-wide text-dim">{label}</p>
-      <div className="mt-0.5 text-[13.5px] leading-relaxed">{children}</div>
-    </div>
-  )
-}
 
 const NODES = (version?: number, claims?: number, price?: string): GraphNode[] => [
   { id: 'base', n: 1, title: 'Base mainnet', sub: 'Your wallets, and the large wallets Agent A watches.', x: 215, y: 190, icon: 'eye' },
   { id: 'mb', n: 2, title: 'MultiBaas', sub: 'Reads every balance on Base. No RPC node to run.', x: 215, y: 570, icon: 'calc' },
-  { id: 'a', n: 3, title: 'Agent A', tag: 'Market Scout', sub: 'Watches whales, prices and yields; writes both tiers.', x: 650, y: 380, icon: 'agent' },
-  { id: 't', n: 4, title: TREASURY, sub: version ? `Free · v${version} · ${claims} claims: prices, yields, whales.` : 'Free: prices, yields, whales, the playbook.', x: 1090, y: 95, icon: 'flag', href: `/k/${TREASURY}` },
-  { id: 'sig', n: 5, title: SIGNALS, w: 400, sub: `Sealed whale flows. Agent B pays ${price ?? '$0.01'} over x402 per week.`, x: 1090, y: 285, icon: 'lock', href: `/k/${SIGNALS}` },
-  { id: 'mem', n: 6, title: 'Your memory', sub: 'yourname.eth: wallets you track, coins you watch.', x: 1090, y: 475, icon: 'name' },
-  { id: 'you', n: 7, title: 'Your wallets', sub: 'Balances via MultiBaas, history via Blockscout.', x: 1090, y: 665, icon: 'key' },
-  { id: 'b', n: 8, title: 'Agent B', tag: 'Portfolio Intelligence', w: 420, sub: 'Inherits treasury.eth, buys signals, adds your memory, reports.', x: 1535, y: 380, icon: 'agent', final: true },
+  { id: 'a', n: 3, title: 'Agent A', tag: 'Market Scout', sub: 'Watches whales, prices and yields; writes both tiers.', x: 660, y: 380, icon: 'agent' },
+  { id: 't', n: 4, title: TREASURY, sub: version ? `Free · v${version} · ${claims} claims: prices, yields, whales.` : 'Free: prices, yields, whales, the playbook.', x: 1100, y: 95, icon: 'flag', href: `/k/${TREASURY}` },
+  { id: 'sig', n: 5, title: SIGNALS, sub: `Agent B pays ${price ?? '$0.01'} over x402 per week.`, x: 1100, y: 285, icon: 'lock', href: `/k/${SIGNALS}` },
+  { id: 'mem', n: 6, title: 'Your memory', sub: 'yourname.eth: wallets you track, coins you watch.', x: 1100, y: 475, icon: 'name' },
+  { id: 'you', n: 7, title: 'Your wallets', sub: 'Balances via MultiBaas, history via Blockscout.', x: 1100, y: 665, icon: 'key' },
+  { id: 'b', n: 8, title: 'Agent B', tag: 'Portfolio Intelligence', sub: 'Inherits treasury.eth, buys signals, adds your memory, reports.', x: 1540, y: 380, icon: 'agent', final: true },
 ]
 const EDGES: GraphEdge[] = [
   { from: 'base', to: 'mb', at: 10 },

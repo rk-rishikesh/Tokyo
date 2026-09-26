@@ -1,19 +1,22 @@
+'use client'
+
 /**
- * Chat, docked at the bottom of the canvas.
+ * The pipeline and the chat under it, as one column.
  *
- * The reference ends its workspace with a prompt bar — "describe your workflow"
- * — and the equivalent here is asking your own memory. It sits in its own strip
- * under the canvas rather than floating over it: floating, the canvas showed
- * through behind it.
+ * Before a question, the pipeline is the subject and chat is a bar at the
+ * bottom. Once a conversation starts, the pipeline steps aside and the chat
+ * takes the height: reading the answer is the task then, and the strip above
+ * only pushed it down. "New chat" brings the pipeline back.
  */
+import { useState } from 'react'
 import { Chat } from './Chat'
 
-export function PromptBar({ namespace }: { namespace: string }) {
+export function PromptBar({ namespace, canvas }: { namespace?: string | null; canvas: React.ReactNode }) {
+  const [active, setActive] = useState(false)
   return (
-    <div className="shrink-0 border-t border-line bg-bg px-4 py-4">
-      <div className="mx-auto w-full max-w-[860px]">
-        <Chat namespace={namespace} />
-      </div>
-    </div>
+    <>
+      {active ? null : <div className="min-h-0 flex-1">{canvas}</div>}
+      {namespace ? <Chat namespace={namespace} onActive={setActive} /> : null}
+    </>
   )
 }

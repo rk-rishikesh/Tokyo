@@ -11,9 +11,13 @@ import { usePathname } from 'next/navigation'
  * the same measure made moving between them feel like leaving the product.
  */
 const WIDE = ['/sources', '/reviews', '/why', '/contributions']
+/** The explorer draws its own columns, edge to edge: a sidebar, then the page. */
+const FLUSH = ['/namespaces', '/k']
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const wide = WIDE.some((r) => pathname === r || pathname.startsWith(`${r}/`))
+  const under = (r: string) => pathname === r || pathname.startsWith(`${r}/`)
+  if (FLUSH.some(under)) return <main className="w-full">{children}</main>
+  const wide = WIDE.some(under)
   return <main className={`w-full py-10 ${wide ? 'px-6' : 'px-5 sm:px-8 lg:px-10'}`}>{children}</main>
 }

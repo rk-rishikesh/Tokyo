@@ -21,8 +21,8 @@ export function SignIn({ sources, signedIn }: { providers: string[]; sources: Wo
       <p className="text-[14px] leading-tight text-ink">Your memory.<br />Owned by you.</p>
       <div className="mt-6 grid gap-12 lg:grid-cols-2">
         <div>
-          <h1 className="font-display text-[clamp(2.8rem,6vw,5.6rem)] font-normal leading-[0.94] tracking-[-0.045em]">Start with a name you own.</h1>
-          <p className="mt-8 max-w-xl font-display text-[clamp(1.2rem,1.9vw,1.75rem)] leading-[1.18] tracking-[-0.03em] text-dim">
+          <h1 className="font-display text-[clamp(2.8rem,6vw,5.6rem)] font-normal leading-[0.94] tracking-[-0.025em]">Start with a name you own.</h1>
+          <p className="mt-8 max-w-xl font-sans font-light text-[clamp(1.1rem,1.7vw,1.55rem)] leading-[1.3] tracking-[-0.015em] text-dim">
             Connect your wallet and pick one of your ENS names — or register one here, in three steps. Everything the
             agent learns is written under it, and stays readable if this site disappears tomorrow.
           </p>
@@ -32,7 +32,7 @@ export function SignIn({ sources, signedIn }: { providers: string[]; sources: Wo
 
       <section className="mt-24 border-t border-line pt-10">
         <div className="mb-10 grid gap-6 lg:grid-cols-2">
-          <h2 className="font-display text-[clamp(1.8rem,3.2vw,2.9rem)] font-normal leading-[0.98] tracking-[-0.045em]">Then choose what it may read.</h2>
+          <h2 className="font-display text-[clamp(1.8rem,3.2vw,2.9rem)] font-normal leading-[0.98] tracking-[-0.025em]">Then choose what it may read.</h2>
           <p className="max-w-xl text-[15px] leading-relaxed text-dim">
             Each source asks for the narrowest read that answers one question, and says what it will never do — before
             you connect it, not after.

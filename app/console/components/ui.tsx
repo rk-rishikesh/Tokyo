@@ -45,7 +45,7 @@ export function PageHeader({
   return (
     <header className="kn-page-header mb-8 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="kn-page-title font-mono text-2xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="kn-page-title text-[2.4rem] font-normal leading-[1.05] tracking-[-0.02em]">{title}</h1>
         {subtitle ? <p className="kn-page-sub mt-1 text-[15px] text-muted-foreground">{subtitle}</p> : null}
       </div>
       {actions ? <div className="flex gap-2">{actions}</div> : null}

@@ -44,7 +44,7 @@ export default function Demos() {
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[12px] uppercase tracking-[0.12em] text-dim">Demos</p>
-          <h1 className="mt-2 text-[clamp(2rem,4vw,3.2rem)] font-semibold leading-[1.02] tracking-[-0.035em]">See the network working.</h1>
+          <h1 className="mt-2 text-[clamp(2rem,4vw,3.2rem)] font-normal leading-[1.02] tracking-[-0.02em]">See the network working.</h1>
         </div>
         <p className="text-[15px] text-dim">Three ways in. All real data.</p>
       </header>
@@ -66,7 +66,7 @@ export default function Demos() {
                 ))}
               </div>
             </div>
-            <h2 className=" text-[clamp(2rem,3vw,2.8rem)] font-semibold leading-[1.02] tracking-[-0.035em]">{d.title}</h2>
+            <h2 className="font-display text-[clamp(2rem,3vw,2.8rem)] font-normal leading-[1.02] tracking-[-0.02em]">{d.title}</h2>
             <p className="mt-3 text-[16px] text-dim">{d.body}</p>
             <div className="mt-5 flex flex-wrap gap-1.5">
               {d.reads.map((r) => <span key={r} className="rounded-full border border-line px-2.5 py-1 font-mono text-[12px] text-ink/70">{r}</span>)}

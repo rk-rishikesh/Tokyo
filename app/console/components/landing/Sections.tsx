@@ -57,7 +57,7 @@ export function Display({
     lg: 'text-[clamp(2.8rem,7vw,5.5rem)]',
   }[size]
   return (
-    <h2 className={`font-display font-normal leading-[0.94] tracking-[-0.045em] ${scale} ${className}`}>
+    <h2 className={`font-display font-normal leading-[0.94] tracking-[-0.025em] ${scale} ${className}`}>
       {children}
     </h2>
   )
@@ -80,7 +80,7 @@ export function Kicker({ children }: { children: React.ReactNode }) {
  */
 export function Statement({ parts }: { parts: { text: string; lead?: boolean }[] }) {
   return (
-    <p className="font-display text-[clamp(1.5rem,3vw,2.3rem)] leading-[1.35] tracking-[-0.02em]">
+    <p className="font-sans font-light text-[clamp(1.35rem,2.6vw,2rem)] leading-[1.4] tracking-[-0.015em]">
       {parts.map((p, i) => (
         <span key={i} className={p.lead ? 'text-ink' : 'text-dim'}>
           {p.text}
@@ -156,9 +156,9 @@ export function Question({ q, children, open = false }: { q: string; children: R
 export function CallToAction({ title, body }: { title: React.ReactNode; body: string }) {
   return (
     <div className="grid gap-10 lg:grid-cols-2">
-      <h2 className="font-display text-[clamp(2.6rem,6vw,5.6rem)] font-normal leading-[0.94] tracking-[-0.045em]">{title}</h2>
+      <h2 className="font-display text-[clamp(2.6rem,6vw,5.6rem)] font-normal leading-[0.94] tracking-[-0.025em]">{title}</h2>
       <div>
-        <p className="font-display text-[clamp(1.35rem,2.35vw,2.2rem)] leading-[1.12] tracking-[-0.035em] text-dim">{body}</p>
+        <p className="font-sans font-light text-[clamp(1.2rem,2vw,1.85rem)] leading-[1.3] tracking-[-0.015em] text-dim">{body}</p>
         <div className="mt-9 flex flex-wrap gap-3">
           <Link href="/app" className="group inline-flex items-center gap-3 rounded-full bg-ink px-6 py-3.5 text-[15px] text-bg transition hover:opacity-85">
             Build your knowledge <Arrow />

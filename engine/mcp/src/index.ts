@@ -14,7 +14,7 @@
  * for public namespaces.
  *
  * Configure:
- *   KNOWLEDGE_AGENT      identity the agent acts as (contributor / reviewer name). Default: the namespace owner.
+ *   KNOWLEDGE_AGENT      identity the agent acts as (contributor / reviewer name). Default: "reader" on a fresh local copy.
  *   KNOWLEDGE_NAMESPACE  default namespace when a call omits one.
  *
  * Install:  claude mcp add knowledge -- node <path>/engine/mcp/dist/knowledge-mcp.mjs
@@ -27,7 +27,7 @@ import { join } from 'node:path'
 import { createPublicClient, createWalletClient, http, type PublicClient, type WalletClient } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
-import { normalisePrivateKey, renderFindings, searchSnapshot, shortId, type Resolution, type Source } from '@knowledge01/core'
+import { normalisePrivateKey, onchainRoles, policyMembers, renderFindings, searchSnapshot, shortId, type Resolution, type Source } from '@knowledge01/core'
 import { EnsPointer, Remote, Repository, RepoStore, repoPath, reposDir } from '@knowledge01/repo'
 import { createStorage } from '@knowledge01/storage'
 import { formatConflicts, formatDiff, formatHits, formatKnowledge, formatLog, formatProposal, formatWhy, notice } from './format.js'
@@ -56,6 +56,16 @@ function remote(r: Repository): Remote {
   return new Remote(r, createStorage(), new EnsPointer(r.namespace, pc, wallet))
 }
 
+/** Who may publish, read live from the namespace's resolver: the policy says who reviews, ENS decides who publishes. */
+async function publishers(r: Repository): Promise<string> {
+  try {
+    const { resolver, roles } = await onchainRoles(createPublicClient({ chain: sepolia, transport: http(RPC) }) as PublicClient, r.namespace, policyMembers(r.policy))
+    if (!resolver) return 'on ENS: not registered — roles are enforced locally only'
+    const can = (x: (typeof roles)[number]) => !x.account ? 'no owner on ENS' : x.canGrant ? 'publishes · can grant' : x.canPublish ? 'publishes' : x.role === 'contributor' ? (x.canPropose ? 'can propose on ENS' : 'cannot propose on ENS') : 'cannot publish'
+    return `on ENS (resolver ${resolver}): ${roles.map((x) => `${x.role} ${x.name} — ${can(x)}`).join('; ')}`
+  } catch { return 'on ENS: could not read roles right now' }
+}
+
 const server = new McpServer({ name: 'knowledge', version: '0.3.1' })
 const text = (body: string) => ({ content: [{ type: 'text' as const, text: body }] })
 const fail = (e: unknown) => ({ isError: true as const, content: [{ type: 'text' as const, text: notice(`error: ${e instanceof Error ? e.message : String(e)}`) }] })
@@ -65,15 +75,17 @@ const SOURCE = z.object({ type: z.string(), id: z.string().optional(), title: z.
 
 // ---- consume ----
 
-server.tool('knowledge_resolve', 'Describe a namespace: title, version, owner and policy, branches, open proposals, parent and children. Start here when an agent is pointed at a name.', { namespace: NS },
-  async ({ namespace }) => run(() => {
+server.tool('knowledge_resolve', 'Describe a namespace: title, version, owner and policy, who may publish it on ENS, branches, open proposals, parent and children. Start here when an agent is pointed at a name.', { namespace: NS },
+  async ({ namespace }) => run(async () => {
     const r = repo(namespace); const refs = r.refs
+    const onchain = await publishers(r)
     return [notice(`${refs.namespace}${refs.title ? ` — ${refs.title}` : ''} · v${r.version(refs.head)} · ${Object.keys(r.headSnapshot(refs.head)).length} knowledge objects`),
       refs.description ?? '',
       `kind: ${refs.policy.kind} · owner: ${refs.policy.owner} · reviewers: ${refs.policy.reviewers.join(', ') || '(none)'} · contributors: ${Array.isArray(refs.policy.contributors) ? refs.policy.contributors.join(', ') : 'anyone'} · readers: ${refs.policy.readers} · approvals: ${refs.policy.approvals}${refs.policy.approvals === 0 ? ' (auto-land, findings recorded)' : ''} · conflicts: ${refs.policy.conflicts} · signed approvals: ${refs.policy.signedApprovals ? 'required' : 'optional'}`,
       (() => { const lp = r.store.readConfig().publish?.lastPublish; const d = r.publishDue(); return lp ? `published: v${lp.version} at ${lp.at} · ${d.pending} commit(s) since${d.due ? ' · publish due' : ''}` : `published: never · ${d.pending} local commit(s)` })(),
       `branches: ${Object.keys(refs.branches).join(', ') || '(none)'} · open proposals: ${r.proposals().filter((p) => !['committed', 'rejected'].includes(p.status)).length}`,
       refs.parent ? `parent: ${refs.parent}` : '', refs.children.length ? `children: ${refs.children.join(', ')}` : '',
+      onchain,
       `acting as: ${r.identity} (${r.roles().join(', ')})`].filter(Boolean).join('\n')
   }))
 

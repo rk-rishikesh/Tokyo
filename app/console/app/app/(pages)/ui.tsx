@@ -10,7 +10,7 @@ export function Title({ eyebrow, children, sub }: { eyebrow?: string; children: 
     <header className="mb-12 pt-4">
       {eyebrow ? <p className="text-[14px] leading-tight text-ink">{eyebrow[0]!.toUpperCase() + eyebrow.slice(1)}.</p> : null}
       <div className="mt-5 grid gap-8 lg:grid-cols-2">
-        <h1 className="font-display text-[clamp(2.4rem,5.4vw,5rem)] font-normal leading-[0.94] tracking-[-0.045em]">{children}</h1>
+        <h1 className="font-display text-[clamp(2.4rem,5.4vw,5rem)] font-normal leading-[0.94] tracking-[-0.025em]">{children}</h1>
         {sub ? <p className="max-w-2xl self-end text-[15px] leading-relaxed text-dim">{sub}</p> : null}
       </div>
     </header>
@@ -75,7 +75,7 @@ export function Block({ title, note, children, id, aside }: { title: string; not
     <section id={id} className="scroll-mt-20 border-t border-line py-10">
       <div className="grid gap-6 lg:grid-cols-[18rem_1fr] lg:gap-12">
         <div>
-          <h2 className="text-[clamp(1.25rem,1.8vw,1.6rem)] leading-tight tracking-[-0.03em]">{title}</h2>
+          <h2 className="font-display text-[clamp(1.25rem,1.8vw,1.6rem)] leading-tight tracking-[-0.01em]">{title}</h2>
           {note ? <p className="mt-2 max-w-[34ch] text-[14.5px] leading-relaxed text-dim">{note}</p> : null}
           {aside ? <div className="mt-4">{aside}</div> : null}
         </div>

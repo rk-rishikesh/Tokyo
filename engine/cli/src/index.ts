@@ -8,6 +8,7 @@
  *   knowledge propose --title "…"            (current branch → default branch, runs automated review)
  *   knowledge proposals · review <n> [--approve|--reject|--comment "…"] · land <n>
  *   knowledge policy [--reviewer x.eth]... [--contributors anyone|a.eth,b.eth] [--approvals 1]
+ *   knowledge roles [--sync]                 (who may publish or propose, read from ENS; --sync makes ENS match the policy)
  *   knowledge push · pull
  *
  * Everything but init --register, push and pull is local and offline.
@@ -24,6 +25,7 @@ import { epochEnd, OWNER_KEY_MESSAGE, ownerKeyFromSignature, readManifest, Repos
 import { actAs, localNamespaces, network, openRepo, publicClient, remoteFor, resolveNamespace, walletClient } from './context.js'
 import { fmt } from './format.js'
 import { registerNamespace } from './register.js'
+import { showRoles, syncRoles } from './roles.js'
 
 const HELP = `knowledge — ENS-native, versioned knowledge namespaces
 
@@ -42,6 +44,11 @@ const HELP = `knowledge — ENS-native, versioned knowledge namespaces
   findings [--resolve <commit>]       findings recorded on ungated commits (auto-land / direct commits)
   policy [--reviewer x.eth]... [--contributors anyone|a.eth,b.eth] [--approvals n] [--readers public|key]
          [--conflicts ask|latest|confidence] [--publish manual|interval|threshold] [--interval-minutes n] [--pending-commits n] [--signed-approvals true|false]
+  roles [--sync]                      who may publish or propose, read live from ENS. Reviewers get ROLE_SET_CONTENTHASH
+                                      on this name, so they can publish what they land; named contributors get
+                                      ROLE_SET_DATA on knowledge.proposal.<name>, so they can point you at a proposal.
+                                      --sync grants and revokes to match the policy (needs the owner's PRIVATE_KEY);
+                                      policy --reviewer / --contributors syncs too.
   push [--if-due]                     publish; --if-due only when the namespace's publish policy says so
   source connect "<name>" --kind human|document|api|agent|application [--description d]
   source list
@@ -81,7 +88,7 @@ const { values: v, positionals } = parseArgs({
     export: { type: 'boolean' }, publish: { type: 'string' }, from: { type: 'string' }, resolve: { type: 'string' }, 'if-due': { type: 'boolean' },
     conflicts: { type: 'string' }, 'interval-minutes': { type: 'string' }, 'pending-commits': { type: 'string' }, 'signed-approvals': { type: 'string' },
     price: { type: 'string' }, 'pay-to': { type: 'string' }, endpoint: { type: 'string' }, chain: { type: 'string' }, 'epoch-days': { type: 'string' }, role: { type: 'string' },
-    b: { type: 'boolean' }, json: { type: 'boolean' }, help: { type: 'boolean', short: 'h' },
+    b: { type: 'boolean' }, json: { type: 'boolean' }, sync: { type: 'boolean' }, help: { type: 'boolean', short: 'h' },
   },
 })
 
@@ -103,6 +110,25 @@ const parseSources = (list: string[] | undefined): Source[] | undefined =>
   })
 
 const repoArg = () => actAs(openRepo(v.namespace), v.as)
+
+/**
+ * If this wallet holds the contributor's proposal key on the namespace's
+ * resolver, write the bundle's CID there, so the owner finds it on ENS with
+ * `pull-proposal --from <you>`. Returns what happened, or null to fall back.
+ */
+async function pointOwnerAt(repo: Repository, cid: string): Promise<string | null> {
+  const wallet = walletClient()
+  if (!wallet?.account) return null
+  const { onchainRoles, proposalPointerCall, proposalKey } = await import('@knowledge01/core')
+  const client = publicClient()
+  const { resolver, roles } = await onchainRoles(client, repo.namespace, [{ name: repo.identity, role: 'contributor' }])
+  const me = roles[0]
+  if (!resolver || !me?.canPropose || me.account?.toLowerCase() !== wallet.account.address.toLowerCase()) return null
+  const hash = await wallet.sendTransaction({ account: wallet.account, chain: wallet.chain, to: resolver, data: proposalPointerCall(repo.namespace, repo.identity, cid) } as never)
+  const receipt = await client.waitForTransactionReceipt({ hash })
+  if (receipt.status !== 'success') return null
+  return `pointed ${repo.namespace} at it on ENS (${proposalKey(repo.identity)}, ${hash.slice(0, 10)}…) — the owner runs: knowledge pull-proposal --from ${repo.identity}`
+}
 
 async function main(): Promise<void> {
   if (!cmd || v.help) return out(HELP)
@@ -325,7 +351,8 @@ async function main(): Promise<void> {
         if (v.publish !== undefined) {
           const { ref } = await remoteFor(repo).publishBundle(bundle)
           out(`${fmt.ok('✓')} bundle published: ${fmt.bold(ref.ref)} — the owner runs: knowledge pull-proposal ${ref.ref} --namespace ${repo.namespace}`)
-          out(fmt.dim('recorded in your outbox; `knowledge push` publishes the outbox with your refs'))
+          const onEns = await pointOwnerAt(repo, ref.ref)
+          out(fmt.dim(onEns ?? 'recorded in your outbox; `knowledge push` publishes the outbox with your refs'))
         } else {
           const file = `proposal-${p.number}.bundle.json`
           writeFileSync(file, JSON.stringify(bundle, null, 2))
@@ -392,11 +419,16 @@ async function main(): Promise<void> {
       const remote = remoteFor(repo)
       const cids: string[] = []
       if (v.from) {
-        const { getContenthash } = await import('@knowledge01/core')
-        const ch = await getContenthash(publicClient(), v.from)
-        if (!ch || ch === '0x') throw new Error(`${v.from} has nothing published`)
-        cids.push(...(await remote.inboxFrom(ch)))
-        if (!cids.length) return out(fmt.dim(`${v.from} has no proposals for ${repo.namespace} in its outbox`))
+        const { getContenthash, readProposalPointer } = await import('@knowledge01/core')
+        // First the contributor's own key on this namespace's resolver, then their outbox.
+        const pointed = await readProposalPointer(publicClient(), repo.namespace, v.from)
+        if (pointed) { cids.push(pointed); out(fmt.dim(`${v.from} pointed ${repo.namespace} at ${pointed} on ENS`)) }
+        else {
+          const ch = await getContenthash(publicClient(), v.from)
+          if (!ch || ch === '0x') throw new Error(`${v.from} has not pointed ${repo.namespace} at a proposal on ENS, and has nothing published`)
+          cids.push(...(await remote.inboxFrom(ch)))
+        }
+        if (!cids.length) return out(fmt.dim(`${v.from} has no proposals for ${repo.namespace} on ENS or in its outbox`))
       } else cids.push(src!)
       for (const c of cids) {
         const bundle = existsSync(c) ? JSON.parse(readFileSync(c, 'utf8')) : await remote.fetchBundle(c)
@@ -429,10 +461,19 @@ async function main(): Promise<void> {
         ...(v.publish || v['interval-minutes'] || v['pending-commits'] ? { publish: { ...repo.policy.publish, ...(v.publish ? { mode: v.publish as 'manual' | 'interval' | 'threshold' } : {}), ...(v['interval-minutes'] ? { intervalMinutes: Number(v['interval-minutes']) } : {}), ...(v['pending-commits'] ? { pendingCommits: Number(v['pending-commits']) } : {}) } } : {}),
         ...(v['signed-approvals'] ? { signedApprovals: v['signed-approvals'] === 'true' } : {}),
       }
+      const before = { reviewers: repo.policy.reviewers, contributors: repo.policy.contributors }
       const policy = Object.keys(patch).length ? repo.setPolicy(patch) : repo.policy
       if (v.title || v.description) repo.describe({ ...(v.title ? { title: v.title } : {}), ...(v.description ? { description: v.description } : {}) })
       if (v.json) return json(policy)
       out(`kind         ${policy.kind}\nowner        ${policy.owner}\nreviewers    ${policy.reviewers.join(', ') || '(none)'}\ncontributors ${Array.isArray(policy.contributors) ? policy.contributors.join(', ') : 'anyone'}\nreaders      ${policy.readers}\napprovals    ${policy.approvals}${policy.approvals === 0 ? '  (auto-land; findings still recorded)' : ''}\nconflicts    ${policy.conflicts}\npublish      ${policy.publish.mode}${policy.publish.intervalMinutes ? ` · every ${policy.publish.intervalMinutes} min` : ''}${policy.publish.pendingCommits ? ` · or ${policy.publish.pendingCommits} pending commits` : ''}\nsigned       ${policy.signedApprovals ? 'approvals must be signed by the reviewer\'s ENS key' : 'approvals are claims (unsigned allowed)'}`)
+      if (JSON.stringify([before.reviewers, before.contributors]) !== JSON.stringify([policy.reviewers, policy.contributors])) await syncRoles(repo, before, out)
+      return
+    }
+
+    case 'roles': {
+      const repo = repoArg()
+      if (v.sync) await syncRoles(repo, repo.policy, out)
+      await showRoles(repo, out, v.json ? json : undefined)
       return
     }
 

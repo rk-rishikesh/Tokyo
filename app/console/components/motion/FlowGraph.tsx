@@ -20,8 +20,9 @@ const W = 1760
 const H = 760
 const CARD_W = 340
 const CARD_H = 112
-/** A card can be wider than the rest when its title and tag need the room. */
-const cw = (n: GraphNode) => n.w ?? CARD_W
+/** Every card is `cardW` wide, unless one sets its own `w`. */
+let CW = CARD_W
+const cw = (n: GraphNode) => n.w ?? CW
 const FPS = 30
 const LOOP = 300
 
@@ -82,7 +83,8 @@ const bezier = ([p0, p1, p2, p3]: [Pt, Pt, Pt, Pt], t: number): Pt => {
   }
 }
 
-function Scene({ nodes, edges, cardH = CARD_H }: { nodes: GraphNode[]; edges: GraphEdge[]; cardH?: number }) {
+function Scene({ nodes, edges, cardH = CARD_H, cardW = CARD_W }: { nodes: GraphNode[]; edges: GraphEdge[]; cardH?: number; cardW?: number }) {
+  CW = cardW
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
   const byId = new Map(nodes.map((n) => [n.id, n]))
@@ -129,7 +131,7 @@ function Scene({ nodes, edges, cardH = CARD_H }: { nodes: GraphNode[]; edges: Gr
               border: n.final ? `2.5px solid ${ink(0.9)}` : `1.5px solid ${ink(active ? 0.35 : 0.12)}`,
               boxShadow: n.final ? `0 22px 50px -18px ${ink(glow)}` : `0 1px 2px ${ink(0.04)}, 0 14px 34px -22px ${ink(0.25)}`,
               padding: '22px 26px', display: 'flex', flexDirection: 'column', justifyContent: 'center',
-              fontFamily: 'var(--font-grotesk), var(--font-sans), sans-serif',
+              fontFamily: 'var(--font-sans), sans-serif',
             }}
           >
             <div style={{ position: 'absolute', left: -18, top: -18, width: 40, height: 40, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, fontWeight: 500, background: n.final ? ink(0.9) : 'hsl(var(--raised))', color: n.final ? bg(1) : ink(0.7), border: `1px solid ${ink(0.1)}` }}>
@@ -141,7 +143,7 @@ function Scene({ nodes, edges, cardH = CARD_H }: { nodes: GraphNode[]; edges: Gr
               </div>
               <div style={{ fontSize: 27, letterSpacing: '-0.02em', color: ink(0.95), fontWeight: 500, whiteSpace: 'nowrap' }}>
                 {n.title}
-                {n.tag ? <span style={{ marginLeft: 10, fontSize: 17, fontWeight: 400, color: ink(0.5), letterSpacing: 0 }}>{n.tag}</span> : null}
+                {n.tag ? <span style={{ marginLeft: 10, fontSize: 15, fontWeight: 400, color: ink(0.5), letterSpacing: 0 }}>{n.tag}</span> : null}
               </div>
             </div>
             <div style={{ marginTop: 10, fontSize: 20, lineHeight: 1.3, color: ink(0.55), letterSpacing: '-0.01em' }}>{n.sub}</div>
@@ -152,14 +154,15 @@ function Scene({ nodes, edges, cardH = CARD_H }: { nodes: GraphNode[]; edges: Gr
   )
 }
 
-/** `cardH` makes room for a sentence under each title instead of a few words. */
-export function FlowGraph({ nodes, edges, label, cardH }: { nodes: GraphNode[]; edges: GraphEdge[]; label: string; cardH?: number }) {
+/** `cardH` makes room for a sentence under each title; `cardW` sets one width for every card. */
+export function FlowGraph({ nodes, edges, label, cardH, cardW }: { nodes: GraphNode[]; edges: GraphEdge[]; label: string; cardH?: number; cardW?: number }) {
+  CW = cardW ?? CARD_W
   return (
     <div className="relative w-full overflow-hidden rounded-[28px] border border-line">
       <div role="img" aria-label={label}>
       <Player
         component={Scene}
-        inputProps={{ nodes, edges, ...(cardH ? { cardH } : {}) }}
+        inputProps={{ nodes, edges, ...(cardH ? { cardH } : {}), ...(cardW ? { cardW } : {}) }}
         durationInFrames={LOOP}
         fps={FPS}
         compositionWidth={W}

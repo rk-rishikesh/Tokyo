@@ -98,7 +98,6 @@
  * except by weight.
  */
 .theme-mono {
-  --font-display: var(--font-grotesk);
   --bg: 0 0% 100%;
   --surface: 0 0% 100%;
   --raised: 0 0% 95.5%;
@@ -163,16 +162,28 @@
     --wire: 0 0% 26%;
   }
 }
-/* The hero keeps the serif it was designed in. */
-.theme-mono .kn-hero { --font-display: var(--font-serif); }
 
 html { scroll-behavior: smooth; }
+
+/* No visible scrollbars anywhere; everything still scrolls by wheel, touch and keys. */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
 
 body {
   background: hsl(var(--bg));
   color: hsl(var(--ink));
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
   -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Headings are the serif on every page. It has one weight, so a heading asking
+ * for semibold gets the regular cut rather than a smeared synthetic bold.
+ * Small card labels (h2 at 14–15px) are labels, not headings, and stay sans.
+ */
+@layer base {
+  h1 { font-family: var(--font-display), ui-serif, Georgia, serif; font-synthesis: none; }
+  .font-display { font-synthesis: none; }
 }
 
 /* Nodes and steps re-label in place when the vocabulary changes. */
@@ -248,11 +259,10 @@ body {
  */
 .theme-mono .kn-page-header { margin-bottom: 3rem; padding-top: 1.5rem; }
 .theme-mono .kn-page-title {
-  font-family: var(--font-grotesk), var(--font-sans), sans-serif;
   font-weight: 400;
   font-size: clamp(2.4rem, 5vw, 4.6rem);
   line-height: 0.95;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.03em;
 }
 .theme-mono .kn-page-sub { margin-top: 1rem; max-width: 46rem; font-size: 15px; line-height: 1.6; }
 .theme-mono .kn-card { border-radius: 24px; }

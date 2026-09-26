@@ -138,7 +138,7 @@ function ProtocolNav({ active }: { active: (href: string, opts?: { exact?: boole
           <div className="grid gap-8 md:grid-cols-2">
             <nav className="flex flex-col gap-1">
               {[...PROTOCOL, { href: '/demo', label: 'Demo' }].map((l) => (
-                <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="font-display text-[clamp(2rem,4vw,3.4rem)] leading-[1.02] tracking-[-0.045em] opacity-90 hover:opacity-100">
+                <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="font-display text-[clamp(2rem,4vw,3.4rem)] leading-[1.02] tracking-[-0.025em] opacity-90 hover:opacity-100">
                   {l.label}.
                 </Link>
               ))}

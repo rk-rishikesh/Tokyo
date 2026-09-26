@@ -54,7 +54,7 @@ export default async function Publish() {
       {decisions.length ? (
         <section className="mb-12">
           <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="font-display text-[clamp(1.8rem,3vw,2.6rem)] font-normal leading-none tracking-[-0.045em]">Needs your decision.</h2>
+            <h2 className="font-display text-[clamp(1.8rem,3vw,2.6rem)] font-normal leading-none tracking-[-0.025em]">Needs your decision.</h2>
             <p className="text-[14px] text-dim">{decisions.length} question{decisions.length === 1 ? '' : 's'} · answer each once</p>
           </div>
           <div className="grid gap-4 xl:grid-cols-2">
@@ -115,7 +115,7 @@ export default async function Publish() {
       {proposals.length ? (
         <section className="mt-20 border-t border-line pt-8">
           <div className="mb-8 grid gap-6 lg:grid-cols-2">
-            <h2 className="font-display text-[clamp(1.8rem,3.2vw,2.9rem)] font-normal leading-[0.98] tracking-[-0.045em]">Waiting on you.</h2>
+            <h2 className="font-display text-[clamp(1.8rem,3.2vw,2.9rem)] font-normal leading-[0.98] tracking-[-0.025em]">Waiting on you.</h2>
             <p className="max-w-xl text-[15px] leading-relaxed text-dim">Proposals an agent or contributor made to your namespaces. Approve to land them — they then wait above like any other change.</p>
           </div>
           <div className="space-y-3">

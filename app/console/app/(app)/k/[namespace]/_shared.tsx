@@ -40,7 +40,7 @@ export function NamespaceHeader({ view, branch, active }: { view: RepoView; bran
         </p>
         <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-mono text-2xl font-semibold tracking-tight">{view.namespace}</h1>
+            <h1 className="text-[2.4rem] font-normal leading-[1.05] tracking-[-0.02em]">{view.namespace}</h1>
             {view.refs.title ? <p className="mt-1 text-lg">{view.refs.title}</p> : null}
             {view.refs.description ? <p className="mt-1 max-w-2xl text-[15px] text-muted-foreground">{view.refs.description}</p> : null}
           </div>

@@ -7,7 +7,7 @@ export const metadata = { title: 'Developers' }
 export default function Developers() {
   return (
     <>
-      <Hero kicker="Developers" title="Build on the Knowledge Network." sub="Connect your application’s knowledge to an ENS namespace and let other agents and applications consume it. Three surfaces — SDK, CLI, MCP — over one repository." actions={<><Link href="/for-agents" className="rounded-full border border-line px-5 py-3 text-[14px] hover:bg-raised">for agents</Link><Link href="/sources" className="rounded-full border border-line px-5 py-3 text-[14px] hover:bg-raised">sources</Link></>} />
+      <Hero kicker="Developers" title="Build on the Knowledge Network." sub="Connect your application’s knowledge to an ENS namespace and let other agents and applications consume it. Three surfaces — SDK, CLI, MCP - One Knowledge Network" actions={<><Link href="/for-agents" className="rounded-full border border-line px-5 py-3 text-[14px] hover:bg-raised">for agents</Link><Link href="/sources" className="rounded-full border border-line px-5 py-3 text-[14px] hover:bg-raised">sources</Link></>} />
       <main className="w-full px-5 sm:px-8 lg:px-10">
         <Section title="The model your code touches">
           <Pipeline
@@ -48,11 +48,6 @@ export default function Developers() {
               ['MCP · knowledge_*', 'resolve · search · get · sources · history · diff · status · propose · review · land · observe · commit · branch · merge · revert · pull · push'],
             ].map(([t, b]) => <div key={t} className="rounded-2xl border border-line bg-surface p-4"><p className="text-[15px] font-semibold">{t}</p><p className="mt-2 text-[14px] leading-relaxed text-dim">{b}</p></div>)}
           </div>
-        </Section>
-        <Section title="Try the demo application">
-          <Callout title="AI Travel Agent">
-            <p>A small application that consumes three namespaces — <code>rishikesh.eth</code>, <code>japan.travel.eth</code>, <code>tokyo.food.eth</code> — and plans a trip, showing exactly which claims it used and where each came from. It owns none of the knowledge. <Link href="/demo/travel" className="text-ink underline underline-offset-4 hover:opacity-70">Run it <Arrow /></Link></p>
-          </Callout>
         </Section>
         <Footer />
       </main>

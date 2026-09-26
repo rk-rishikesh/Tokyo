@@ -20,8 +20,8 @@ const LOOP = 390
 
 const ink = (a = 1) => `hsl(var(--ink) / ${a})`
 const bg = (a = 1) => `hsl(var(--bg) / ${a})`
-const SANS = 'var(--font-grotesk), var(--font-sans), sans-serif'
-const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace'
+const SANS = 'var(--font-sans), sans-serif'
+const MONO = 'var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace'
 
 const QUESTION = 'Find vegetarian restaurants in Tokyo'
 const ANSWER = 'Try Ain Soph. Journey in Shinjuku — it is fully vegan, with a tasting menu.'

@@ -157,7 +157,7 @@ verified by hash — and reviews it like any other.
 knowledge init cancer-research.eth && knowledge pull   # no key, no wallet
 knowledge search "pembrolizumab" && knowledge why <id>  # sources · contributor · reviewers · version
 
-claude mcp add knowledge -e KNOWLEDGE_AGENT=my-agent.eth -- npx -y @knowledge01/mcp
+claude mcp add knowledge -e KNOWLEDGE_AGENT=<your-name.eth> -- npx -y @knowledge01/mcp
 ```
 
 ```ts

@@ -300,6 +300,30 @@ Functions used, all in vendored ABIs: `ETHRegistrar.isAvailable/getRegisterPrice
 `MockUSDC.mint/approve/allowance/balanceOf`, `VerifiableFactory.deployProxy`, `UserRegistry.initialize/register/setParent/getSubregistry`,
 `ETHRegistry.getOwner/setSubregistry/setResolver`, `PermissionedResolver.initialize/setContenthash`, `UniversalResolverV2.findResolver/resolve/ROOT_REGISTRY`.
 
+## 12. Namespace roles on chain — 26 September 2026
+
+The policy's roles are now granted on each namespace's own PermissionedResolver
+(`engine/core/src/publishers.ts`, `knowledge roles [--sync]`). Semantics checked against
+`PermissionedResolver.sol` and `EnhancedAccessControl.sol` at the pinned commit:
+
+| Role | Grant | Call | Why it is enough, and no more |
+|---|---|---|---|
+| owner | `ROLE_SET_CONTENTHASH` + admin on `ROOT_RESOURCE` (at `initialize`) | — | `hasRoles` is root ∪ resource, so the owner publishes and can grant |
+| reviewer | `ROLE_SET_CONTENTHASH` on `resource(namehash(ns), 0)` | `authorizeNameRoles(dns(ns), SET_CONTENTHASH, account, grant)` | `setContenthash` is `onlyPartRoles(node, 0, …)`, which checks exactly this resource; no admin half, so it cannot be passed on |
+| contributor (named) | `ROLE_SET_DATA` on `resource(node, partHash("knowledge.proposal.<name>"))` | `authorizeDataRoles(dns(ns), key, account, grant)` | `setData` checks the key's resource first; this one key and nothing else |
+
+A member's account is the owner of their ENS name (`findOwner`), the same key that signs approvals.
+Grants are idempotent (`_grantRoles` is a no-op when the bits are already set). Only
+`hasRoles`, `authorizeNameRoles`, `authorizeDataRoles`, `setData` and `data` are added — all in the
+vendored ABI and the deployed bytecode (`pnpm check:abi`, `pnpm check:deployment`).
+
+**Resolver drift, rechecked 26 September 2026.** The vanity proxy
+`0xeEeE…EeEe` now reports `ROOT_REGISTRY = 0x9703DBD26dAB89504490994138cF2c575251a9cE` (eth registry
+`0x657eA849311d3D5823348ddEd7C2AaAFb3EDE09E`) — a third set, and not the one in the ENS docs preview
+either (preview ETHRegistry `0xDEDB92913A25abE1f7BCDD85D8A344a43B398B67`). Through the vanity proxy,
+`cancer-research.eth` and `treasury.eth` have no resolver; through the pinned `UniversalResolverV2` they
+resolve. The pin stays until the documented deployment and the proxy agree.
+
 ## 10. Memory namespace — pre-pivot, 15 September 2026 (superseded)
 
 The current product publishes one pointer per namespace. `memory.<identity>` is a subname

@@ -20,7 +20,7 @@ const SCENES = 8
 
 const ink = (a = 1) => `hsl(var(--ink) / ${a})`
 const bg = (a = 1) => `hsl(var(--bg) / ${a})`
-const FONT = 'var(--font-grotesk), var(--font-sans), sans-serif'
+const FONT = 'var(--font-sans), sans-serif'
 
 const COPY: { title: string; body: string }[] = [
   { title: 'Agent A learns.', body: 'You connect Google Takeout and GitHub. It observes patterns, never contents.' },

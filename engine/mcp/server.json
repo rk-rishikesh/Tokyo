@@ -13,7 +13,7 @@
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "KNOWLEDGE_NAMESPACE", "description": "The namespace to read by default, e.g. cancer-research.eth", "isRequired": false },
-        { "name": "KNOWLEDGE_AGENT", "description": "The identity this agent contributes as, e.g. my-agent.eth", "isRequired": false },
+        { "name": "KNOWLEDGE_AGENT", "description": "The identity this agent contributes as, e.g. <your-name.eth>", "isRequired": false },
         { "name": "SEPOLIA_RPC_URL", "description": "Ethereum Sepolia RPC used to resolve ENS names (a public default is used if unset)", "isRequired": false },
         { "name": "PINATA_GATEWAY", "description": "IPFS gateway used to fetch namespace versions", "isRequired": false }
       ]
