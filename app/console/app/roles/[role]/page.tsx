@@ -21,14 +21,22 @@ export default async function RolePage({ params }: { params: Promise<{ role: str
   const next = ROLES[(idx + 1) % ROLES.length]!
   return (
     <>
-      <section className="w-full px-5 sm:px-8 lg:px-10 pt-10">
-        <p className="text-[13.5px] text-dim"><Link href="/roles" className="text-ink underline underline-offset-4 hover:opacity-70">roles & guides</Link> / {meta.id}</p>
-        <div className="mt-2 flex items-center gap-2"><span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} /><span className={`text-[12.5px] font-medium uppercase tracking-wider ${meta.text}`}>{meta.who}</span></div>
-        <h1 className="mt-2 text-3xl font-display font-normal tracking-tight">{meta.title}</h1>
-        <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-dim">{meta.line}</p>
-        <nav className="mt-5 flex flex-wrap gap-2 text-[15px]">
-          {ROLES.map((r) => <Link key={r.id} href={`/roles/${r.id}`} className={`rounded-full border px-3 py-1 ${r.id === meta.id ? 'border-ink bg-ink text-bg' : 'border-line text-dim hover:text-ink'}`}>{r.id}</Link>)}
-        </nav>
+      <section className="w-full px-5 pb-4 pt-10 sm:px-8 lg:px-10">
+        <p className="text-[13px] text-dim"><Link href="/roles" className="hover:text-ink hover:underline underline-offset-4">Roles &amp; guides</Link> <span aria-hidden>/</span> {meta.who}</p>
+        <div className="mt-6 grid gap-6 lg:grid-cols-2 lg:items-end">
+          <div>
+            <h1 className="font-display text-[clamp(2.4rem,4.6vw,3.8rem)] font-normal leading-[1.02] tracking-[-0.02em]">{meta.title}</h1>
+            <p className="mt-3 max-w-xl text-[16px] leading-relaxed text-dim">{meta.line}</p>
+          </div>
+          <nav aria-label="Roles" className="flex w-fit flex-wrap gap-1 rounded-full border border-line bg-surface p-1 lg:justify-self-end">
+            {ROLES.map((r) => (
+              <Link key={r.id} href={`/roles/${r.id}`} aria-current={r.id === meta.id ? 'page' : undefined}
+                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-[14px] capitalize transition-colors ${r.id === meta.id ? 'bg-ink text-bg' : 'text-dim hover:text-ink'}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${r.id === meta.id ? 'bg-bg' : r.dot}`} aria-hidden />{r.id}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </section>
       <main className="w-full px-5 sm:px-8 lg:px-10">
         <Guide />

@@ -4,14 +4,15 @@ import Link from 'next/link'
 import { Tree } from '@/components/Tree'
 import { FlowCanvas } from '@/components/FlowCanvas'
 import { Examples } from '@/components/Examples'
-import { StickyToggle } from '@/components/StickyToggle'
-import { useMode } from '@/components/ModeContext'
-import { HERO, POSITIONING } from '@/content/copy'
+import { HERO, POSITIONING, type Mode } from '@/content/copy'
 import { Footer } from '@/components/Guide'
 import { FlowGraph, LOOP_EDGES, LOOP_NODES } from '@/components/motion/FlowGraph'
 
+// One vocabulary: this page is where the ENS terms are the point. The toggle
+// between them and plain English was removed — it changed little.
+const mode: Mode = 'ens'
+
 export default function Protocol() {
-  const { mode } = useMode()
   const hero = HERO[mode]
   const positioning = POSITIONING[mode]
 
@@ -24,8 +25,6 @@ export default function Protocol() {
           <p key={`s-${mode}`} className="relabel text-pretty font-sans font-light text-[clamp(1.2rem,2vw,1.85rem)] leading-[1.3] tracking-[-0.015em] text-dim">{hero.sub}</p>
         </div>
       </section>
-
-      <StickyToggle />
 
       <main>
         <Block title="The loop." intro="Every claim passes the same six steps, whichever agent wrote it.">

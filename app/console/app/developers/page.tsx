@@ -23,30 +23,86 @@ export default function Developers() {
             ]}
           />
         </Section>
-        <Section title="The one rule integrators get wrong" intro="Address by what someone would look for; attribute by who said it.">
+        <Section title="How to create subdomains" intro="Name a subdomain by what someone would look for; record who wrote each claim as its source.">
           <Contrast
             wrong={{ title: 'The writer as a branch of the tree', items: ['swiggy.rishikesh.eth', 'foodagent.rishikesh.eth'] }}
             right={{ title: 'The subject as the name, the writer as the source', items: ['food.rishikesh.eth', 'claim: "Prefers vegetarian food"', 'source: { kind: application, name: Swiggy }'] }}
             why={<>An agent resolves one predictable name and gets everything on that subject, each claim carrying its own source. Per-writer subdomains rebuild the silo with better addresses — nobody looks in <code>foodagent.*</code> and nothing is shared. <code>init</code> warns on vendor- or agent-shaped names; the exception is a source running its own maintained namespace, like a trial registry publishing under its own name.</>}
           />
+          <div className="mt-6"><Steps steps={[
+            { title: 'Create it under a name you own', body: <>A subdomain gets its own registry and resolver, so it can have its own owner, reviewers and children. Your wallet must own the parent.</>, code: `knowledge init food.yourname.eth --title "Food" --register\nknowledge init work.yourname.eth --title "Work" --kind organisation --register\nknowledge init trials.research.yourorg.eth --register       # nests as deep as you need` },
+          ]} /></div>
         </Section>
-        <Section title="Expose your application’s knowledge" intro="Your app is a source. Attach it to a namespace you own, contribute through review, and every agent on the network can read it.">
+        <Section title="Integrate" intro="Three npm packages, one network. Pick the one that matches where your code runs.">
           <Steps steps={[
-            { title: 'Own a namespace', body: <>Register a name (or a child of one you own). Source-specific namespaces are just a convention: <code>tabelog.food.eth</code>, <code>acme.docs.eth</code>.</>, code: `knowledge init tokyo.food.eth --title "Tokyo Food" --register\nknowledge source connect "Tabelog" --kind application --namespace tokyo.food.eth` },
-            { title: 'Contribute from code', body: <>The SDK wraps the repository. <code>contribute</code> creates a branch, commits, and opens a proposal — the owner or a reviewer lands it.</>, code: `import { Namespace } from '@knowledge01/repo'\nconst food = Namespace.for('tokyo.food.eth', { agent: 'tabelog-import' })\nfood.contribute({\n  title: 'Nightly sync',\n  items: rows.map((r) => ({ subject: r.name, claim: r.summary, topic: 'restaurants', confidence: 0.85,\n    sources: [{ kind: 'application', type: 'tabelog', name: 'Tabelog', id: r.url }] })),\n})` },
-            { title: 'Or cite a document from the CLI', body: <>A source is typed — <code>document</code>, <code>paper</code>, <code>api</code> — with a title and an optional id. It travels with the claim to every reader.</>, code: `knowledge init cancer-research.eth && knowledge pull\nknowledge checkout pembrolizumab -b --as oncology-lab.eth\nknowledge add "Pembrolizumab is FDA-approved for MSI-H or mismatch-repair-deficient solid tumours, wherever the tumour started" \\\n  --subject Pembrolizumab --topic approvals --type fact --source document:"FDA approval, May 2017" --as oncology-lab.eth\nknowledge commit -m "Tumour-agnostic approval" --as oncology-lab.eth\nknowledge propose --title "Tumour-agnostic approval" --as oncology-lab.eth` },
-            { title: 'Consume in your product', body: <>Read by name. You get the same objects the explorer and agents see.</>, code: `const travel = Namespace.for('japan.travel.eth')\ntravel.search('Tokyo transport')            // Hit[] with sources, reviewers, confidence\ntravel.why(id)                              // provenance across versions\ntravel.version                              // 1` },
-            { title: 'Personal namespaces', body: <>Same primitive, encrypted, <code>approvals: 0</code>: writes land at once; findings queue for the owner; conflicts resolve latest-wins by default. Two sources for one claim merge and raise confidence (0.8 + 0.8 → 0.96).</>, code: `const food = Namespace.for('food.rishikesh.eth', { agent: 'swiggy-agent', contentKey })\nfood.observe({ observation: 'Prefers vegetarian food', subject: 'Food', topic: 'preferences', confidence: 0.8,\n  sources: [{ kind: 'application', type: 'observation', name: 'Swiggy', id: 'order-8812' }] })\n// a second app stating the same claim appends its source; a changed fact passes supersedes: <id>` },
-            { title: 'Commit is instant; publish is batched', body: <>A commit is a local write in milliseconds. Publishing (one <code>setContenthash</code>) runs on the namespace’s policy — interval, pending-commit threshold, or explicit push. Every pull reports the published version and its age, so a reader always knows it is looking at a snapshot.</>, code: `knowledge push --if-due          # cron-friendly: publishes only when the policy says so\nknowledge_pull → "…v3, published 7 min ago (a snapshot; unpublished commits may exist)"` },
+            {
+              title: 'Give your agent the network — @knowledge01/mcp',
+              body: <>One MCP server serves every namespace; the agent names one per call. <code>PINATA_GATEWAY</code> is required; add <code>KNOWLEDGE_AGENT</code> to sign what it proposes, and <code>KNOWLEDGE_READER_KEY</code> to open a private namespace it was granted. Any MCP client takes the same command and environment.</>,
+              code: `claude mcp add knowledge \\
+  -e PINATA_GATEWAY=<gateway>.mypinata.cloud \\
+  -e KNOWLEDGE_AGENT=<your-agent>.eth \\
+  -- npx -y @knowledge01/mcp
+
+# then, from the agent
+knowledge_search({ namespace: "cancer-research.eth", query: "PARP inhibitor" })
+knowledge_read({ namespace: "signals.treasury.eth" })        // sealed: opens with its grant
+knowledge_propose({ namespace: "cancer-research.eth", title: "…", items: [...] })`,
+            },
+            {
+              title: 'Own and publish from a terminal — @knowledge01/cli',
+              body: <>Create a namespace on ENS, set who reviews and who may propose, and publish. <code>PRIVATE_KEY</code> is the wallet that owns the name; reading needs none.</>,
+              code: `npm i -g @knowledge01/cli
+
+knowledge init research.yourorg.eth --title "Research" --register
+knowledge policy --reviewer reviewer.eth --contributors anyone --approvals 1
+knowledge add "…" --subject "…" --topic "…" --source document:"…"
+knowledge commit -m "Seed" && knowledge push       # one setContenthash
+knowledge roles                                   # who may publish or propose, read from ENS`,
+            },
+            {
+              title: 'Read from the network in your app — @knowledge01/repo',
+              body: <>Resolve a name on ENS, fetch its current version from IPFS and verify every object by its hash. No account and no server of ours; set <code>PINATA_GATEWAY</code>, and a private namespace opens with a grant sealed to your key.</>,
+              code: `npm i @knowledge01/repo @knowledge01/storage viem
+export PINATA_GATEWAY=<gateway>.mypinata.cloud
+
+import { ensNetwork, resolveNamespace } from '@knowledge01/repo'
+import { createStorage } from '@knowledge01/storage'
+import { createPublicClient, http } from 'viem'
+import { sepolia } from 'viem/chains'
+
+const network = ensNetwork({ storage: createStorage(), client: createPublicClient({ chain: sepolia, transport: http() }) })
+const ns = await resolveNamespace(network, 'cancer-research.eth', null)   // or { privateKey } for a grant
+ns.version   // 2
+ns.claims    // each with sources, contributor, reviewers, confidence`,
+            },
+            {
+              title: 'Contribute from your app — the same package',
+              body: <>Write through a local repository: a contribution becomes a proposal with automated findings, reviewed before it lands; personal memory can take observations directly.</>,
+              code: `import { Namespace } from '@knowledge01/repo'
+
+const research = Namespace.for('cancer-research.eth', { agent: 'your-app.eth' })
+research.contribute({ title: 'Add olaparib', items: [{ subject: 'Olaparib', claim: '…', topic: 'approvals',
+  sources: [{ type: 'document', title: 'FDA approval, December 2014' }] }] })   // → proposal #n
+
+const me = Namespace.for('alice.eth', { agent: 'your-app.eth' })
+me.observe({ observation: 'Prefers vegetarian food', topic: 'food', confidence: 0.9 })`,
+            },
           ]} />
-        </Section>
-        <Section title="Reference">
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              ['SDK · @knowledge01/repo', 'Namespace.for · search · get · all · why · history · contribute · observe · remember · update · forget · repo.* for branches, merge, revert, proposals, policy, sources'],
-              ['CLI · knowledge', 'init · add · observe · get · search · log · status · diff · why · branch · checkout · merge · revert · commit · update · remove · propose · proposals · review · land · policy · source · namespaces · push · pull'],
-              ['MCP · knowledge_*', 'resolve · search · get · sources · history · diff · status · propose · review · land · observe · commit · branch · merge · revert · pull · push'],
-            ].map(([t, b]) => <div key={t} className="rounded-2xl border border-line bg-surface p-4"><p className="text-[15px] font-semibold">{t}</p><p className="mt-2 text-[14px] leading-relaxed text-dim">{b}</p></div>)}
+          <div className="mt-8">
+            <p className="text-[12px] font-medium uppercase tracking-[0.1em] text-dim">Read more</p>
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
+              {[
+                { href: '/roles', title: 'Roles & guides', body: 'Owner, contributor, reviewer and consumer — how each works, with commands.' },
+                { href: '/roles/consumer', title: 'All 19 MCP tools', body: 'What an agent can call, and how it reads a private namespace it was granted.' },
+                { href: 'https://www.npmjs.com/org/knowledge01', title: 'The packages on npm', body: '@knowledge01/cli, mcp, repo, storage and core. Run knowledge --help for every command.' },
+              ].map((c) => (
+                <Link key={c.href} href={c.href} {...(c.href.startsWith('http') ? { target: '_blank', rel: 'noreferrer' } : {})}
+                  className="group rounded-2xl border border-line bg-surface p-5 transition-colors hover:border-ink/30">
+                  <span className="flex items-center justify-between text-[15px] font-medium">{c.title}<Arrow /></span>
+                  <span className="mt-1.5 block text-[13.5px] leading-relaxed text-dim">{c.body}</span>
+                </Link>
+              ))}
+            </div>
           </div>
         </Section>
         <Footer />
