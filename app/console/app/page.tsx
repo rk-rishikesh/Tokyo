@@ -1,4 +1,4 @@
-import { CallToAction, Footer, Question } from '@/components/landing/Sections'
+import { Footer, Question } from '@/components/landing/Sections'
 import { AccessFirsts } from '@/components/landing/AccessFirsts'
 import { Hero } from '@/components/landing/Hero'
 import { WhyEns } from '@/components/landing/WhyEns'
@@ -22,7 +22,7 @@ export default function Page() {
 
       {/* Introducing ---------------------------------------------------- */}
       <Section>
-        <Split label={<>Introducing<br />knowledge.eth.</>} action={<Pill href="#how">See how it works</Pill>}>
+        <Split label={<>Introducing<br />K01.</>}>
           <Lead>
             A knowledge network gives what one agent learns about you a home under an ENS name you own — versioned,
             sourced, encrypted, and readable by any agent you choose, long after the one that learned it is gone.
@@ -33,15 +33,6 @@ export default function Page() {
       {/* The wordmark ---------------------------------------------------- */}
       <Section rule={false} className="-mt-10">
         <Wordmark text="K.01" />
-        <div className="mt-8 grid gap-8 border-t border-line pt-5 lg:grid-cols-2">
-          <p className="max-w-[34ch] text-[13.5px] leading-snug text-dim">
-            Built on ENSv2 — registries, resolvers and roles that already exist on Sepolia. No custom contract sits on
-            the write path.
-          </p>
-          <div className="lg:border-l lg:border-line lg:pl-8">
-            <Pill href="/protocol" size="sm">Meet the protocol</Pill>
-          </div>
-        </div>
       </Section>
 
       {/* The thesis, in motion ------------------------------------------ */}
@@ -94,7 +85,7 @@ export default function Page() {
       </Section>
 
       {/* Why ENSv2 ------------------------------------------------------- */}
-      <Section>
+      <Section className="-mt-10 sm:-mt-14">
         <div className="mb-14 grid gap-8 lg:grid-cols-2">
           <Title size="md">Six things a user id cannot do.</Title>
           <Lead tone="dim">
@@ -106,7 +97,8 @@ export default function Page() {
       </Section>
 
       {/* Questions ------------------------------------------------------- */}
-      <Section>
+      {/* The Why ENS grid already ends on a rule; a second one here left an empty band. */}
+      <Section rule={false} className="-mt-12 sm:-mt-16">
         <div className="grid gap-10 lg:grid-cols-2">
           <div>
             <Label>Questions.</Label>
@@ -132,14 +124,6 @@ export default function Page() {
             </Question>
           </div>
         </div>
-      </Section>
-
-      {/* Close ----------------------------------------------------------- */}
-      <Section>
-        <CallToAction
-          title={<>Your agents change. Your knowledge doesn&rsquo;t.</>}
-          body="Connect a name you own and one app you already use. The first claim lands in under a minute."
-        />
       </Section>
 
       <Footer />

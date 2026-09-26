@@ -46,7 +46,7 @@ export function Hero() {
           </span>
         </h1>
 
-        <div className="kn-rise mt-16 max-w-md" style={{ animationDelay: '0.12s' }}>
+        <div className="kn-rise mt-16 max-w-2xl" style={{ animationDelay: '0.12s' }}>
           <p className="text-[13.5px] leading-relaxed text-dim">
             What one agent learns about you becomes versioned, source-backed claims under an ENS name you own —
             encrypted, and sealed only to the agents you choose. Switch agents, delete one, and the next reads the

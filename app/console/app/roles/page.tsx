@@ -8,7 +8,7 @@ export const metadata = { title: 'Roles & guides' }
 export default function Roles() {
   return (
     <>
-      <Hero kicker="Roles & guides" title="Four roles. One namespace." sub="Owner, contributor, reviewer, consumer — each with how it works and how to use it. A single person often holds several. Everything here runs today with the `knowledge` CLI, the MCP server and this explorer." />
+      <Hero kicker="Roles & guides" title="Four roles. One namespace." sub="Owner, contributor, reviewer, consumer — each with how it works and how to use it. A single person often holds several. Everything here runs today with the knowledge CLI, the MCP server and this explorer." />
       <main className="w-full px-5 sm:px-8 lg:px-10">
         <section className="py-10">
           <div className="grid gap-4 md:grid-cols-2">

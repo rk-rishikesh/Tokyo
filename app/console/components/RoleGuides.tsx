@@ -6,7 +6,7 @@ import type React from 'react'
 import Link from 'next/link'
 import { Callout, Diagram, Facts, Section, Steps } from '@/components/Guide'
 
-const MCP = ['knowledge_resolve', 'knowledge_search', 'knowledge_get', 'knowledge_sources', 'knowledge_history', 'knowledge_diff', 'knowledge_propose', 'knowledge_review', 'knowledge_land', 'knowledge_observe', 'knowledge_commit', 'knowledge_branch', 'knowledge_merge', 'knowledge_revert', 'knowledge_pull', 'knowledge_push', 'knowledge_status']
+const MCP = ['knowledge_resolve', 'knowledge_search', 'knowledge_read', 'knowledge_get', 'knowledge_sources', 'knowledge_history', 'knowledge_diff', 'knowledge_status', 'knowledge_findings', 'knowledge_propose', 'knowledge_review', 'knowledge_land', 'knowledge_observe', 'knowledge_commit', 'knowledge_branch', 'knowledge_merge', 'knowledge_revert', 'knowledge_pull', 'knowledge_push']
 
 export const ROLES = [
   { id: 'owner', who: 'Namespace owner', title: 'Namespace owner', line: 'Controls the name: policy, reviewers, what gets published, which children exist.', tone: 'border-owner/40', text: 'text-owner', dot: 'bg-owner' },
@@ -18,18 +18,21 @@ export type RoleId = (typeof ROLES)[number]['id']
 
 export function InstallSection() {
   return (
-        <Section title="Before the roles: install" intro="Node 22+. The CLI, the MCP server and the explorer share one repository directory under ~/.recall.">
-          <Steps steps={[{ title: 'Install and build', body: <>The CLI and MCP server bundle to single files.</>, code: `pnpm install\npnpm build:cli && pnpm build:mcp\nalias knowledge="node $PWD/engine/cli/dist/knowledge.mjs"` }]} />
+        <Section title="Before the roles: install" intro="Node 22+. The CLI and the MCP server are on npm and keep local copies of namespaces in ~/.recall.">
+          <Steps steps={[
+            { title: 'The CLI', body: <>For owners, contributors and reviewers.</>, code: `npm i -g @knowledge01/cli\nknowledge --help` },
+            { title: 'The MCP server', body: <>For agents. Reads go through a Pinata gateway.</>, code: `claude mcp add knowledge -e PINATA_GATEWAY=<gateway>.mypinata.cloud -- npx -y @knowledge01/mcp` },
+          ]} />
         </Section>
   )
 }
 
 export function EdgesSection() {
   return (
-        <Section title="Honest about the edges" intro="What is protocol-level today and what is on chain.">
-          <Callout title="Roles are enforced by the protocol; the pointer is enforced by ENS" tone="plain">
-            <p>Every repository acting on a namespace enforces the published policy: contributors cannot commit to main, only reviewers approve, only the owner changes the policy. What ENS V2 enforces today is narrower and stronger: only the owner’s wallet can move <code>contenthash</code>. Granting reviewers on-chain roles on the resolver is the natural next step and needs nothing new in the object model.</p>
-            <p>More on what is proven versus claimed in the <Link href="/faq" className="text-accent hover:underline">FAQ</Link>. Contributions are proposed on a repository the owner or reviewer runs (or through the MCP server they host). A contributor with their own namespace can also publish a fork and ask the owner to pull it — that is what the version graph is for.</p>
+        <Section title="What ENS enforces" intro="The policy says who may do what; ENS makes the important parts true on chain.">
+          <Callout title="Roles live in the policy, and on the resolver" tone="plain">
+            <p>Every repository acting on a namespace enforces its published policy: contributors cannot commit to main, only reviewers approve, only the owner changes the policy. On chain, each namespace’s own resolver enforces who can write: the owner publishes and grants; a <strong>reviewer</strong> holds the right to publish that name alone; a named <strong>contributor</strong> can write one key, <code>knowledge.proposal.&lt;name&gt;</code>, to point the owner at a proposal — and nothing else.</p>
+            <p><code>knowledge policy</code> keeps the two in step, and <code>knowledge roles</code> reads them back from ENS; each namespace’s Info page shows the same. More on what is proven versus claimed in the <Link href="/faq" className="text-accent hover:underline">FAQ</Link>.</p>
           </Callout>
         </Section>
   )
@@ -49,7 +52,7 @@ export function OwnerGuide() {
 
 contenthash(cancer-research.eth) → refs → commits on IPFS   ← the ONLY thing you move on chain`}</Diagram>
             <Facts items={[
-              { k: 'You own the name, not a server', v: 'cancer-research.eth is an ENS V2 name; its registry can hold children; its resolver holds one pointer. Nobody can move that pointer but your wallet.' },
+              { k: 'You own the name, not a server', v: 'cancer-research.eth is an ENS V2 name; its registry can hold children; its resolver holds one pointer. Only your wallet — and reviewers you grant — can move it.' },
               { k: 'Policy is published', v: 'Reviewers, contributors, approvals and visibility travel with the refs object, so every reader and every reviewer sees the same rules.' },
               { k: 'Public or private', v: 'Public namespaces are plaintext on IPFS — that is the point of cancer-research.eth. Private ones, like treasury.kestrel.eth, and personal ones are encrypted; readers hold the key.' },
               { k: 'Hierarchy', v: 'Register trials.cancer-research.eth under your registry and hand it to another owner with its own reviewers. The tree is the taxonomy.' },
@@ -59,7 +62,7 @@ contenthash(cancer-research.eth) → refs → commits on IPFS   ← the ONLY thi
           </div>
           <div className="mt-6"><Steps steps={[
             { title: 'Create the namespace', body: <>Local first. Add <code>--register</code> to put it on Sepolia (top-level names go through the ETH registrar and cost test USDC; children register under your parent). Add <code>--private</code> for encrypted knowledge.</>, code: `knowledge init cancer-research.eth --title "Cancer Research" --description "Community-maintained, reviewed." --register\nknowledge init trials.cancer-research.eth --title "Clinical trials" --register     # child, under your registry` },
-            { title: 'Set the policy', body: <>Who reviews, who may propose, how many approvals a proposal needs, how unmarked conflicts resolve, when local commits publish, whether approvals must be signed.</>, code: `knowledge init treasury.kestrel.eth --kind organisation --private --register\nknowledge policy --reviewer cfo.kestrel.eth --contributors treasury-agent.eth --approvals 1 --conflicts ask --signed-approvals true\nknowledge policy --publish interval --interval-minutes 60 --pending-commits 20` },
+            { title: 'Set the policy', body: <>Who reviews, who may propose, how many approvals a proposal needs, how conflicts resolve, when local commits publish, whether approvals must be signed. With your wallet set, reviewers and named contributors are granted their roles on ENS as you go; <code>knowledge roles</code> shows them.</>, code: `knowledge init treasury.kestrel.eth --kind organisation --private --register\nknowledge policy --reviewer cfo.kestrel.eth --contributors treasury-agent.eth --approvals 1 --conflicts ask --signed-approvals true\nknowledge policy --publish interval --interval-minutes 60 --pending-commits 20` },
             { title: 'Seed it and publish', body: <>Owners and reviewers may commit to <code>main</code> directly. Everyone else proposes. Push encrypts (if private), pins to IPFS and moves the pointer once.</>, code: `knowledge add "Pembrolizumab is FDA-approved for MSI-H or mismatch-repair-deficient solid tumours, wherever the tumour started" --subject "Pembrolizumab" --topic approvals --type fact --source document:"FDA approval, May 2017"\nknowledge commit -m "Seed approvals"\nknowledge push` },
             { title: 'Watch it grow', body: <>Open proposals, contributors and every version are in the explorer: <Link href="/namespaces" className="text-accent hover:underline">/k/cancer-research.eth</Link>.</> },
           ]} /></div>
@@ -84,13 +87,13 @@ export function ContributorGuide() {
               { k: 'A claim is the unit', v: 'Subject, claim, topic, type, confidence, sources. Two contributors stating the same claim collapse onto one object — who said it is provenance, not identity.' },
               { k: 'Sources matter', v: 'A claim without sources is flagged by automated review and shown as “unreviewed / no sources” to every reader until fixed. State the same claim as an existing one and your source is appended to it — confidence rises; nothing is duplicated.' },
               { k: 'Changed fact or disagreement?', v: 'If the fact changed, say so: --supersedes <old id>. The old claim is retired and kept; review sees a supersession, not a contradiction. Without it, a differing statement on the same subject is a contradiction and blocks auto-land.' },
-              { k: 'No access to the owner’s machine?', v: 'Propose from your own clone and export a bundle: knowledge propose --title … --export --publish. The owner ingests it with knowledge pull-proposal <cid> — every commit verified by hash — and reviews it like any other.' },
+              { k: 'No access to the owner’s machine?', v: 'Propose from your own copy and publish the bundle: knowledge propose --title … --export --publish yes. If the owner named you a contributor, the CLI also writes a pointer to it on ENS, and the owner finds it with knowledge pull-proposal --from <your name> — every commit verified by hash.' },
               { k: 'You cannot push to main', v: 'Unless the owner made you a reviewer. That is what makes the version number mean something.' },
               { k: 'Agents contribute too', v: 'A research agent uses knowledge_propose with the same shape. Same review, same attribution.' },
             ]} />
           </div>
           <div className="mt-6"><Steps steps={[
-            { title: 'Get the namespace', body: <>Pull the published history. For a private namespace the owner gives you the key.</>, code: `knowledge init cancer-research.eth && knowledge pull` },
+            { title: 'Get the namespace', body: <>Pull the published history. A private namespace needs a grant sealed to your key.</>, code: `knowledge init cancer-research.eth && knowledge pull` },
             { title: 'Branch, add with sources, commit', body: <>Work on your own branch. Say who you are with <code>--as</code>.</>, code: `knowledge checkout add-olaparib -b --as oncology-lab.eth\nknowledge add "Olaparib, a PARP inhibitor, is approved for BRCA-mutated advanced ovarian cancer" --subject "Olaparib" --topic approvals --type fact --confidence 0.9 --source document:"FDA approval, December 2014" --as oncology-lab.eth\nknowledge commit -m "Add olaparib approval" --as oncology-lab.eth` },
             { title: 'Propose', body: <>Opens proposal #n and runs the automated review immediately, so you see what a reviewer will see.</>, code: `knowledge propose --title "Add olaparib approval" --as oncology-lab.eth\n# automated review:\n#   [missing-sources] …   [contradiction] May contradict existing "…" (60% similar).` },
             { title: 'Or, as an agent', body: <>One MCP call does branch + commit + propose.</>, code: `knowledge_propose({ namespace: "cancer-research.eth", title: "Add olaparib approval",\n  items: [{ claim: "…", subject: "Olaparib", topic: "approvals", sources: [{ type: "document", title: "FDA approval, December 2014" }] }] })` },
@@ -122,7 +125,7 @@ what you see:   the diff, by claim        the previous version
             { title: 'See what is waiting', body: <>Open proposals with their findings.</>, code: `knowledge proposals --as oncology-review.eth` },
             { title: 'Read the proposal', body: <>The diff by claim, the findings, other reviews.</>, code: `knowledge review 1 --as oncology-review.eth` },
             { title: 'Decide', body: <>Approve, reject, or comment. When approvals reach the policy threshold the proposal is APPROVED.</>, code: `knowledge review 1 --approve -m "Matches the FDA label; source checked." --as oncology-review.eth\nknowledge review 2 --reject  -m "No sources." --as oncology-review.eth` },
-            { title: 'Land and publish', body: <>Landing merges onto main as the next version. The owner (or a reviewer with the wallet) pushes.</>, code: `knowledge land 1 --as oncology-review.eth     # cancer-research.eth is now v42\nknowledge push` },
+            { title: 'Land and publish', body: <>Landing merges onto main as the next version. As a granted reviewer you can publish it yourself, with your own wallet.</>, code: `knowledge land 1 --as oncology-review.eth     # cancer-research.eth is now v42\nknowledge push` },
             { title: 'In the explorer', body: <>Every proposal has a page: findings, diff, reviews, and the commit it landed as. <Link href="/namespaces" className="text-accent hover:underline">/k/cancer-research.eth/reviews</Link></> },
           ]} /></div>
         </Section>
@@ -143,16 +146,16 @@ export function ConsumerGuide() {
 answer:  "Olaparib, a PARP inhibitor … (cancer-research.eth v42, FDA approval Dec 2014,
           reviewed by oncology-review.eth)"`}</Diagram>
             <Facts items={[
-              { k: 'No account, no server', v: 'Public namespaces need no key and no wallet. Resolve the ENS name, fetch from IPFS, verify each version’s hash.' },
+              { k: 'No account, no server', v: 'Public namespaces need no key and no wallet. Resolve the ENS name, fetch from IPFS, verify each version’s hash. A private one opens with a grant sealed to your own key — given to you, or bought over x402.' },
               { k: 'Claims are data, not instructions', v: 'Everything an agent reads arrives fenced and labelled as retrieved data with its provenance. A claim that says “ignore your instructions” is reported, not obeyed.' },
               { k: 'Compose namespaces', v: 'One server, many names: treasury.kestrel.eth for policy, portfolio.kestrel.eth for positions. The agent combines them.' },
               { k: 'Updates are automatic', v: 'v42 → v43 is one pointer move. The next query sees the new version.' },
             ]} />
           </div>
           <div className="mt-6"><Steps steps={[
-            { title: 'Give an agent the network', body: <>One MCP server serves every namespace; the agent names one per call.</>, code: `claude mcp add knowledge -e KNOWLEDGE_AGENT=<your-name.eth> -- npx -y @knowledge01/mcp` },
+            { title: 'Give an agent the network', body: <>One MCP server serves every namespace; the agent names one per call. For a private namespace you were granted, add <code>KNOWLEDGE_READER_KEY</code> and use <code>knowledge_read</code>.</>, code: `claude mcp add knowledge -e PINATA_GATEWAY=<gateway>.mypinata.cloud -- npx -y @knowledge01/mcp` },
             { title: 'Read from a terminal', body: <>Pull once, then search offline.</>, code: `knowledge init cancer-research.eth && knowledge pull\nknowledge search "PARP inhibitor ovarian"\nknowledge why k_6374f147a677        # sources, contributor, reviewers, version` },
-            { title: 'Read in the browser', body: <>The explorer shows the same objects: <Link href="/namespaces" className="text-accent hover:underline">/k/cancer-research.eth</Link>. A personal namespace also has a plain-language view at <code>/me/&lt;name&gt;</code>.</> },
+            { title: 'Read in the browser', body: <>The explorer shows the same objects: <Link href="/namespaces" className="text-accent hover:underline">/k/cancer-research.eth</Link>, and every name on the ENS explorer.</> },
             { title: 'Build an application', body: <>The SDK is a thin facade over the same repository.</>, code: `import { Namespace } from '@knowledge01/repo'\nconst research = Namespace.for('cancer-research.eth')\nresearch.search('PARP inhibitor ovarian')                 // Hit[] with sources and reviewers\nresearch.contribute({ title: 'Add olaparib approval', items: [...] })   // → proposal\n\nconst alice = Namespace.for('alice.eth', { agent: 'shopping-agent' })  // personal memory\nalice.observe({ observation: 'User prefers Nike running shoes', topic: 'shopping', confidence: 0.87 })` },
           ]} /></div>
           <div className="mt-4 rounded-2xl border border-line bg-surface p-4"><p className="text-[12.5px] font-medium uppercase tracking-wider text-dim">MCP tools</p><p className="mt-2 flex flex-wrap gap-1.5">{MCP.map((t) => <code key={t} className="rounded bg-raised px-2 py-0.5 font-mono text-[13.5px]">{t}</code>)}</p></div>

@@ -15,44 +15,38 @@ const FEATURES: { title: string; ens: string; body: string; without: string }[] 
   {
     title: 'The name is the identity',
     ens: 'ENS registry',
-    body:
-      'A namespace is a name someone owns on chain. Not a row we created for them, not an account they can be locked out of — a registration a registry will confirm to anyone who asks.',
-    without: 'A user id in someone else’s database, revocable by whoever runs it.',
+    body: 'A namespace is a name you own on chain — confirmable by anyone, revocable by no one else.',
+    without: 'a user id in someone else’s database',
   },
   {
     title: 'Namespaces nest',
-    ens: 'Subregistries · setSubregistry · setParent',
-    body:
-      'food.yours.eth has its own registry, its own owner and its own policy. You can give a team control of one branch without giving them the rest, and a child can outlive its parent’s operator.',
-    without: 'A path string in a table, with permissions enforced by application code.',
+    ens: 'Subregistries',
+    body: 'food.yours.eth has its own owner and policy, so one branch can be handed over without the rest.',
+    without: 'a path string in a table',
   },
   {
-    title: 'Permissions live on chain, per role',
+    title: 'Permissions live on chain',
     ens: 'EnhancedAccessControl',
-    body:
-      'Registrar, renew, set-resolver, set-subregistry, set-parent, setContenthash — thirty-two role slots, each with its own admin half, granted and revoked by transaction. A reviewer’s authority is a fact anyone can verify, not a claim our server makes.',
-    without: 'An `is_admin` column, and a promise that the code checks it.',
+    body: 'Who may publish or propose is a role granted by transaction — anyone can verify it.',
+    without: 'an is_admin column',
   },
   {
-    title: 'Versions are pointed at, not stored',
-    ens: 'contenthash on the resolver',
-    body:
-      'The name resolves to a contenthash for the current version on IPFS. History stays addressable, the pointer moves, and reading a namespace never touches our servers.',
-    without: 'A URL to an API that has to stay up, run by whoever owns it.',
+    title: 'Versions are pointed at',
+    ens: 'contenthash',
+    body: 'The name points at the current version on IPFS; history stays addressable, no server in the way.',
+    without: 'an API that has to stay up',
   },
   {
     title: 'Anyone can resolve it',
     ens: 'Universal Resolver',
-    body:
-      'An agent that has never heard of us can resolve a name and read the claims. That is what makes this a network rather than a product with an export button.',
-    without: 'An integration, negotiated per company, per app.',
+    body: 'An agent that has never heard of us can read the claims. That makes it a network, not a product.',
+    without: 'an integration per app',
   },
   {
     title: 'Ownership can move',
     ens: 'Registry transfer',
-    body:
-      'Sell the name, hand it to an organisation, pass it on. The memory goes with it, because the memory *is* the name. Nothing to migrate and nobody to ask.',
-    without: 'A support ticket, if the product offers one at all.',
+    body: 'Transfer the name and the memory goes with it — nothing to migrate, nobody to ask.',
+    without: 'a support ticket',
   },
 ]
 
@@ -60,16 +54,14 @@ export function WhyEns() {
   return (
     <div className="grid border-t border-line md:grid-cols-2 lg:grid-cols-3">
       {FEATURES.map((f, i) => (
-        <div key={f.title} className="kn-rise border-b border-line py-8 md:pr-10" style={{ animationDelay: `${i * 0.05}s` }}>
+        <div key={f.title} className="kn-rise border-b border-line py-6 md:pr-10" style={{ animationDelay: `${i * 0.05}s` }}>
           <div className="flex items-baseline justify-between gap-4">
             <span className="font-mono text-[12.5px] text-dim">{String(i + 1).padStart(2, '0')}</span>
             <span className="text-[12.5px] text-dim">{f.ens}</span>
           </div>
-          <h3 className="mt-6 font-display text-[clamp(1.4rem,2.2vw,2rem)] font-normal leading-[1.02] tracking-[-0.025em]">{f.title}.</h3>
-          <p className="mt-3 text-[14px] leading-relaxed text-dim">{f.body}</p>
-          <p className="mt-4 text-[14px] leading-relaxed text-dim/70">
-            <span className="text-ink/60">Without it —</span> {f.without}
-          </p>
+          <h3 className="mt-4 font-display text-[clamp(1.4rem,2.2vw,2rem)] font-normal leading-[1.02] tracking-[-0.025em]">{f.title}.</h3>
+          <p className="mt-2.5 max-w-[42ch] text-[14px] leading-relaxed text-dim">{f.body}</p>
+          <p className="mt-3 text-[12.5px] text-dim/70">Instead of {f.without}.</p>
         </div>
       ))}
     </div>

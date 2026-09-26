@@ -19,7 +19,7 @@ export function AccessFirsts() {
 
   return (
     <div className="mt-14 grid gap-10 lg:grid-cols-2">
-      <div className="divide-y divide-line border-y border-line">
+      <div className="divide-y divide-line border-t border-line">
         {FIRSTS.map((it, i) => {
           const open = i === active
           return (
