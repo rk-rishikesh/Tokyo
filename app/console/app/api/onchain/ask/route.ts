@@ -1,28 +1,36 @@
 /**
- * Agent B, the treasury agent: one question, answered from what it read.
+ * Agent B, Portfolio Intelligence: one question, answered as a short report
+ * from what it read.
  *
- * The context is rebuilt on the server from ENS, IPFS and the chain — never
- * taken from the browser — so an answer is grounded in the network, not in
- * whatever a page sent.
+ * The context is rebuilt on the server from ENS, IPFS, MultiBaas and the
+ * explorer — never taken from the browser — so an answer is grounded in the
+ * network, not in whatever a page sent.
  */
 import { NextResponse } from 'next/server'
 import { complete, llmConfig, type ChatMessage } from '@knowledge01/connect'
-import { loadContext, promptData, TREASURY } from '@/lib/treasuryAgent'
+import { AccessDenied } from '@knowledge01/repo'
+import { loadContext, promptData, SIGNALS, TREASURY } from '@/lib/treasuryAgent'
+import { readPaid, type PaidRead } from '@/lib/x402Buyer'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-const SYSTEM = `You are the treasury agent (Agent B). You answer using ONLY the JSON below, which has three parts:
-- treasury_memory: ${TREASURY}, written by a separate watcher agent (Agent A). It holds the treasury playbook (topic "policy"), current prices, what well-known treasuries hold and moved, and benchmarks.
-- user_memory: the user's own namespaces under their ENS name — their preferences and history, if any.
-- user_wallets: the user's wallets, read live from Ethereum mainnet.
+const SYSTEM = `You are Agent B, Portfolio Intelligence. You answer natural-language questions about holdings, transactions, yield and historical activity on Base, using ONLY the JSON below:
+- treasury_memory: ${TREASURY}, which you inherit. Written by Agent A (Market Scout): prices and 24h moves (topic "prices"), yields on Base (topic "yields"), what large Base wallets hold (topic "treasuries"), benchmarks, and the owner's playbook (topic "policy").
+- user_memory: the user's own memory, if they brought it — which wallets are theirs, which they track, which coins they watch, their spend and risk preferences. Their preferences override the playbook where they differ.
+- paid_memory: ${SIGNALS}, Agent A's paid tier — each watched wallet's transfers over the last 7 days and the net whale flow. You bought read access to it from Agent A over x402 (it was cheaper than watching every transfer yourself). Null when you have not bought it; then say so if the question needs 7-day whale flows.
+- prices_now_usd: live prices.
+- wallets: role "yours" or "tracked", read live on Base: holdings through MultiBaas, movements through Blockscout. flows_7d and flows_30d are totals of the movements seen.
 
-How to answer:
-- Recommend actions by applying the playbook's policies to the user's balances and liquidity needs, and compare with the watched treasuries where that helps. Give amounts.
-- Answer questions about holdings, transactions, yield or history from user_wallets. You only see the latest movements, not full history; say so when that matters. For yield-bearing tokens (stETH, wstETH, aUSDC, sDAI, rETH…), say they earn yield but the rate is not in the data.
-- Cite where each point came from in brackets: [treasury.eth: <subject>], [<namespace>: <subject>], or [wallet 0x12…34].
-- If the data cannot answer, say what is missing. Never invent balances, prices, transactions or policies. If the user's monthly spend or needs are not in their memory, ask for them instead of assuming.
-- Be brief and direct. Plain text; short lines; no tables. Recommendations only — you never sign or send anything.`
+Answer as a short report:
+- Open with one line that answers the question, with the key number.
+- Then 2–4 short sections, each a line starting "## " (e.g. "## Holdings", "## Activity", "## Yield", "## Watchlist", "## What to consider"), each with 1–4 lines starting "• ". Only the sections the question needs.
+- Give amounts in USD and units. Compare with tracked wallets or the benchmarks when it helps.
+- Yield: for idle stablecoins or ETH, name the matching pools in treasury_memory (protocol, APY, TVL) and what the balance would earn per year; cbETH and wstETH already earn staking yield. Respect the user's risk preferences.
+- History: you only see the latest movements (movements_seen, since oldest_movement_seen); say so when a question reaches further back.
+- Cite sources inline in brackets: [${TREASURY}: <subject>], [${SIGNALS}: <subject>], [<namespace>: <subject>], [wallet <label>].
+- Never invent balances, prices, transactions, yields or policies, and never guess why something moved. If the data cannot answer, say what is missing.
+- Plain text apart from "## " and "• ". No tables, no bold. Recommendations only — you never sign or send anything.`
 
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => ({}))) as { question?: unknown; name?: unknown; wallets?: unknown; history?: unknown }
@@ -31,10 +39,17 @@ export async function POST(req: Request) {
   const cfg = llmConfig()
   if (!cfg) return NextResponse.json({ error: 'No model is configured on this deployment (set OPENROUTER_API_KEY).' }, { status: 503 })
 
+  // Whale flows are the paid tier: buy them only when the question needs them,
+  // and at most once an epoch — a live grant is read, not bought again.
+  const needsFlows = /\b(flow|flows|moved?|moving|whales?|transfers?|inflows?|outflows?|bought|sold|selling|buying|accumulat\w*|dump\w*|signals?|this week|activity)\b/i.test(question)
+  let paid: PaidRead | null = null
+  let paidError: string | null = null
+  try { paid = await readPaid(SIGNALS, { buy: needsFlows }) } catch (e) { if (!(e instanceof AccessDenied)) paidError = e instanceof Error ? e.message : 'could not buy access' }
+
   let data: string
   try {
     const wallets = Array.isArray(body.wallets) ? body.wallets.filter((x): x is string => typeof x === 'string') : []
-    data = promptData(await loadContext(typeof body.name === 'string' ? body.name : '', wallets))
+    data = promptData(await loadContext(typeof body.name === 'string' ? body.name : null, wallets), paid)
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : 'could not load memory' }, { status: 400 })
   }
@@ -50,8 +65,13 @@ export async function POST(req: Request) {
   try {
     const { content, model } = await complete(cfg, messages)
     // The chat renders plain text; free models reach for markdown regardless.
-    const answer = content.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/\*\*(.+?)\*\*/g, '$1').replace(/^\s*[*-]\s+/gm, '• ').replace(/^#+\s*/gm, '').trim()
-    return NextResponse.json({ answer, model })
+    const answer = content.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/\*\*(.+?)\*\*/g, '$1').replace(/^\s*[*-]\s+/gm, '• ').replace(/^#+\s*/gm, '## ').trim()
+    return NextResponse.json({
+      answer, model,
+      paid: paid ? { namespace: paid.namespace, version: paid.version, validUntil: paid.validUntil, price: paid.price } : null,
+      purchase: paid?.purchase ?? null,
+      ...(paidError ? { paidError } : {}),
+    })
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : 'the model did not answer' }, { status: 502 })
   }

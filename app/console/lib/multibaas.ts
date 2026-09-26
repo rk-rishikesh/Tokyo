@@ -52,8 +52,11 @@ async function request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: strin
 export const chainStatus = () => request<{ chainID: number; blockNumber: number }>('GET', '/chains/ethereum/status', undefined, { ttlMs: 30_000 })
 
 /** Native ETH balance, in wei, via the address book lookup. */
+// MultiBaas rejects mixed-case addresses whose EIP-55 checksum is off; lowercase is always accepted.
+const addr = (a: string) => (/^0x[0-9a-fA-F]{40}$/.test(a) ? a.toLowerCase() : a)
+
 export async function ethBalance(address: string): Promise<bigint> {
-  const r = await request<{ balance?: string }>('GET', `/chains/ethereum/addresses/${address}?include=balance`)
+  const r = await request<{ balance?: string }>('GET', `/chains/ethereum/addresses/${addr(address)}?include=balance`)
   return BigInt(r.balance ?? '0')
 }
 
@@ -63,8 +66,8 @@ export async function ethBalance(address: string): Promise<bigint> {
  * MultiBaas formats integers using the ABI's decimals where it knows them.
  */
 export async function call<T = unknown>(address: string, contract: string, method: string, args: unknown[] = [], opts: { override?: boolean } = {}): Promise<T> {
-  const r = await request<{ output: T }>('POST', `/chains/ethereum/addresses/${address}/contracts/${contract}/methods/${method}`, {
-    args, ...(opts.override !== false ? { contractOverride: true } : {}), formatInts: 'as_strings',
+  const r = await request<{ output: T }>('POST', `/chains/ethereum/addresses/${addr(address)}/contracts/${contract}/methods/${method}`, {
+    args: args.map((x) => (typeof x === 'string' ? addr(x) : x)), ...(opts.override !== false ? { contractOverride: true } : {}), formatInts: 'as_strings',
   })
   return r.output
 }

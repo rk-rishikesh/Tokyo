@@ -20,8 +20,8 @@ import { recoverMessageAddress, type Hex } from 'viem'
 import { findOwner } from '@knowledge01/core'
 import { importWikipedia } from './wikipedia.js'
 import { applyImport, planImport, readExport, VENDORS, type Vendor } from './memory-export.js'
-import { Repository, RepoStore, repoPath } from '@knowledge01/repo'
-import { actAs, localNamespaces, openRepo, publicClient, remoteFor, resolveNamespace, walletClient } from './context.js'
+import { epochEnd, OWNER_KEY_MESSAGE, ownerKeyFromSignature, readManifest, Repository, RepoStore, repoPath, rotateEpoch, grantAccess, setOffers, type AccessOffer } from '@knowledge01/repo'
+import { actAs, localNamespaces, network, openRepo, publicClient, remoteFor, resolveNamespace, walletClient } from './context.js'
 import { fmt } from './format.js'
 import { registerNamespace } from './register.js'
 
@@ -51,6 +51,10 @@ const HELP = `knowledge — ENS-native, versioned knowledge namespaces
        leave a vendor, keep what it learned: an export's remembered facts become claims you own.
        Dry run by default; --split routes each topic to its own namespace (food.you.eth, work.you.eth).
   namespaces · push · pull
+  offer --price 0.01 --pay-to 0x… --endpoint <url> [--chain eip155:84532] [--epoch-days 7] [--role read]
+                                      sell access over x402: the price is published in the access manifest
+  access [owner]                      show grants, receipts and offers · owner: seal your own recovery grant
+  rotate                              end the epoch: drop expired paid grants with one re-key
 
 Sources on add/update: --source <type>:<title>[:<id>]  or  --source <kind>/<name>:<title>[:<id>]
   e.g. --source document:"Treasury policy v3"   --source agent/watch-agent.eth:"Payroll Safe outflows"
@@ -76,6 +80,7 @@ const { values: v, positionals } = parseArgs({
     vendor: { type: 'string' }, split: { type: 'boolean' }, owner: { type: 'string' }, apply: { type: 'boolean' },
     export: { type: 'boolean' }, publish: { type: 'string' }, from: { type: 'string' }, resolve: { type: 'string' }, 'if-due': { type: 'boolean' },
     conflicts: { type: 'string' }, 'interval-minutes': { type: 'string' }, 'pending-commits': { type: 'string' }, 'signed-approvals': { type: 'string' },
+    price: { type: 'string' }, 'pay-to': { type: 'string' }, endpoint: { type: 'string' }, chain: { type: 'string' }, 'epoch-days': { type: 'string' }, role: { type: 'string' },
     b: { type: 'boolean' }, json: { type: 'boolean' }, help: { type: 'boolean', short: 'h' },
   },
 })
@@ -520,6 +525,51 @@ async function main(): Promise<void> {
       if (r.fastForwarded.length) out(`  fast-forwarded: ${r.fastForwarded.join(', ')}`)
       if (r.created.length) out(`  new branches:   ${r.created.join(', ')}`)
       if (r.diverged.length) out(fmt.warn(`  diverged (merge by hand): ${r.diverged.join(', ')}`))
+      return
+    }
+
+    case 'offer': {
+      const repo = repoArg()
+      if (!v.price || !v['pay-to'] || !v.endpoint) throw new Error('usage: knowledge offer --price 0.01 --pay-to 0x… --endpoint <url> [--chain eip155:84532] [--epoch-days 7]')
+      if (!/^0x[0-9a-fA-F]{40}$/.test(v['pay-to'])) throw new Error('--pay-to must be an address')
+      const offer: AccessOffer = {
+        role: (v.role as 'read' | 'propose' | undefined) ?? 'read',
+        price: v.price.startsWith('$') ? v.price : `$${v.price}`,
+        network: v.chain ?? 'eip155:84532', asset: 'USDC', payTo: v['pay-to'] as Hex,
+        endpoint: v.endpoint, epochDays: v['epoch-days'] ? Number(v['epoch-days']) : 7,
+        ...(v.description ? { description: v.description } : {}),
+      }
+      const m = await setOffers(repo, network(), [offer])
+      if (v.json) return json(m)
+      out(`${fmt.ok('✓')} ${repo.namespace} sells ${offer.role} access for ${offer.price} ${offer.asset} on ${offer.network}, per ${offer.epochDays}-day epoch`)
+      out(fmt.dim(`  pay to ${offer.payTo} at ${offer.endpoint}\n  this epoch ends ${epochEnd(offer.epochDays)}`))
+      return
+    }
+
+    case 'access': {
+      const repo = repoArg()
+      if (args[0] === 'owner') {
+        const wallet = walletClient()
+        if (!wallet?.account) throw new Error('access owner needs PRIVATE_KEY (the wallet that owns the name)')
+        const sig = await wallet.signMessage({ account: wallet.account, message: OWNER_KEY_MESSAGE(repo.namespace) })
+        const { pubkey } = ownerKeyFromSignature(sig)
+        await grantAccess(repo, network(), { agent: repo.namespace, pubkey, owner: true })
+        return out(`${fmt.ok('✓')} sealed ${repo.namespace}'s key to its owner's wallet-derived key`)
+      }
+      const m = await readManifest(network(), repo.namespace)
+      if (v.json) return json(m)
+      if (!m) return out(fmt.dim(`${repo.namespace} has no access manifest yet`))
+      out(`${repo.namespace}  readers ${m.readers} · key v${m.keyVersion} · ${m.grants.length} grant(s)`)
+      for (const o of m.offers ?? []) out(`  offer  ${o.role} · ${o.price} ${o.asset} on ${o.network} · ${o.epochDays}-day epoch · ${o.endpoint}`)
+      for (const g of m.grants) out(`  grant  ${g.id} · ${g.agent} · ${g.role}${g.owner ? ' · owner' : ''}${g.validUntil ? ` · until ${g.validUntil.slice(0, 10)}` : ''}${g.payment ? fmt.dim(` · paid ${g.payment.amount} ${g.payment.asset} by ${g.payment.payer.slice(0, 10)}…`) : ''}`)
+      return
+    }
+
+    case 'rotate': {
+      const repo = repoArg()
+      const m = await rotateEpoch(repo, network())
+      if (!m) return out(fmt.dim('no paid grant has expired; nothing to re-key'))
+      out(`${fmt.ok('✓')} re-keyed ${repo.namespace} to key v${m.keyVersion}; ${m.grants.length} grant(s) carry on`)
       return
     }
 

@@ -23,6 +23,14 @@
  * The manifest itself is plaintext. It holds only public keys and sealed keys,
  * and a sealed key is useless to anyone but the holder of the matching private
  * key — which is what makes it safe to publish.
+ *
+ * It can also hold **offers**: what access costs and where to buy it. An agent
+ * that resolves the name finds the price next to the grants, pays the endpoint
+ * over x402, and receives a grant sealed to its own key, with the payment on
+ * it as a receipt. Paid grants last until the end of the offer's epoch; at the
+ * epoch boundary the owner re-keys once (`rotateEpoch`) and whoever still
+ * wants access pays again. Revoking one reader at a time would mean re-keying
+ * on every expiry.
  */
 import { decodeObject, encodeObject, generateContentKey, wrapKey } from '@knowledge01/core'
 import { keccak256, type Hex } from 'viem'
@@ -45,7 +53,30 @@ export type AccessGrant = {
   /** The owner's own recovery grant, derived from their wallet. */
   owner?: boolean
   grantedAt: string
+  /** When a paid grant stops being renewed: the end of its offer's epoch. */
+  validUntil?: string
+  /** What was paid for it, when it was bought. */
+  payment?: AccessPayment
 }
+
+/** A price for access, published in the manifest so any agent can find it. */
+export type AccessOffer = {
+  role: AccessRole
+  /** In dollars, as x402 prices are written: "$0.01". */
+  price: string
+  /** CAIP-2 network the payment settles on, e.g. eip155:84532 (Base Sepolia). */
+  network: string
+  asset: string
+  payTo: Hex
+  /** The x402 endpoint that sells the grant. */
+  endpoint: string
+  /** Paid grants last until the end of the current epoch of this many days. */
+  epochDays: number
+  description?: string
+}
+
+/** The receipt a paid grant carries. */
+export type AccessPayment = { scheme: 'x402'; network: string; asset: string; amount: string; payer: string; tx?: string }
 
 export type AccessManifest = {
   kind: 'access'
@@ -55,6 +86,7 @@ export type AccessManifest = {
   /** Increments on every re-key, so a reader can tell its key is stale. */
   keyVersion: number
   grants: AccessGrant[]
+  offers?: AccessOffer[]
   updatedAt: string
 }
 
@@ -81,7 +113,7 @@ function contentKeyOf(repo: Repository): Uint8Array | null {
   return hex ? Uint8Array.from(Buffer.from(hex.replace(/^0x/, ''), 'hex')) : null
 }
 
-export type GrantInput = { agent: string; pubkey: Hex; role?: AccessRole; owner?: boolean }
+export type GrantInput = { agent: string; pubkey: Hex; role?: AccessRole; owner?: boolean; validUntil?: string; payment?: AccessPayment }
 
 /**
  * Give an agent access to a namespace.
@@ -91,32 +123,69 @@ export type GrantInput = { agent: string; pubkey: Hex; role?: AccessRole; owner?
  */
 export async function grantAccess(repo: Repository, network: Network, input: GrantInput): Promise<AccessManifest> {
   await new Remote(repo, network.storage, network.records(repo.namespace)).push()
-
   const readers = repo.policy.readers === 'public' ? 'public' : 'key'
-  const current = await readManifest(network, repo.namespace)
   const key = contentKeyOf(repo)
   if (readers === 'key' && !key) throw new Error(`${repo.namespace} is private but this machine has no content key for it`)
+  return (await sealGrant(network, repo.namespace, { readers, contentKey: key }, input)).manifest
+}
 
+/**
+ * Seal a grant into a published namespace's manifest, without a local
+ * repository: what a server that sells access runs. It needs the content key
+ * and a wallet that may write the name's records — nothing else.
+ */
+export async function sealGrant(
+  network: Network, namespace: string,
+  access: { readers: 'public' | 'key'; contentKey: Uint8Array | null },
+  input: GrantInput,
+): Promise<{ manifest: AccessManifest; grant: AccessGrant; receipt: string }> {
+  if (access.readers === 'key' && !access.contentKey) throw new Error(`${namespace} is private and no content key was given`)
+  const current = await readManifest(network, namespace)
   const grant: AccessGrant = {
     id: grantId(input.pubkey),
     agent: input.agent,
     pubkey: input.pubkey,
     role: input.role ?? 'read',
-    ...(readers === 'key' ? { wrappedKey: wrapKey(key!, input.pubkey) } : {}),
+    ...(access.readers === 'key' ? { wrappedKey: wrapKey(access.contentKey!, input.pubkey) } : {}),
     ...(input.owner ? { owner: true } : {}),
     grantedAt: new Date().toISOString(),
+    ...(input.validUntil ? { validUntil: input.validUntil } : {}),
+    ...(input.payment ? { payment: input.payment } : {}),
   }
+  const manifest: AccessManifest = {
+    kind: 'access',
+    namespace,
+    readers: current?.readers ?? access.readers,
+    keyVersion: current?.keyVersion ?? 1,
+    grants: [...(current?.grants ?? []).filter((g) => g.id !== grant.id), grant],
+    ...(current?.offers ? { offers: current.offers } : {}),
+    updatedAt: grant.grantedAt,
+  }
+  const { receipt } = await writeManifest(network, manifest)
+  return { manifest, grant, receipt }
+}
 
+/** Publish what access costs. Replaces the namespace's offers; grants are untouched. */
+export async function setOffers(repo: Repository, network: Network, offers: AccessOffer[]): Promise<AccessManifest> {
+  await new Remote(repo, network.storage, network.records(repo.namespace)).push()
+  const current = await readManifest(network, repo.namespace)
   const m: AccessManifest = {
     kind: 'access',
     namespace: repo.namespace,
-    readers,
+    readers: current?.readers ?? (repo.policy.readers === 'public' ? 'public' : 'key'),
     keyVersion: current?.keyVersion ?? 1,
-    grants: [...(current?.grants ?? []).filter((g) => g.id !== grant.id), grant],
-    updatedAt: grant.grantedAt,
+    grants: current?.grants ?? [],
+    offers,
+    updatedAt: new Date().toISOString(),
   }
   await writeManifest(network, m)
   return m
+}
+
+/** The end of the epoch `now` falls in: epochs are counted from the Unix epoch, so every seller agrees on them. */
+export function epochEnd(epochDays: number, now = Date.now()): string {
+  const len = epochDays * 86_400_000
+  return new Date((Math.floor(now / len) + 1) * len).toISOString()
 }
 
 /**
@@ -128,11 +197,25 @@ export async function grantAccess(repo: Repository, network: Network, input: Gra
  * anything published after this.
  */
 export async function revokeAccess(repo: Repository, network: Network, pubkeyOrId: string): Promise<AccessManifest> {
+  const target = pubkeyOrId.startsWith('0x') ? grantId(pubkeyOrId as Hex) : pubkeyOrId
+  const m = await revokeWhere(repo, network, (g) => g.id === target)
+  if (!m) throw new Error(`no grant ${target} on ${repo.namespace}`)
+  return m
+}
+
+/**
+ * End an epoch: drop every paid grant whose epoch is over, with one re-key for
+ * all of them. Grants without an end — the owner's, and ones given freely —
+ * are re-sealed and carry on. Returns null when nothing had expired.
+ */
+export const rotateEpoch = (repo: Repository, network: Network, now = Date.now()): Promise<AccessManifest | null> =>
+  revokeWhere(repo, network, (g) => !!g.validUntil && Date.parse(g.validUntil) <= now)
+
+async function revokeWhere(repo: Repository, network: Network, drop: (g: AccessGrant) => boolean): Promise<AccessManifest | null> {
   const current = await readManifest(network, repo.namespace)
   if (!current) throw new Error(`${repo.namespace} has no access manifest to revoke from`)
-  const target = pubkeyOrId.startsWith('0x') ? grantId(pubkeyOrId as Hex) : pubkeyOrId
-  const remaining = current.grants.filter((g) => g.id !== target)
-  if (remaining.length === current.grants.length) throw new Error(`no grant ${target} on ${repo.namespace}`)
+  const remaining = current.grants.filter((g) => !drop(g))
+  if (remaining.length === current.grants.length) return null
 
   let grants = remaining
   let keyVersion = current.keyVersion

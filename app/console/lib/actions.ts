@@ -27,6 +27,7 @@ export function playbookFrom(claims: Claim[]): Playbook {
   }
 }
 
+const pct = (n: number) => (n > 0 && n < 0.1 ? '<0.1%' : n < 1 ? `${n.toFixed(1)}%` : `${n.toFixed(0)}%`)
 const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`
 
 export function walletActions(w: BaseWallet, p: Playbook, peers: { stablePct: number }[] = []): Action[] {
@@ -59,8 +60,8 @@ export function walletActions(w: BaseWallet, p: Playbook, peers: { stablePct: nu
     const median = s[Math.floor(s.length / 2)]!
     out.push({
       level: stablePct < median / 2 ? 'watch' : 'ok', kind: 'reserve',
-      title: `${stablePct.toFixed(0)}% in stablecoins`,
-      detail: `Watched treasuries hold a median ${median.toFixed(0)}%. The playbook wants ${p.runwayMonths} months of spend in stablecoins — ask Agent B with your monthly spend.`,
+      title: `${pct(stablePct)} in stablecoins`,
+      detail: `Watched treasuries hold a median ${pct(median)}. The playbook wants ${p.runwayMonths} months of spend in stablecoins — ask Agent B with your monthly spend.`,
       source: 'treasury.eth · Runway · benchmarks',
     })
   }

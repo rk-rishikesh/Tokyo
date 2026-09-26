@@ -13,13 +13,15 @@ import { Player } from '@remotion/player'
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
 import type { ReactNode } from 'react'
 
-export type GraphNode = { id: string; n: number; title: string; sub: string; x: number; y: number; icon: IconName; final?: boolean }
+export type GraphNode = { id: string; n: number; title: string; sub: string; x: number; y: number; icon: IconName; final?: boolean; href?: string; tag?: string; w?: number }
 export type GraphEdge = { from: string; to: string; solid?: boolean; at: number }
 
 const W = 1760
 const H = 760
 const CARD_W = 340
 const CARD_H = 112
+/** A card can be wider than the rest when its title and tag need the room. */
+const cw = (n: GraphNode) => n.w ?? CARD_W
 const FPS = 30
 const LOOP = 300
 
@@ -55,15 +57,15 @@ function Icon({ name }: { name: IconName }) {
 
 type Pt = { x: number; y: number }
 
-function anchors(a: GraphNode, b: GraphNode): [Pt, Pt, Pt, Pt] {
-  const from = { x: a.x + CARD_W / 2, y: a.y }
-  const to = { x: b.x - CARD_W / 2, y: b.y }
+function anchors(a: GraphNode, b: GraphNode, CARD_H: number): [Pt, Pt, Pt, Pt] {
+  const from = { x: a.x + cw(a) / 2, y: a.y }
+  const to = { x: b.x - cw(b) / 2, y: b.y }
   // Leave from the card's corner side when the target is above or below, so
   // wires fan out of a card the way they do in the reference.
   if (Math.abs(a.y - b.y) > 60) {
-    from.x = a.x + CARD_W * 0.3
+    from.x = a.x + cw(a) * 0.3
     from.y = a.y + (b.y < a.y ? -CARD_H / 2 : CARD_H / 2)
-    to.x = b.x - CARD_W * 0.3
+    to.x = b.x - cw(b) * 0.3
     to.y = b.y + (b.y < a.y ? CARD_H / 2 : -CARD_H / 2)
     const dx = (to.x - from.x) * 0.45
     return [from, { x: from.x + dx, y: from.y + (to.y - from.y) * 0.1 }, { x: to.x - dx, y: to.y - (to.y - from.y) * 0.1 }, to]
@@ -80,7 +82,7 @@ const bezier = ([p0, p1, p2, p3]: [Pt, Pt, Pt, Pt], t: number): Pt => {
   }
 }
 
-function Scene({ nodes, edges }: { nodes: GraphNode[]; edges: GraphEdge[] }) {
+function Scene({ nodes, edges, cardH = CARD_H }: { nodes: GraphNode[]; edges: GraphEdge[]; cardH?: number }) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
   const byId = new Map(nodes.map((n) => [n.id, n]))
@@ -91,7 +93,7 @@ function Scene({ nodes, edges }: { nodes: GraphNode[]; edges: GraphEdge[] }) {
         {edges.map((e, i) => {
           const a = byId.get(e.from)!
           const b = byId.get(e.to)!
-          const pts = anchors(a, b)
+          const pts = anchors(a, b, cardH)
           const d = `M ${pts[0].x} ${pts[0].y} C ${pts[1].x} ${pts[1].y}, ${pts[2].x} ${pts[2].y}, ${pts[3].x} ${pts[3].y}`
           // Wires are always drawn; what moves is the packet, and the dash.
           const reveal = 1
@@ -121,7 +123,7 @@ function Scene({ nodes, edges }: { nodes: GraphNode[]; edges: GraphEdge[] }) {
           <div
             key={n.id}
             style={{
-              position: 'absolute', left: n.x - CARD_W / 2, top: n.y - CARD_H / 2, width: CARD_W, height: CARD_H,
+              position: 'absolute', left: n.x - cw(n) / 2, top: n.y - cardH / 2, width: cw(n), height: cardH,
               transform: `translateY(${-lift * 6}px)`, opacity: enter,
               background: bg(1), borderRadius: 26,
               border: n.final ? `2.5px solid ${ink(0.9)}` : `1.5px solid ${ink(active ? 0.35 : 0.12)}`,
@@ -137,9 +139,12 @@ function Scene({ nodes, edges }: { nodes: GraphNode[]; edges: GraphEdge[] }) {
               <div style={{ width: 44, height: 44, borderRadius: 12, background: 'hsl(var(--raised))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name={n.icon} />
               </div>
-              <div style={{ fontSize: 27, letterSpacing: '-0.02em', color: ink(0.95), fontWeight: 500 }}>{n.title}</div>
+              <div style={{ fontSize: 27, letterSpacing: '-0.02em', color: ink(0.95), fontWeight: 500, whiteSpace: 'nowrap' }}>
+                {n.title}
+                {n.tag ? <span style={{ marginLeft: 10, fontSize: 17, fontWeight: 400, color: ink(0.5), letterSpacing: 0 }}>{n.tag}</span> : null}
+              </div>
             </div>
-            <div style={{ marginTop: 10, fontSize: 20, color: ink(0.55), letterSpacing: '-0.01em' }}>{n.sub}</div>
+            <div style={{ marginTop: 10, fontSize: 20, lineHeight: 1.3, color: ink(0.55), letterSpacing: '-0.01em' }}>{n.sub}</div>
           </div>
         )
       })}
@@ -147,12 +152,14 @@ function Scene({ nodes, edges }: { nodes: GraphNode[]; edges: GraphEdge[] }) {
   )
 }
 
-export function FlowGraph({ nodes, edges, label }: { nodes: GraphNode[]; edges: GraphEdge[]; label: string }) {
+/** `cardH` makes room for a sentence under each title instead of a few words. */
+export function FlowGraph({ nodes, edges, label, cardH }: { nodes: GraphNode[]; edges: GraphEdge[]; label: string; cardH?: number }) {
   return (
-    <div className="w-full overflow-hidden rounded-[28px] border border-line" role="img" aria-label={label}>
+    <div className="relative w-full overflow-hidden rounded-[28px] border border-line">
+      <div role="img" aria-label={label}>
       <Player
         component={Scene}
-        inputProps={{ nodes, edges }}
+        inputProps={{ nodes, edges, ...(cardH ? { cardH } : {}) }}
         durationInFrames={LOOP}
         fps={FPS}
         compositionWidth={W}
@@ -166,6 +173,17 @@ export function FlowGraph({ nodes, edges, label }: { nodes: GraphNode[]; edges: 
         spaceKeyToPlayOrPause={false}
         initiallyMuted
       />
+      </div>
+      {/* The composition is a video; a linked card gets a transparent link laid over it. */}
+      {nodes.filter((n) => n.href).map((n) => (
+        <a
+          key={n.id}
+          href={n.href}
+          aria-label={`Open ${n.title}`}
+          className="absolute rounded-[5%] outline-none ring-ink/40 transition hover:bg-ink/[0.04] focus-visible:ring-2"
+          style={{ left: `${((n.x - cw(n) / 2) / W) * 100}%`, top: `${((n.y - (cardH ?? CARD_H) / 2) / H) * 100}%`, width: `${(cw(n) / W) * 100}%`, height: `${((cardH ?? CARD_H) / H) * 100}%` }}
+        />
+      ))}
     </div>
   )
 }

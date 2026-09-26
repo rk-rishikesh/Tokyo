@@ -16,6 +16,8 @@ import { mainnet } from 'viem/chains'
 import { normalize } from 'viem/ens'
 
 const BASE = () => (process.env.ETH_BLOCKSCOUT_URL?.trim() || 'https://eth.blockscout.com').replace(/\/+$/, '')
+/** Base mainnet's explorer: MultiBaas's free plan indexes only the last 100 blocks, so history comes from here. */
+export const BASE_EXPLORER = () => (process.env.BASE_BLOCKSCOUT_URL?.trim() || 'https://base.blockscout.com').replace(/\/+$/, '')
 const MAINNET_RPC = () => process.env.MAINNET_RPC_URL?.trim() || 'https://ethereum-rpc.publicnode.com'
 
 /**
@@ -57,16 +59,16 @@ type Tx = { hash: string; timestamp: string; value: string; fee?: { value?: stri
 type Transfer = { transaction_hash: string; timestamp: string; method?: string | null; from: Party; to: Party; total?: { value?: string; decimals?: string | null } | null; token: { symbol?: string | null; decimals?: string | null; exchange_rate?: string | null; circulating_market_cap?: string | null; reputation?: string | null } }
 type TokenRow = { value: string; token: { symbol?: string | null; name?: string | null; type?: string; decimals?: string | null; exchange_rate?: string | null; circulating_market_cap?: string | null; reputation?: string | null } }
 
-async function get<T>(path: string, attempt = 0): Promise<T> {
+async function get<T>(path: string, attempt = 0, explorer = BASE()): Promise<T> {
   try {
-    const r = await fetch(`${BASE()}${path}`, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(25_000), next: { revalidate: 60 } })
-    if (r.status === 404) throw new Error('no activity on Ethereum mainnet')
+    const r = await fetch(`${explorer}${path}`, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(25_000), next: { revalidate: 60 } })
+    if (r.status === 404) throw new Error('no activity on this chain')
     // The public API rate-limits bursts; one patient retry is usually enough.
-    if ((r.status === 429 || r.status >= 500) && attempt < 1) { await new Promise((res) => setTimeout(res, 1500)); return get<T>(path, attempt + 1) }
+    if ((r.status === 429 || r.status >= 500) && attempt < 1) { await new Promise((res) => setTimeout(res, 1500)); return get<T>(path, attempt + 1, explorer) }
     if (!r.ok) throw new Error(`Blockscout answered ${r.status}`)
     return r.json() as Promise<T>
   } catch (e) {
-    if (attempt < 1 && e instanceof Error && e.name === 'TimeoutError') return get<T>(path, attempt + 1)
+    if (attempt < 1 && e instanceof Error && e.name === 'TimeoutError') return get<T>(path, attempt + 1, explorer)
     throw e
   }
 }
@@ -118,12 +120,21 @@ export async function readWallet(input: string): Promise<Wallet> {
     .filter((h) => h.usd >= MIN_HOLDING_USD || (h.symbol === 'ETH' && h.units > 0))
     .sort((a, b) => b.usd - a.usd)
 
+  const movements = toMovements(me, ethPrice, txs.items, transfers.items)
+
+  return {
+    input, address, ens: ens ?? info.ens_domain_name ?? null,
+    holdings, totalUsd: holdings.reduce((n, h) => n + h.usd, 0), ethUnits, movements,
+  }
+}
+
+function toMovements(me: string, ethPrice: number, txs: Tx[], transfers: Transfer[]): Movement[] {
   const direction = (from: Party, to: Party): Movement['direction'] => {
     const f = from?.hash?.toLowerCase(), t = to?.hash?.toLowerCase()
     return f === me && t === me ? 'self' : f === me ? 'out' : 'in'
   }
-  const movements: Movement[] = [
-    ...txs.items.map((t) => {
+  return [
+    ...txs.map((t) => {
       const dir = direction(t.from, t.to)
       const other = dir === 'out' ? t.to : t.from
       const u = units(t.value, 18)
@@ -133,7 +144,7 @@ export async function readWallet(input: string): Promise<Wallet> {
         ok: (t.result ?? t.status) === 'success' || t.status === 'ok', feeEth: dir === 'out' ? units(t.fee?.value, 18) : 0,
       }
     }),
-    ...transfers.items.filter((t) => genuine(t.token)).map((t) => {
+    ...transfers.filter((t) => genuine(t.token)).map((t) => {
       const dir = direction(t.from, t.to)
       const other = dir === 'out' ? t.to : t.from
       const u = units(t.total?.value, t.total?.decimals ?? t.token.decimals)
@@ -148,9 +159,17 @@ export async function readWallet(input: string): Promise<Wallet> {
     .filter((m) => (m.units > 0 || !m.ok) && !(m.direction === 'in' && m.usd !== null && m.usd < 1))
     .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
     .slice(0, 60)
+}
 
-  return {
-    input, address, ens: ens ?? info.ens_domain_name ?? null,
-    holdings, totalUsd: holdings.reduce((n, h) => n + h.usd, 0), ethUnits, movements,
-  }
+/**
+ * Money in and out of a wallet on Base: native ETH transfers and ERC-20
+ * transfers of priced, established tokens, newest first.
+ */
+export async function readBaseMovements(address: string, ethPrice: number): Promise<Movement[]> {
+  const a = getAddress(address)
+  const [txs, transfers] = await Promise.all([
+    get<{ items: Tx[] }>(`/api/v2/addresses/${a}/transactions`, 0, BASE_EXPLORER()).then((r) => r.items).catch(() => [] as Tx[]),
+    get<{ items: Transfer[] }>(`/api/v2/addresses/${a}/token-transfers?type=ERC-20`, 0, BASE_EXPLORER()).then((r) => r.items).catch(() => [] as Transfer[]),
+  ])
+  return toMovements(a.toLowerCase(), ethPrice, txs, transfers)
 }

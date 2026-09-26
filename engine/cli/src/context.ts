@@ -11,7 +11,7 @@ import { createPublicClient, createWalletClient, http, type PublicClient, type W
 import { privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 import { normalisePrivateKey } from '@knowledge01/core'
-import { EnsPointer, Remote, Repository, RepoStore, repoPath, reposDir } from '@knowledge01/repo'
+import { EnsPointer, ensNetwork, Remote, Repository, RepoStore, repoPath, reposDir, type Network } from '@knowledge01/repo'
 import { createStorage } from '@knowledge01/storage'
 
 for (const p of ['.env', '../.env', '../../.env']) if (existsSync(p)) loadEnv({ path: p })
@@ -59,4 +59,10 @@ export function walletClient(): WalletClient | undefined {
 
 export function remoteFor(repo: Repository): Remote {
   return new Remote(repo, createStorage(), new EnsPointer(repo.namespace, publicClient(), walletClient()))
+}
+
+/** Sepolia ENS plus the configured storage: where manifests, offers and grants are published. */
+export function network(): Network {
+  const wallet = walletClient()
+  return ensNetwork({ storage: createStorage(), client: publicClient(), ...(wallet ? { wallet } : {}) })
 }
