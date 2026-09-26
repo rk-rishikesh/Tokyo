@@ -13,7 +13,7 @@
  * just the sign-in button.
  */
 import { cookies } from 'next/headers'
-import { configuredProviders, connectOwner, readUser, SESSION_COOKIE, verifySession, type User } from '@knowledge01/connect'
+import { configuredProviders, connectOwner, readUser, sessionIdentity, SESSION_COOKIE, upsertWalletUser, verifySession, type User } from '@knowledge01/connect'
 
 export type Viewer =
   | { mode: 'hosted'; user: User | null; providers: string[] }
@@ -30,8 +30,17 @@ export async function viewer(): Promise<Viewer> {
     return { mode: 'local', owner: connectOwner() }
   }
   const jar = await cookies()
-  const id = verifySession(jar.get(SESSION_COOKIE)?.value)
-  return { mode: 'hosted', user: id ? readUser(id) : null, providers }
+  const cookie = jar.get(SESSION_COOKIE)?.value
+  const id = verifySession(cookie)
+  let user = id ? readUser(id) : null
+  // Serverless: this instance may never have seen the sign-in. The signed
+  // session says who proved which name, so rebuild the record rather than
+  // sending them back to sign again.
+  if (id && !user) {
+    const who = sessionIdentity(cookie)
+    if (who) user = upsertWalletUser(who)
+  }
+  return { mode: 'hosted', user, providers }
 }
 
 /** The namespace root for whoever is looking, or null if nobody is signed in. */

@@ -1542,3 +1542,33 @@ describe('decisions: findings as plain questions with one-click answers', () => 
     expect(route({ text: 'Works with Nick' } as never, { owner: 'me.eth' }).subject).toBe('Nick')
   })
 })
+
+describe('sessions on a serverless host', () => {
+  const withSecret = <T,>(fn: () => T): T => {
+    const prev = process.env.CONNECT_SECRET
+    process.env.CONNECT_SECRET = 'a'.repeat(64)
+    try { return fn() } finally { if (prev === undefined) delete process.env.CONNECT_SECRET; else process.env.CONNECT_SECRET = prev }
+  }
+  it('carry the proved wallet and name, so a fresh instance can rebuild the user', async () => {
+    const { signSession, verifySession, sessionIdentity } = await import('../src/users.js')
+    withSecret(() => {
+      const who = { address: '0x3C5f1294C17aA9Effd340d4dfbf01ED8E8Beac6d', name: 'rishhtokyo.eth' }
+      const cookie = signSession('u_wallet_1', who)
+      expect(verifySession(cookie)).toBe('u_wallet_1')
+      expect(sessionIdentity(cookie)).toEqual(who)
+      // Old cookies, with no identity, still verify.
+      expect(verifySession(signSession('u_old'))).toBe('u_old')
+      expect(sessionIdentity(signSession('u_old'))).toBeNull()
+    })
+  })
+  it('refuses an identity that was edited after signing', async () => {
+    const { signSession, verifySession, sessionIdentity } = await import('../src/users.js')
+    withSecret(() => {
+      const cookie = signSession('u_wallet_1', { address: '0x0000000000000000000000000000000000000001', name: 'me.eth' })
+      const [head, issued, mac] = cookie.split('.')
+      const forged = `${head!.split('~')[0]}~${Buffer.from(JSON.stringify({ address: '0x00000000000000000000000000000000000000ff', name: 'vitalik.eth' })).toString('base64url')}.${issued}.${mac}`
+      expect(verifySession(forged)).toBeNull()
+      expect(sessionIdentity(forged)).toBeNull()
+    })
+  })
+})

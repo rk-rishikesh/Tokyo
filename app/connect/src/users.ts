@@ -272,24 +272,48 @@ export function deleteUser(id: string): boolean {
  * someone steals the cookie they can use the site as that person; they cannot
  * walk away with a GitHub token and use it anywhere else.
  */
-export function signSession(userId: string): string {
-  const payload = `${userId}.${Date.now()}`
+/**
+ * A signed session. With `identity`, the wallet and name it proved travel in the
+ * cookie too: on a serverless host each request can land on a different
+ * instance with its own empty disk, and a session that pointed only at a user
+ * file there sent the person back to sign in, on every page — a signing loop.
+ */
+export function signSession(userId: string, identity?: { address: string; name: string }): string {
+  const who = identity ? `~${Buffer.from(JSON.stringify(identity)).toString('base64url')}` : ''
+  const payload = `${userId}${who}.${Date.now()}`
   const mac = createHash('sha256').update(`${payload}.${encryptionKey().toString('hex')}`).digest('hex').slice(0, 32)
   return `${payload}.${mac}`
 }
 
-export function verifySession(cookie: string | undefined, maxAgeDays = SESSION.days): string | null {
+/** The verified parts of a session cookie, or null if it is forged, malformed or expired. */
+function openSession(cookie: string | undefined, maxAgeDays: number): { userId: string; identity: { address: string; name: string } | null } | null {
   if (!cookie) return null
-  const [userId, issued, mac] = cookie.split('.')
-  if (!userId || !issued || !mac) return null
-  const expected = createHash('sha256').update(`${userId}.${issued}.${encryptionKey().toString('hex')}`).digest('hex').slice(0, 32)
+  const [head, issued, mac] = cookie.split('.')
+  if (!head || !issued || !mac) return null
+  const expected = createHash('sha256').update(`${head}.${issued}.${encryptionKey().toString('hex')}`).digest('hex').slice(0, 32)
   const a = Buffer.from(mac)
   const b = Buffer.from(expected)
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null
   // Inclusive: a zero max age must reject, and an age exactly at the limit is
   // expired rather than valid on its final millisecond.
   if (Date.now() - Number(issued) >= maxAgeDays * 86_400_000) return null
-  return userId
+  const [userId, who] = head.split('~')
+  let identity: { address: string; name: string } | null = null
+  if (who) {
+    try {
+      const j = JSON.parse(Buffer.from(who, 'base64url').toString('utf8')) as { address?: unknown; name?: unknown }
+      if (typeof j.address === 'string' && typeof j.name === 'string') identity = { address: j.address, name: j.name }
+    } catch { /* an unreadable identity is simply absent */ }
+  }
+  return userId ? { userId, identity } : null
+}
+
+/** The identity a session carries — the wallet and the name it proved — when it has one. */
+export const sessionIdentity = (cookie: string | undefined, maxAgeDays = SESSION.days): { address: string; name: string } | null =>
+  openSession(cookie, maxAgeDays)?.identity ?? null
+
+export function verifySession(cookie: string | undefined, maxAgeDays = SESSION.days): string | null {
+  return openSession(cookie, maxAgeDays)?.userId ?? null
 }
 
 export const SESSION_COOKIE = 'knowledge_session'

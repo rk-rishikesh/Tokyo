@@ -35,7 +35,7 @@ export async function POST(req: Request) {
   // before it is offered.
   rememberName(result.name)
   const user = upsertWalletUser({ address: result.address, name: result.name })
-  jar.set(SESSION_COOKIE, signSession(user.id), {
+  jar.set(SESSION_COOKIE, signSession(user.id, { address: result.address, name: result.name }), {
     httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/', maxAge: SESSION.days * 86400,
   })
   return NextResponse.json({ ok: true, namespace: user.namespace, address: result.address })

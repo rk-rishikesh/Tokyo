@@ -173,7 +173,10 @@ export function Onboarding({ signedIn }: { signedIn?: SignedIn } = {}) {
       })
       const out = (await res.json()) as { error?: string }
       if (!res.ok) throw new Error(out.error ?? 'could not verify')
-      window.location.reload()
+      // Not reload(): arriving from the demos the URL is /app?start=1, which
+      // always shows this start screen — so a reload asked for the signature
+      // again, forever. Signed in, go to the app itself.
+      window.location.assign('/app')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'something went wrong')
     } finally {
