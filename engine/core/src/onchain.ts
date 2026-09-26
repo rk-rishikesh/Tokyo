@@ -41,6 +41,9 @@ const OWNER_RESOLVER_ROLES = combineRoles(
   ResolverRoles.SET_CONTENTHASH, ResolverRolesAdmin.SET_CONTENTHASH,
   ResolverRoles.SET_TEXT, ResolverRolesAdmin.SET_TEXT,
   ResolverRoles.CLEAR, ResolverRolesAdmin.CLEAR,
+  // Proposal keys: a named contributor is granted SET_DATA on knowledge.proposal.<name>,
+  // which only an account holding SET_DATA's admin half can do.
+  ResolverRoles.SET_DATA, ResolverRolesAdmin.SET_DATA,
 )
 const CHILD_ROLES = combineRoles(
   RegistryRoles.SET_RESOLVER, RegistryRolesAdmin.SET_RESOLVER,

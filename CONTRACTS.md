@@ -313,7 +313,16 @@ The policy's roles are now granted on each namespace's own PermissionedResolver
 | contributor (named) | `ROLE_SET_DATA` on `resource(node, partHash("knowledge.proposal.<name>"))` | `authorizeDataRoles(dns(ns), key, account, grant)` | `setData` checks the key's resource first; this one key and nothing else |
 
 A member's account is the owner of their ENS name (`findOwner`), the same key that signs approvals.
-Grants are idempotent (`_grantRoles` is a no-op when the bits are already set). Only
+Grants are idempotent (`_grantRoles` is a no-op when the bits are already set).
+
+**Owner resolver roles now include `SET_DATA` + admin (27 September 2026).** Granting a contributor
+their proposal key (`authorizeDataRoles`) needs `SET_DATA_ADMIN`, which `OWNER_RESOLVER_ROLES` did not
+include, so the grant reverted. Fixed for every new namespace (`register.ts`, `onchain.ts`). A resolver
+cannot gain an admin role afterwards: conventions.acme.eth got a fresh resolver
+(`0x7c8aBB35e5e87dD0058BAfa0719dDB60Ea78491C`, contenthash carried in `initialize`) and `setResolver` on
+acme.eth's registry. Other namespaces keep their resolvers until they need named contributors.
+Verified end to end on chain: acme-dev.eth proposed, wrote `knowledge.proposal.acme-dev.eth`
+(`0xd386aa3a…`); the owner ran `pull-proposal --from acme-dev.eth`, approved, landed and published v2. Only
 `hasRoles`, `authorizeNameRoles`, `authorizeDataRoles`, `setData` and `data` are added — all in the
 vendored ABI and the deployed bytecode (`pnpm check:abi`, `pnpm check:deployment`).
 
