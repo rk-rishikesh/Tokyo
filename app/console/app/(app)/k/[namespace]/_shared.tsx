@@ -26,18 +26,45 @@ export async function load(params: Params, searchParams?: Query) {
  * rishhtokyo.eth over notes.… and projects.… It is a real ENS name, so it
  * gets a page (and a link to the explorer) rather than a lookup miss.
  */
-export async function groupOf(params: Params): Promise<{ namespace: string; children: RepoView[] } | null> {
+export async function groupOf(params: Params): Promise<{ namespace: string; children: { name: string; view: RepoView | null }[] } | null> {
   const namespace = decodeURIComponent((await params).namespace)
   const own = await loadRepo(namespace).catch(() => null)
   // A namespace with claims is a namespace; an empty one with children is only a group.
   if (own && Object.keys(snapshotOf(own, defaultBranch(own))).length) return null
   const names = knownNamespaces().filter((n) => n.endsWith(`.${namespace}`) && n.split('.').length === namespace.split('.').length + 1)
   if (!names.length) return null
-  const children = (await Promise.all(names.map((n) => loadRepo(n).catch(() => null)))).filter((v): v is RepoView => !!v)
+  const children = await Promise.all(names.map(async (name) => ({ name, view: await loadRepo(name).catch(() => null) })))
   return { namespace, children }
 }
 
-export function GroupView({ namespace, children }: { namespace: string; children: RepoView[] }) {
+/**
+ * An encrypted namespace this deployment holds no key for. It still exists,
+ * on ENS, with a version; only the claims are sealed — so it gets a page that
+ * says so, instead of a lookup miss.
+ */
+export async function sealedOf(params: Params): Promise<{ namespace: string } | null> {
+  const namespace = decodeURIComponent((await params).namespace)
+  try { await loadRepo(namespace); return null }
+  catch (e) { return /private|key/i.test(e instanceof Error ? e.message : '') ? { namespace } : null }
+}
+
+export function SealedView({ namespace }: { namespace: string }) {
+  return (
+    <header className="mb-8">
+      <p className="text-[13.5px] text-muted-foreground">knowledge namespace · encrypted</p>
+      <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
+        <h1 className="text-[2.4rem] font-normal leading-[1.05] tracking-[-0.02em]">{namespace}</h1>
+        <a href={ensExplorer(namespace)} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-2.5 py-1 text-[13.5px] font-medium transition-colors hover:bg-raised">View on ENS explorer ↗</a>
+      </div>
+      <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+        This namespace is private. Its versions are published on ENS and IPFS, but every claim is encrypted, and this
+        explorer holds no key for it. Only the owner, and agents holding a grant sealed to their own key, can read it.
+      </p>
+    </header>
+  )
+}
+
+export function GroupView({ namespace, children }: { namespace: string; children: { name: string; view: RepoView | null }[] }) {
   return (
     <>
       <header className="mb-8">
@@ -49,13 +76,13 @@ export function GroupView({ namespace, children }: { namespace: string; children
         <p className="mt-2 max-w-2xl text-[15px] text-muted-foreground">It holds no knowledge of its own; the namespaces under it do.</p>
       </header>
       <div className="grid gap-4 md:grid-cols-2">
-        {children.map((v) => {
-          const b = defaultBranch(v)
+        {children.map(({ name, view: v }) => {
+          const b = v ? defaultBranch(v) : ''
           return (
-            <Link key={v.namespace} href={`/k/${encodeURIComponent(v.namespace)}`} className="group rounded-[18px] border border-line bg-surface p-5 transition-colors hover:border-ink/25">
-              <p className="font-mono text-[15px]"><span className="font-semibold group-hover:underline">{v.namespace.slice(0, -(namespace.length + 1))}</span><span className="text-muted-foreground">.{namespace}</span></p>
-              {v.refs.title ? <p className="mt-1 text-[14px] text-dim">{v.refs.title}</p> : null}
-              <p className="mt-3 text-[13px] text-dim">v{versionOf(v, b)} · {Object.keys(snapshotOf(v, b)).length} claims{v.refs.policy.readers === 'key' ? ' · encrypted' : ''}</p>
+            <Link key={name} href={`/k/${encodeURIComponent(name)}`} className="group rounded-[18px] border border-line bg-surface p-5 transition-colors hover:border-ink/25">
+              <p className="font-mono text-[15px]"><span className="font-semibold group-hover:underline">{name.slice(0, -(namespace.length + 1))}</span><span className="text-muted-foreground">.{namespace}</span></p>
+              {v?.refs.title ? <p className="mt-1 text-[14px] text-dim">{v.refs.title}</p> : null}
+              <p className="mt-3 text-[13px] text-dim">{v ? `v${versionOf(v, b)} · ${Object.keys(snapshotOf(v, b)).length} claims${v.refs.policy.readers === 'key' ? ' · encrypted' : ''}` : 'encrypted · no key here'}</p>
             </Link>
           )
         })}

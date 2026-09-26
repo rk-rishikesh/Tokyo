@@ -39,8 +39,19 @@ export type RepoView = {
 }
 
 /** Namespaces the explorer lists: configured, plus any repository on this machine. */
+/**
+ * The live namespaces on ENS. Listed in code because NEXT_PUBLIC_ variables are
+ * fixed at build time: a deploy built with a stale value showed a stale sidebar.
+ * The variable still adds names; it can no longer take these away.
+ */
+export const LIVE_NAMESPACES = [
+  'cancer-research.eth', 'treasury.eth', 'signals.treasury.eth', 'personal.eth',
+  'treasury.kestrel.eth', 'watch.kestrel.eth', 'portfolio.kestrel.eth',
+  'notes.rishhtokyo.eth', 'projects.rishhtokyo.eth', 'conventions.acme.eth',
+]
+
 export function knownNamespaces(): string[] {
-  const configured = (process.env.NEXT_PUBLIC_KNOWLEDGE_NAMESPACES ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+  const configured = [...LIVE_NAMESPACES, ...(process.env.NEXT_PUBLIC_KNOWLEDGE_NAMESPACES ?? '').split(',').map((s) => s.trim()).filter(Boolean)]
   const dir = reposDir()
   const local = existsSync(dir) ? readdirSync(dir).filter((d) => RepoStore.exists(join(dir, d))) : []
   return [...new Set([...configured, ...local])]

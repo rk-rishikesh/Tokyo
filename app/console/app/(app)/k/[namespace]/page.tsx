@@ -2,12 +2,14 @@ import Link from 'next/link'
 import { Empty } from '@/components/ui'
 import { KnowledgeCard } from '@/components/KnowledgeCard'
 import { outline, searchOf, snapshotOf, defaultBranch } from '@/lib/repoview'
-import { BranchPicker, GroupView, NamespaceHeader, groupOf, load, type Params, type Query } from './_shared'
+import { BranchPicker, GroupView, NamespaceHeader, SealedView, groupOf, load, sealedOf, type Params, type Query } from './_shared'
 
 export const dynamic = 'force-dynamic'
 
 /** The Knowledge tab: the namespace as an outline (topic → subject → claims), searchable. */
 export default async function KnowledgeTab({ params, searchParams }: { params: Params; searchParams: Query }) {
+  const sealed = await sealedOf(params)
+  if (sealed) return <SealedView {...sealed} />
   const group = await groupOf(params)
   if (group) return <GroupView {...group} />
   const { view, branch, q } = await load(params, searchParams)

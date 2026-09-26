@@ -46,10 +46,18 @@ export async function explorerTree(): Promise<NavNode[]> {
   // Known but unreadable: hang each under its parent when the parent is listed.
   const all = (ns: NavNode[]): NavNode[] => ns.flatMap((n) => [n, ...all(n.children)])
   for (const name of knownNamespaces().filter((n) => !views.some((v) => v.namespace === n))) {
-    const parent = all(nodes).find((n) => name.endsWith(`.${n.name}`) && name.split('.').length === n.name.split('.').length + 1)
     const node: NavNode = { name, readable: false, sealed: true, local: false, children: [] }
+    const parentName = name.split('.').slice(1).join('.')
+    let parent = all(nodes).find((n) => n.name === parentName)
+    // A parent whose every child is encrypted was never loaded, so it has no row yet:
+    // give it one (a group), rather than listing its children loose at the top.
+    if (!parent && parentName.includes('.')) {
+      parent = { name: parentName, readable: false, sealed: false, local: false, children: [] }
+      nodes.push(parent)
+    }
     if (parent) parent.children.push(node); else nodes.push(node)
   }
+  nodes.sort((a, b) => a.name.localeCompare(b.name))
   cache = { at: Date.now(), nodes }
   return nodes
 }
