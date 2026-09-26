@@ -13,7 +13,7 @@
  * just the sign-in button.
  */
 import { cookies } from 'next/headers'
-import { configuredProviders, connectOwner, readUser, sessionIdentity, SESSION_COOKIE, upsertWalletUser, verifySession, type User } from '@knowledge01/connect'
+import { configuredBaseUrl, configuredProviders, connectOwner, readUser, sessionIdentity, SESSION_COOKIE, upsertWalletUser, verifySession, type User } from '@knowledge01/connect'
 
 export type Viewer =
   | { mode: 'hosted'; user: User | null; providers: string[] }
@@ -23,7 +23,8 @@ export async function viewer(): Promise<Viewer> {
   // Hosted when there is a public base URL to come back to. Providers no longer
   // decide this: identity is a wallet, and a deployment with no OAuth app at all
   // can still let someone connect their name and read local sources.
-  const hosted = !!process.env.CONNECT_BASE_URL?.trim() && !/localhost|127\.0\.0\.1/.test(process.env.CONNECT_BASE_URL!)
+  const base = configuredBaseUrl()
+  const hosted = !!base && !/localhost|127\.0\.0\.1/.test(base)
   const providers = configuredProviders()
   if (!hosted && !providers.length) {
     // Someone's own machine, with nothing to sign in to.

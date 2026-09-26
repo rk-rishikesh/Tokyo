@@ -51,8 +51,21 @@ export const ENDPOINTS: Record<Provider, ProviderEndpoints> = {
 export const APP_NAME = 'Knowledge Network'
 export const APP_URL = 'https://github.com/knowledge-network'
 
+/**
+ * The public address of this deployment: CONNECT_BASE_URL when it is set, else
+ * the address Vercel gives it — the production domain in production, the
+ * deployment's own URL in a preview. Without the Vercel fallback an unset
+ * variable sent every OAuth provider back to localhost:3000.
+ */
+export function configuredBaseUrl(env: NodeJS.ProcessEnv = process.env): string | null {
+  const explicit = env.CONNECT_BASE_URL?.trim()
+  if (explicit) return explicit.replace(/\/$/, '')
+  const host = (env.VERCEL_ENV === 'production' ? env.VERCEL_PROJECT_PRODUCTION_URL : env.VERCEL_URL)?.trim()
+  return host ? `https://${host.replace(/^https?:\/\//, '').replace(/\/$/, '')}` : null
+}
+
 export const baseUrl = (env: NodeJS.ProcessEnv = process.env): string =>
-  (env.CONNECT_BASE_URL?.trim() || 'http://localhost:3000').replace(/\/$/, '')
+  configuredBaseUrl(env) ?? 'http://localhost:3000'
 
 export const callbackUrl = (p: Provider, env: NodeJS.ProcessEnv = process.env): string =>
   `${baseUrl(env)}/api/auth/${p}/callback`
@@ -70,7 +83,7 @@ export const clientMetadataUrl = (env: NodeJS.ProcessEnv = process.env): string 
  * the client describing itself is unreachable.
  */
 export function isPubliclyReachable(env: NodeJS.ProcessEnv = process.env): boolean {
-  const base = env.CONNECT_BASE_URL?.trim()
+  const base = configuredBaseUrl(env)
   if (!base) return false
   try {
     const { hostname, protocol } = new URL(base)

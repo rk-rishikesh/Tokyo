@@ -10,6 +10,7 @@
  * Checking at boot moves the failure from a stranger's browser to the operator's
  * terminal, which is the only place it can be fixed.
  */
+import { configuredBaseUrl } from './endpoints.js'
 
 export type ConfigProblem = { key: string; why: string; fix: string }
 
@@ -23,7 +24,7 @@ export function deploymentMode(env: NodeJS.ProcessEnv = process.env): Mode {
   const hasProvider = ['GITHUB', 'GOOGLE', 'LINEAR'].some(
     (p) => env[`${p}_CLIENT_ID`]?.trim() && env[`${p}_CLIENT_SECRET`]?.trim(),
   )
-  const base = env.CONNECT_BASE_URL?.trim()
+  const base = configuredBaseUrl(env)
   const isRemote = !!base && !/^https?:\/\/(localhost|127\.0\.0\.1)/.test(base)
   return hasProvider || isRemote ? 'hosted' : 'local'
 }
@@ -56,7 +57,7 @@ export function configProblems(env: NodeJS.ProcessEnv = process.env): ConfigProb
     // their claims go. A host-issued subdomain was a name this site could take
     // back, which is the opposite of what the product claims.
 
-    if (!env.CONNECT_BASE_URL?.trim()) {
+    if (!configuredBaseUrl(env)) {
       out.push({
         key: 'CONNECT_BASE_URL',
         why: 'OAuth callbacks are built from it, and must match what each provider has registered',
