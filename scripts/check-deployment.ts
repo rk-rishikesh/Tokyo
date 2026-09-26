@@ -45,7 +45,7 @@ const USED: Record<string, Target> = {
       'getSubregistry', 'getResolver', 'setResolver', 'setSubregistry', 'getState',
       'getStatus', 'getExpiry', 'getTokenId', 'getResource', 'grantRoles',
       'grantRootRoles', 'hasRoles', 'roleCount', 'ownerOf', 'latestOwnerOf',
-      'supportsInterface', 'ROOT_RESOURCE',
+      'supportsInterface', 'ROOT_RESOURCE', 'findOwner', 'getParent', 'setParent',
     ],
   },
   resolver: {
@@ -81,8 +81,8 @@ const USED: Record<string, Target> = {
     abi: abis.universalResolver,
     proxy: true,
     fns: [
-      'resolve', 'findResolver', 'findCanonicalRegistry', 'findExactRegistry',
-      'findParentRegistry', 'findOwner', 'ROOT_REGISTRY',
+      // The 15 September 2026 UR resolves only; registry walks are done locally (resolve.ts).
+      'resolve', 'findResolver', 'ROOT_REGISTRY',
     ],
   },
 }
@@ -115,7 +115,7 @@ async function main() {
         const registry = await client.readContract({
           address,
           abi,
-          functionName: 'findCanonicalRegistry',
+          functionName: 'findResolver',
           args: [dnsEncode(PROBE_NAME)],
         })
         console.log(

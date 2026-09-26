@@ -1,7 +1,7 @@
 {
   "contractName": "PermissionedRegistry",
   "sourceName": "src/registry/PermissionedRegistry.sol",
-  "address": "0x8115186E8f2E0B0281e86ab91f0f48Ba90364354",
+  "address": "0x9703DBD26dAB89504490994138cF2c575251a9cE",
   "abi": [
     {
       "inputs": [

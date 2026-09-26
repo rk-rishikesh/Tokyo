@@ -160,24 +160,41 @@ export async function findResolver(
   return { resolver, node, offset }
 }
 
+// The Universal Resolver deployed on 15 September 2026 no longer answers
+// findOwner / findCanonicalRegistry / findExactRegistry / findParentRegistry —
+// only resolution. The registry walk is done here instead, from ROOT_REGISTRY
+// down one label at a time, which is exactly what those functions did.
+
 /**
- * The registry that *canonically* holds `name`.
- *
- * This is the anti-spoofing primitive. Any contract can claim to be a registry
- * and answer `getSubregistry`; only the canonical chain from the root counts.
- * Reads that decide trust must go through here, never through a registry
- * address supplied by a caller.
+ * Walk `name` from the root: the registry holding each label, and the one at
+ * the name itself. `parent` is where the name's own token lives; `exact` is
+ * the name's subregistry (zero when it has none). Stops at the first gap.
+ */
+async function walk(client: PublicClient, name: string): Promise<{ parent: Address; exact: Address; label: string }> {
+  const labels = name.split('.').filter(Boolean)
+  let registry = await getRootRegistry(client)
+  let parent: Address = zeroAddress
+  for (let i = labels.length - 1; i >= 0; i--) {
+    parent = registry
+    registry = BigInt(registry) === 0n ? zeroAddress : await getSubregistry(client, registry, labels[i]!)
+    if (BigInt(registry) === 0n && i > 0) return { parent: zeroAddress, exact: zeroAddress, label: labels[0]! }
+  }
+  return { parent, exact: registry, label: labels[0]! }
+}
+
+/**
+ * The registry that *canonically* holds `name`: its subregistry, but only if
+ * that registry names this parent and label back — the anti-spoofing check.
+ * Any contract can answer `getSubregistry`; only the canonical chain counts.
  */
 export async function findCanonicalRegistry(
   client: PublicClient,
   name: string,
 ): Promise<Address> {
-  return (await client.readContract({
-    address: UNIVERSAL_RESOLVER,
-    abi: abis.universalResolver,
-    functionName: 'findCanonicalRegistry',
-    args: [dnsEncode(name)],
-  })) as Address
+  const { parent, exact, label } = await walk(client, name)
+  if (BigInt(exact) === 0n) return zeroAddress
+  const [back, backLabel] = (await client.readContract({ address: exact, abi: abis.registry, functionName: 'getParent' }).catch(() => [zeroAddress, ''])) as [Address, string]
+  return getAddress(back) === getAddress(parent) && backLabel === label ? exact : zeroAddress
 }
 
 /** The registry registered at exactly `name`, or the zero address. */
@@ -185,12 +202,7 @@ export async function findExactRegistry(
   client: PublicClient,
   name: string,
 ): Promise<Address> {
-  return (await client.readContract({
-    address: UNIVERSAL_RESOLVER,
-    abi: abis.universalResolver,
-    functionName: 'findExactRegistry',
-    args: [dnsEncode(name)],
-  })) as Address
+  return (await walk(client, name)).exact
 }
 
 /** The registry holding `name`'s parent — where `name`'s own token lives. */
@@ -198,25 +210,17 @@ export async function findParentRegistry(
   client: PublicClient,
   name: string,
 ): Promise<Address> {
-  return (await client.readContract({
-    address: UNIVERSAL_RESOLVER,
-    abi: abis.universalResolver,
-    functionName: 'findParentRegistry',
-    args: [dnsEncode(name)],
-  })) as Address
+  return (await walk(client, name)).parent
 }
 
-/** The owner of `name`, per the canonical registry chain. */
+/** The owner of `name`, per the canonical registry chain (zero if unregistered). */
 export async function findOwner(
   client: PublicClient,
   name: string,
 ): Promise<Address> {
-  return (await client.readContract({
-    address: UNIVERSAL_RESOLVER,
-    abi: abis.universalResolver,
-    functionName: 'findOwner',
-    args: [dnsEncode(name)],
-  })) as Address
+  const { parent, label } = await walk(client, name)
+  if (BigInt(parent) === 0n) return zeroAddress
+  return (await client.readContract({ address: parent, abi: abis.registry, functionName: 'findOwner', args: [label] })) as Address
 }
 
 /**

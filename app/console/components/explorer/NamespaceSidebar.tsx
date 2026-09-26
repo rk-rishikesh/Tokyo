@@ -125,7 +125,7 @@ function Row({ n, depth, active, collapsed, toggle, query }: { n: NavNode; depth
             <Chevron open={!folded} />
           </button>
         ) : <span className="w-6 shrink-0" aria-hidden />}
-        {n.readable ? (
+        {n.readable || (n.children.length && !n.sealed) ? (
           <Link href={`/k/${encodeURIComponent(n.name)}`} aria-current={isActive ? 'page' : undefined} title={n.title ?? n.name} className="flex min-w-0 flex-1 items-center gap-2">{label}{meta}</Link>
         ) : (
           <Link href={`/namespaces?name=${encodeURIComponent(n.name)}`} title={n.sealed ? 'Encrypted — this explorer holds no key for it' : 'Holds no claims of its own'} className="flex min-w-0 flex-1 items-center gap-2 opacity-70">{label}{meta}</Link>

@@ -1,7 +1,8 @@
 import Link from 'next/link'
+import { ensExplorer } from '@/lib/chain'
 import { notFound } from 'next/navigation'
 import { Badge } from '@/components/ui'
-import { defaultBranch, loadRepo, openProposals, snapshotOf, versionOf, type RepoView } from '@/lib/repoview'
+import { defaultBranch, knownNamespaces, loadRepo, openProposals, snapshotOf, versionOf, type RepoView } from '@/lib/repoview'
 import { RepoNav, type RepoTab } from '@/components/RepoNav'
 
 export type Params = Promise<{ namespace: string; id?: string; n?: string }>
@@ -18,6 +19,49 @@ export async function load(params: Params, searchParams?: Query) {
   if (!view) notFound()
   const branch = q.branch && q.branch in view.refs.branches ? q.branch : defaultBranch(view)
   return { view, branch, q, ...(id ? { id: decodeURIComponent(id) } : {}), ...(n ? { n: decodeURIComponent(n) } : {}) }
+}
+
+/**
+ * A name that holds no claims of its own but groups namespaces under it —
+ * rishhtokyo.eth over notes.… and projects.… It is a real ENS name, so it
+ * gets a page (and a link to the explorer) rather than a lookup miss.
+ */
+export async function groupOf(params: Params): Promise<{ namespace: string; children: RepoView[] } | null> {
+  const namespace = decodeURIComponent((await params).namespace)
+  const own = await loadRepo(namespace).catch(() => null)
+  // A namespace with claims is a namespace; an empty one with children is only a group.
+  if (own && Object.keys(snapshotOf(own, defaultBranch(own))).length) return null
+  const names = knownNamespaces().filter((n) => n.endsWith(`.${namespace}`) && n.split('.').length === namespace.split('.').length + 1)
+  if (!names.length) return null
+  const children = (await Promise.all(names.map((n) => loadRepo(n).catch(() => null)))).filter((v): v is RepoView => !!v)
+  return { namespace, children }
+}
+
+export function GroupView({ namespace, children }: { namespace: string; children: RepoView[] }) {
+  return (
+    <>
+      <header className="mb-8">
+        <p className="text-[13.5px] text-muted-foreground">ENS name · groups {children.length} namespace{children.length === 1 ? '' : 's'}</p>
+        <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
+          <h1 className="text-[2.4rem] font-normal leading-[1.05] tracking-[-0.02em]">{namespace}</h1>
+          <a href={ensExplorer(namespace)} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-2.5 py-1 text-[13.5px] font-medium transition-colors hover:bg-raised">View on ENS explorer ↗</a>
+        </div>
+        <p className="mt-2 max-w-2xl text-[15px] text-muted-foreground">It holds no knowledge of its own; the namespaces under it do.</p>
+      </header>
+      <div className="grid gap-4 md:grid-cols-2">
+        {children.map((v) => {
+          const b = defaultBranch(v)
+          return (
+            <Link key={v.namespace} href={`/k/${encodeURIComponent(v.namespace)}`} className="group rounded-[18px] border border-line bg-surface p-5 transition-colors hover:border-ink/25">
+              <p className="font-mono text-[15px]"><span className="font-semibold group-hover:underline">{v.namespace.slice(0, -(namespace.length + 1))}</span><span className="text-muted-foreground">.{namespace}</span></p>
+              {v.refs.title ? <p className="mt-1 text-[14px] text-dim">{v.refs.title}</p> : null}
+              <p className="mt-3 text-[13px] text-dim">v{versionOf(v, b)} · {Object.keys(snapshotOf(v, b)).length} claims{v.refs.policy.readers === 'key' ? ' · encrypted' : ''}</p>
+            </Link>
+          )
+        })}
+      </div>
+    </>
+  )
 }
 
 export function SourceBadge({ view }: { view: RepoView }) {
@@ -45,14 +89,11 @@ export function NamespaceHeader({ view, branch, active }: { view: RepoView; bran
             {view.refs.description ? <p className="mt-1 max-w-2xl text-[15px] text-muted-foreground">{view.refs.description}</p> : null}
           </div>
           <div className="flex flex-wrap items-center gap-2 text-[13.5px] text-muted-foreground">
+            <a href={ensExplorer(view.namespace)} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-2.5 py-1 font-medium text-foreground transition-colors hover:bg-raised">View on ENS explorer ↗</a>
             <SourceBadge view={view} />
-            <Badge>{view.refs.policy.kind}</Badge>
-            <Badge>{view.refs.policy.readers === 'public' ? 'plaintext' : 'encrypted'}</Badge>
-            {view.refs.policy.approvals === 0 ? <Badge tone="warn">auto-land · findings recorded</Badge> : <Badge tone="added">review gated · {view.refs.policy.approvals} approval{view.refs.policy.approvals === 1 ? '' : 's'}</Badge>}
           </div>
         </div>
         <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-[15px]">
-          <div><dt className="inline text-muted-foreground">Owner </dt><dd className="inline font-mono">{view.refs.policy.owner}</dd></div>
           <div><dt className="inline text-muted-foreground">Contributors </dt><dd className="inline font-semibold">{contributors}</dd></div>
           <div><dt className="inline text-muted-foreground">Version </dt><dd className="inline font-mono font-semibold">v{version}</dd></div>
           <div><dt className="inline text-muted-foreground">Knowledge </dt><dd className="inline font-semibold">{items}</dd></div>

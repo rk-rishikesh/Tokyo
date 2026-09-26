@@ -26,16 +26,15 @@ import type { Abi, Address } from 'viem'
 export const SEPOLIA_CHAIN_ID = 11155111
 
 /**
- * The Universal Resolver we read through.
+ * The Universal Resolver we read through: the official vanity proxy.
  *
- * Pinned to the **documented** UniversalResolverV2, not the vanity proxy at
- * 0xeEeE…EeEe. On 15 September 2026 the proxy was re-pointed at a registry set
- * (root 0x0F62…, eth 0x1BD2…) that is not in the ENS documentation's Sepolia
- * table and does not contain names registered through the documented
- * ETHRegistrar — including ours. The docs table is this project's declared
- * authority (CONTRACTS.md §1), and the documented UR still resolves the
- * documented registries, so that is what we pin. Root and .eth registries are
- * still discovered from whichever UR is pinned, never hard-coded.
+ * ENS resets its Sepolia v2 deployment periodically ("names and state may be
+ * reset… most recent deployment 15 September 2026"). Apps — app.ens.dev
+ * included — read through this proxy, so a name is only visible to them if it
+ * lives in the registry set the proxy currently points at. On 27 September
+ * 2026 that is root 0x9703…, eth 0x657e…, registrar 0xAbe7…; every namespace
+ * was re-registered there (CONTRACTS.md §13). Root and .eth registries are
+ * still discovered from the proxy at runtime, never hard-coded.
  */
 export const UNIVERSAL_RESOLVER = UniversalResolverV2.address as Address
 

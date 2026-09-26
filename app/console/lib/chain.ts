@@ -23,6 +23,16 @@ export const KNOWN_COLLECTIONS = (process.env.NEXT_PUBLIC_RECALL_COLLECTIONS ?? 
 export const explorerTx = (hash: string) => `https://sepolia.etherscan.io/tx/${hash}`
 export const explorerAddress = (addr: string) => `https://sepolia.etherscan.io/address/${addr}`
 
+/**
+ * ENS's own explorer for v2 names on Sepolia: the name, its registry (with
+ * its subnames) and its resolver. It reads the deployment the official
+ * Universal Resolver points at — the one our namespaces are registered on.
+ */
+export const ensExplorer = (name: string, page?: 'registry' | 'resolver') => `https://explorer.ens.dev/${encodeURIComponent(name)}${page ? `/${page}` : ''}`
+
+/** Which ENS deployment the names live on. ENS resets Sepolia from time to time; say which one. */
+export const ENS_DEPLOYMENT = { label: 'ENS v2 on Sepolia', since: '15 September 2026' } as const
+
 export const shortAddress = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`
 
 export function formatExpiry(expiry: bigint): {

@@ -1,7 +1,7 @@
 {
   "contractName": "UserRegistry",
   "sourceName": "src/registry/UserRegistry.sol",
-  "address": "0x624a25d67B59D587752EbEc8DdeD8827dAe52050",
+  "address": "0x840Fa461059862Ea466A711E8C98c8dE732061C0",
   "abi": [
     {
       "inputs": [

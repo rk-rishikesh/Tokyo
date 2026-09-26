@@ -1,7 +1,7 @@
 {
   "contractName": "PermissionedResolver",
   "sourceName": "src/resolver/PermissionedResolver.sol",
-  "address": "0x9EAe5C2730a7dD16BDD1DeE6421a1B91e3B0365e",
+  "address": "0x7E4B2d59938930168024201752EE5503df402303",
   "abi": [
     {
       "inputs": [

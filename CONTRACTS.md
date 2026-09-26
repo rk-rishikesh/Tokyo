@@ -324,6 +324,38 @@ either (preview ETHRegistry `0xDEDB92913A25abE1f7BCDD85D8A344a43B398B67`). Throu
 `cancer-research.eth` and `treasury.eth` have no resolver; through the pinned `UniversalResolverV2` they
 resolve. The pin stays until the documented deployment and the proxy agree.
 
+## 13. Moved to the 15 September 2026 deployment — 27 September 2026
+
+ENS: "ENS v2 is in active development. Registered names on Sepolia and state data may be reset
+periodically due to routine contract deployments. The most recent deployment was on September 15, 2026."
+Apps (app.ens.dev) read through the vanity proxy, so names in any older registry set are invisible to
+them. Every namespace was re-registered on the set the proxy points at, and its `contenthash` and
+`knowledge.access` records copied across unchanged (`scripts/migrate-namespaces.ts`); IPFS objects
+and sealed grants do not depend on the chain.
+
+| Contract | Address | Source |
+|---|---|---|
+| Universal Resolver (read through) | `0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe` | vanity proxy → `0x6d80F217…` → impl `0x5d25C1D6aCBb71B7a28AA7899618a3412a8303e3` (Blockscout-verified; ABI vendored from it) |
+| RootRegistry (discovered) | `0x9703DBD26dAB89504490994138cF2c575251a9cE` | `ROOT_REGISTRY()` |
+| `.eth` registry (discovered) | `0x657eA849311d3D5823348ddEd7C2AaAFb3EDE09E` | root `getSubregistry("eth")` |
+| ETHRegistrar | `0xAbe76F6C8DFcEd81AA5A2bB8034202A7136b94ca` | holds REGISTRAR+RENEW on the `.eth` root (`EACRolesChanged`); `ETH_REGISTRY()` matches |
+| StandardRentPriceOracle | `0x9B0b9C65BDAf9794Ff7697E4dCFb1f50581072BB` | `rentPriceOracle()` |
+| USDC (payment, mintable) | `0x16f95D91DBa7dA3Aca778Ec053dF0FF6C6A8aA8e` | oracle `PaymentTokenUpdated`; `isPaymentToken` true |
+| VerifiableFactory | `0x118bc31a50d559f7015a8da26d54b3b030cdb70f` | contracts-v2 `deployments/sepolia` @ pinned commit |
+| UserRegistryImpl | `0x840fa461059862ea466a711e8c98c8de732061c0` | same; used by names registered on this set |
+| PermissionedResolverImpl | `0x7e4b2d59938930168024201752ee5503df402303` | same |
+
+**The Universal Resolver dropped `findOwner`, `findCanonicalRegistry`, `findExactRegistry`,
+`findParentRegistry` and `findRegistries`.** It now only resolves (it also falls back to ENSv1 for
+unmigrated names such as `nick.eth`). `resolve.ts` walks the registries itself — `ROOT_REGISTRY()`, then
+`getSubregistry(label)` right to left; owner is the parent registry's `findOwner(label)`; canonical is
+the exact registry whose `getParent()` names this parent and label. The registrar's `renew` signature
+changed (now a struct); nothing here calls it. `pnpm check:deployment` passes on every address above.
+
+The ENS docs preview lists yet another set (ETHRegistry `0xDEDB…8B67`, registrar `0x8c2E…FfcA`) with a
+changed PermissionedResolver `initialize` — not what the proxy uses today. Expect another reset; this
+script repeats the move.
+
 ## 10. Memory namespace — pre-pivot, 15 September 2026 (superseded)
 
 The current product publishes one pointer per namespace. `memory.<identity>` is a subname

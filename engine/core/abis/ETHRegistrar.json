@@ -1,7 +1,7 @@
 {
   "contractName": "ETHRegistrar",
   "sourceName": "src/registrar/ETHRegistrar.sol",
-  "address": "0xa88553F454b77203B0D036A05c894d555EAAa2Cc",
+  "address": "0xAbe76F6C8DFcEd81AA5A2bB8034202A7136b94ca",
   "abi": [
     {
       "inputs": [

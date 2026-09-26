@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Arrow } from '@/components/Arrow'
 import { onchainRoles, policyMembers } from '@knowledge01/core'
-import { serverClient } from '@/lib/chain'
+import { ENS_DEPLOYMENT, ensExplorer, serverClient } from '@/lib/chain'
 import { defaultBranch, logOf, openProposals, versionOf } from '@/lib/repoview'
 import { NamespaceHeader, load, type Params } from '../_shared'
 
@@ -48,6 +48,15 @@ export default async function Info({ params }: { params: Params }) {
         </Row>
         <Row label="ENS name">
           <p className="font-mono">{view.namespace}</p>
+          <p className="mt-1 text-[14px] text-dim">
+            Registered on {ENS_DEPLOYMENT.label}, the deployment of {ENS_DEPLOYMENT.since} that ENS&apos;s own apps read.
+            ENS resets Sepolia from time to time; when it does, names are registered again under the same name and their records copied across.
+          </p>
+          <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[14px]">
+            <a href={ensExplorer(view.namespace)} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline">Name on explorer.ens.dev ↗</a>
+            <a href={ensExplorer(view.namespace, 'registry')} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline">Registry and subnames ↗</a>
+            <a href={ensExplorer(view.namespace, 'resolver')} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline">Resolver ↗</a>
+          </p>
         </Row>
         <Row label="Version pointer (contenthash)">
           {view.contenthash ? <p className="break-all font-mono text-[14px]">{view.contenthash}</p> : <p className="text-dim">Not published yet.</p>}
