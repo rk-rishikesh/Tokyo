@@ -89,8 +89,15 @@ starting from zero.
   it reads the paid tier with its own key until the week ends. The chat shows every read and payment as
   it happened.
 
+**Why MultiBaas.** Everything in this demo starts with reading wallets on Base: what Agent A writes into
+`treasury.eth`, what Agent B sells over x402 in `signals.treasury.eth`, the wallet dashboard, and every
+figure in Agent B's plain-English answers. MultiBaas provides those reads through one REST API, with no
+RPC node to run, no ABIs to manage and no indexer to maintain. That kept the demo about knowledge rather
+than infrastructure. It's also why a claim such as "this whale holds cbBTC" can cite a single named
+source, and why a buyer agent can trust the data it pays for.
+
 **How MultiBaas is used.** Every wallet balance in the demo is read on **Base mainnet through
-MultiBaas**, so there is no RPC node to run or index to maintain:
+MultiBaas**:
 
 - ETH and ERC-20 balances for your wallets and the watched whale wallets, by calling `balanceOf`
   through MultiBaas's built-in ERC-20 interface — the same reads Agent A turns into claims.
