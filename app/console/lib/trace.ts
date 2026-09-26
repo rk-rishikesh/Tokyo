@@ -54,7 +54,7 @@ export function namespaceRead(o: { namespace: string; version: number; claims: C
 }
 
 /** Buying read access over x402, then reading with the buyer's own key. */
-export function paidRead(o: { namespace: string; version: number; claims: ClaimLike[]; question: string; price: string; network: string; tx: string | null; validUntil: string | null }): TraceCall {
+export function paidRead(o: { namespace: string; version: number; claims: ClaimLike[]; question: string; price: string; network: string; tx: string | null; validUntil: string | null; reason?: string }): TraceCall {
   const { hits, best } = rank(o.claims, o.question)
   const shown = hits.length ? hits : o.claims
   const until = o.validUntil ? new Date(o.validUntil).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'the epoch ends'
@@ -62,6 +62,7 @@ export function paidRead(o: { namespace: string; version: number; claims: ClaimL
     tool: 'x402_pay',
     args: { namespace: o.namespace, price: `${o.price} USDC`, network: o.network },
     steps: [
+      ...(o.reason ? [{ label: `Decide to buy: ${o.reason}` }] : []),
       { label: `Read the offer from ${o.namespace}'s access manifest` },
       { label: `Pay Agent A over x402${o.tx ? ` · ${o.tx.slice(0, 10)}…` : ''}` },
       { label: `Grant sealed to Agent B's key, until ${until}` },

@@ -43,6 +43,7 @@ what you said to an assistant at 2am is not a fact about the world.
 
 ```bash
 knowledge policy --reviewer expert.eth --approvals 1 --conflicts ask
+knowledge roles [--sync]    # who may publish or propose on ENS; --sync grants reviewers and named contributors
 knowledge policy --publish interval --interval-minutes 60
 ```
 

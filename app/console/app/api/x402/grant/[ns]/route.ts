@@ -9,8 +9,12 @@
  * manifest with the payment on it, and the buyer reads the namespace from the
  * network with its own key until the epoch ends.
  *
- * `withX402` settles only after this handler succeeds, so a buyer is never
- * charged for a grant that failed to publish.
+ * Payment settles *before* the grant is sealed (`paymentFlow: 'upfront'`). The
+ * default flow settles after the handler, which would put a sealed key on ENS
+ * before the money moved: if settlement then failed, the buyer would already
+ * hold the key until the next re-key. Upfront, the worse case is the reverse —
+ * paid, and the grant failed to publish — so the handler retries once and, if
+ * it still fails, says plainly that payment went through and by whom.
  */
 import { NextResponse, type NextRequest } from 'next/server'
 import { withX402, x402ResourceServer } from '@x402/next'
@@ -46,7 +50,7 @@ async function issue(req: NextRequest): Promise<NextResponse> {
     if (p.payload?.authorization?.value) amount = (Number(p.payload.authorization.value) / 1e6).toString()
   } catch { /* the receipt is best-effort; the payment itself was verified by the facilitator */ }
 
-  try {
+  const seal = async () => {
     const contentKey = await contentKeyFromOwnerGrant(namespace)
     const validUntil = epochEnd(offer.epochDays)
     const { grant, receipt, manifest } = await sealGrant(network(true), namespace, { readers: 'key', contentKey }, {
@@ -55,9 +59,12 @@ async function issue(req: NextRequest): Promise<NextResponse> {
     })
     forgetManifest(namespace)
     return NextResponse.json({ namespace, grant: { id: grant.id, agent, validUntil }, keyVersion: manifest.keyVersion, manifestTx: receipt })
-  } catch (e) {
-    // A 5xx here means withX402 does not settle: no grant, no charge.
-    return NextResponse.json({ error: e instanceof Error ? e.message : 'could not issue the grant' }, { status: 502 })
+  }
+  try { return await seal() } catch { /* one retry: a manifest write can lose a race with another grant */ }
+  try { return await seal() } catch (e) {
+    // Settled already (upfront): be exact about what happened so it can be made good.
+    console.error(`[x402] ${namespace}: paid by ${payer} (${amount}), grant for ${pubkey.slice(0, 12)}… not published`, e)
+    return NextResponse.json({ error: `payment from ${payer} settled, but the grant could not be published: ${e instanceof Error ? e.message : 'unknown error'}. Do not pay again; give the namespace owner this payer address to have the grant issued.`, paid: true, payer }, { status: 502 })
   }
 }
 
@@ -68,6 +75,8 @@ const paid = withX402(issue, {
       network: X402_NETWORK(),
       price: async (ctx) => (await offerOf(nsOf(ctx.path)))?.price ?? '$0.01',
       payTo: async (ctx) => (await offerOf(nsOf(ctx.path)))?.payTo ?? (process.env.X402_PAY_TO ?? ''),
+      // Settle before sealing: never publish a key for money that has not moved.
+      extra: { paymentFlow: 'upfront' },
     },
     description: 'Read access to a knowledge namespace until the end of its epoch, sealed to your key',
   },

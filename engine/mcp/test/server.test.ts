@@ -28,7 +28,7 @@ afterAll(async () => { await client?.close(); await reviewer?.close(); rmSync(ca
 describe('knowledge MCP server', () => {
   it('exposes the knowledge_* tool set', async () => {
     const names = (await client.listTools()).tools.map((t) => t.name).sort()
-    expect(names).toEqual(['knowledge_branch', 'knowledge_commit', 'knowledge_diff', 'knowledge_findings', 'knowledge_get', 'knowledge_history', 'knowledge_land', 'knowledge_merge', 'knowledge_observe', 'knowledge_propose', 'knowledge_pull', 'knowledge_push', 'knowledge_resolve', 'knowledge_revert', 'knowledge_review', 'knowledge_search', 'knowledge_sources', 'knowledge_status'])
+    expect(names).toEqual(['knowledge_branch', 'knowledge_commit', 'knowledge_diff', 'knowledge_findings', 'knowledge_get', 'knowledge_history', 'knowledge_land', 'knowledge_merge', 'knowledge_observe', 'knowledge_propose', 'knowledge_pull', 'knowledge_push', 'knowledge_read', 'knowledge_resolve', 'knowledge_revert', 'knowledge_review', 'knowledge_search', 'knowledge_sources', 'knowledge_status'])
   })
 
   it('resolve → search → sources, fenced and attributed', async () => {

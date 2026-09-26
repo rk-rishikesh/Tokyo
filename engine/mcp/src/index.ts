@@ -16,6 +16,9 @@
  * Configure:
  *   KNOWLEDGE_AGENT      identity the agent acts as (contributor / reviewer name). Default: "reader" on a fresh local copy.
  *   KNOWLEDGE_NAMESPACE  default namespace when a call omits one.
+ *   KNOWLEDGE_READER_KEY private key a sealed namespace granted access to (e.g. one bought over
+ *                        x402). Used only to open grants in knowledge_read; it never signs a transaction.
+ *   PINATA_GATEWAY       required: the dedicated gateway reads are fetched through.
  *
  * Install:  claude mcp add knowledge -- node <path>/engine/mcp/dist/knowledge-mcp.mjs
  */
@@ -28,7 +31,7 @@ import { createPublicClient, createWalletClient, http, type PublicClient, type W
 import { privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 import { normalisePrivateKey, onchainRoles, policyMembers, renderFindings, searchSnapshot, shortId, type Resolution, type Source } from '@knowledge01/core'
-import { EnsPointer, Remote, Repository, RepoStore, repoPath, reposDir } from '@knowledge01/repo'
+import { AccessDenied, EnsPointer, ensNetwork, NotPublished, Remote, Repository, RepoStore, repoPath, reposDir, resolveNamespace } from '@knowledge01/repo'
 import { createStorage } from '@knowledge01/storage'
 import { formatConflicts, formatDiff, formatHits, formatKnowledge, formatLog, formatProposal, formatWhy, notice } from './format.js'
 
@@ -66,7 +69,7 @@ async function publishers(r: Repository): Promise<string> {
   } catch { return 'on ENS: could not read roles right now' }
 }
 
-const server = new McpServer({ name: 'knowledge', version: '0.3.1' })
+const server = new McpServer({ name: 'knowledge', version: '0.3.2' })
 const text = (body: string) => ({ content: [{ type: 'text' as const, text: body }] })
 const fail = (e: unknown) => ({ isError: true as const, content: [{ type: 'text' as const, text: notice(`error: ${e instanceof Error ? e.message : String(e)}`) }] })
 const run = async (fn: () => string | Promise<string>) => { try { return text(await fn()) } catch (e) { return fail(e) } }
@@ -213,6 +216,25 @@ server.tool('knowledge_pull', 'Resolve the namespace on ENS and fetch its publis
     const r = repo(namespace); const res = await remote(r).pull()
     if (!res.remote) return notice(`${r.namespace} has nothing published yet`)
     return notice([`fetched ${res.fetched.length} commit(s) — ${r.namespace} is at v${r.version(r.refs.head)}, published ${res.ageMinutes} min ago (${res.publishedAt}). This is a snapshot: the owner may hold unpublished commits.`, res.fastForwarded.length ? `fast-forwarded: ${res.fastForwarded.join(', ')}` : '', res.created.length ? `new branches: ${res.created.join(', ')}` : '', res.diverged.length ? `diverged: ${res.diverged.join(', ')}` : ''].filter(Boolean).join('\n  '))
+  }))
+
+server.tool('knowledge_read', 'Read a namespace straight from the network — ENS then IPFS, every object verified by its hash — without pulling it. Sealed namespaces open with this agent\'s own grant (KNOWLEDGE_READER_KEY), e.g. access bought over x402. Optionally search it.',
+  { namespace: z.string().describe('namespace, e.g. signals.treasury.eth'), query: z.string().optional(), limit: z.number().int().min(1).max(50).default(10) },
+  async ({ namespace, query, limit }) => run(async () => {
+    const pk = normalisePrivateKey(process.env.KNOWLEDGE_READER_KEY)
+    const network = ensNetwork({ storage: createStorage(), client: createPublicClient({ chain: sepolia, transport: http(RPC) }) as PublicClient })
+    try {
+      const ns = await resolveNamespace(network, namespace, pk ? { privateKey: pk } : null)
+      const how = ns.readers === 'public' ? 'public' : `sealed · opened with ${ns.grant?.owner ? 'the owner key' : `grant for ${ns.grant?.agent ?? 'this key'}`}${ns.grant?.validUntil ? `, valid until ${ns.grant.validUntil.slice(0, 10)}` : ''}`
+      const head = notice(`${ns.namespace} v${ns.version} · ${ns.claims.length} claims · ${how} · published ${ns.publishedAt}`)
+      if (!query) return `${head}\n${ns.claims.slice(0, limit).map((k) => formatKnowledge(k)).join('\n\n')}`
+      const snapshot = Object.fromEntries(ns.claims.map((k) => [k.id, k]))
+      return `${head}\n${formatHits(ns.namespace, ns.version, query, searchSnapshot(snapshot, query, { limit }))}`
+    } catch (e) {
+      if (e instanceof AccessDenied) return notice(`${e.message}${pk ? '' : ' — set KNOWLEDGE_READER_KEY to the key your grant was sealed to'}`)
+      if (e instanceof NotPublished) return notice(e.message)
+      throw e
+    }
   }))
 
 server.tool('knowledge_push', 'Publish unpushed commits and move the ENS pointer once. Needs PRIVATE_KEY (namespace owner) in this process; refuses otherwise. ifDue=true publishes only when the namespace publish policy says so.', { namespace: NS, ifDue: z.boolean().default(false) },

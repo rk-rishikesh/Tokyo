@@ -4,18 +4,19 @@
   "title": "k01 knowledge network",
   "description": "Read and contribute to ENS-owned, versioned knowledge namespaces: claims with sources, reviewers and history.",
   "repository": { "url": "https://github.com/rk-rishikesh/Tokyo", "source": "github", "subfolder": "engine/mcp" },
-  "version": "0.3.1",
+  "version": "0.3.2",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@knowledge01/mcp",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "KNOWLEDGE_NAMESPACE", "description": "The namespace to read by default, e.g. cancer-research.eth", "isRequired": false },
-        { "name": "KNOWLEDGE_AGENT", "description": "The identity this agent contributes as, e.g. <your-name.eth>", "isRequired": false },
+        { "name": "KNOWLEDGE_AGENT", "description": "The name this agent signs contributions with, e.g. <your-name.eth>. A label only; defaults to \"reader\"", "isRequired": false },
         { "name": "SEPOLIA_RPC_URL", "description": "Ethereum Sepolia RPC used to resolve ENS names (a public default is used if unset)", "isRequired": false },
-        { "name": "PINATA_GATEWAY", "description": "IPFS gateway used to fetch namespace versions", "isRequired": false }
+        { "name": "PINATA_GATEWAY", "description": "Dedicated Pinata gateway host reads are fetched through, e.g. my-gateway.mypinata.cloud", "isRequired": true },
+        { "name": "KNOWLEDGE_READER_KEY", "description": "Private key a sealed namespace granted access to (e.g. bought over x402). Opens grants in knowledge_read; never signs a transaction", "isRequired": false, "isSecret": true }
       ]
     }
   ]

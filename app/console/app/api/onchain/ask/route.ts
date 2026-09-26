@@ -10,7 +10,8 @@ import { NextResponse } from 'next/server'
 import { complete, llmConfig, type ChatMessage } from '@knowledge01/connect'
 import { AccessDenied } from '@knowledge01/repo'
 import { loadContext, promptData, SIGNALS, TREASURY } from '@/lib/treasuryAgent'
-import { readPaid, type PaidRead } from '@/lib/x402Buyer'
+import { readPaid, standing, type PaidRead } from '@/lib/x402Buyer'
+import { decideToBuy, type Decision } from '@/lib/buyDecision'
 import { NETWORK_NAME } from '@/lib/x402'
 import { namespaceRead, paidRead } from '@/lib/trace'
 import type { TraceCall } from '@/components/chat/AgentTrace'
@@ -43,12 +44,18 @@ export async function POST(req: Request) {
   const cfg = llmConfig()
   if (!cfg) return NextResponse.json({ error: 'No model is configured on this deployment (set OPENROUTER_API_KEY).' }, { status: 503 })
 
-  // Whale flows are the paid tier: buy them only when the question needs them,
-  // and at most once an epoch — a live grant is read, not bought again.
-  const needsFlows = /\b(flow|flows|moved?|moving|whales?|transfers?|inflows?|outflows?|bought|sold|selling|buying|accumulat\w*|dump\w*|signals?|this week|activity)\b/i.test(question)
+  const history = Array.isArray(body.history)
+    ? body.history.filter((t): t is { role: 'user' | 'assistant'; content: string } => !!t && typeof t === 'object' && ['user', 'assistant'].includes((t as { role?: string }).role ?? '') && typeof (t as { content?: unknown }).content === 'string').slice(-6)
+    : []
+
+  // Whale flows are the paid tier. A live grant is simply read; without one,
+  // Agent B decides whether this question is worth paying for — at most once
+  // an epoch, since the grant it buys is then read for free.
+  const held = await standing(SIGNALS).catch(() => null)
+  const decision = held && !held.holds && held.price ? await decideToBuy(cfg, question, history, held.price) : null
   let paid: PaidRead | null = null
   let paidError: string | null = null
-  try { paid = await readPaid(SIGNALS, { buy: needsFlows }) } catch (e) { if (!(e instanceof AccessDenied)) paidError = e instanceof Error ? e.message : 'could not buy access' }
+  try { paid = await readPaid(SIGNALS, { buy: !!decision?.buy }) } catch (e) { if (!(e instanceof AccessDenied)) paidError = e instanceof Error ? e.message : 'could not buy access' }
 
   let data: string
   let ctx: Context
@@ -60,9 +67,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: e instanceof Error ? e.message : 'could not load memory' }, { status: 400 })
   }
 
-  const history = Array.isArray(body.history)
-    ? body.history.filter((t): t is { role: 'user' | 'assistant'; content: string } => !!t && typeof t === 'object' && ['user', 'assistant'].includes((t as { role?: string }).role ?? '') && typeof (t as { content?: unknown }).content === 'string').slice(-6)
-    : []
   const messages: ChatMessage[] = [
     { role: 'system', content: `${SYSTEM}\n\nToday is ${new Date().toISOString().slice(0, 10)}.\n\nDATA:\n${data}` },
     ...history.map((t) => ({ role: t.role, content: t.content.slice(0, 2000) })),
@@ -73,10 +77,11 @@ export async function POST(req: Request) {
     // The chat renders plain text; free models reach for markdown regardless.
     const answer = content.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/\*\*(.+?)\*\*/g, '$1').replace(/^\s*[*-]\s+/gm, '• ').replace(/^#+\s*/gm, '## ').trim()
     return NextResponse.json({
-      answer, model, trace: traceOf(ctx, paid, question),
+      answer, model, trace: traceOf(ctx, paid, question, decision),
       versions: Object.fromEntries([...(ctx.treasury ? [[ctx.treasury.namespace, ctx.treasury.version]] : []), ...ctx.user.memories.map((m) => [m.namespace, m.version]), ...(paid ? [[paid.namespace, paid.version]] : [])]),
       paid: paid ? { namespace: paid.namespace, version: paid.version, validUntil: paid.validUntil, price: paid.price } : null,
       purchase: paid?.purchase ?? null,
+      ...(decision ? { decision } : {}),
       ...(paidError ? { paidError } : {}),
     })
   } catch (e) {
@@ -85,14 +90,14 @@ export async function POST(req: Request) {
 }
 
 /** The reads behind this answer, in the order Agent B made them. */
-function traceOf(ctx: Context, paid: PaidRead | null, question: string): TraceCall[] {
+function traceOf(ctx: Context, paid: PaidRead | null, question: string, decision: Decision | null): TraceCall[] {
   const calls: TraceCall[] = []
   if (ctx.treasury) calls.push(namespaceRead({ namespace: ctx.treasury.namespace, version: ctx.treasury.version, claims: ctx.treasury.claims, question }))
   for (const m of ctx.user.memories) calls.push(namespaceRead({ namespace: m.namespace, version: m.version, claims: m.claims, question }))
   if (paid) {
     const claims = paid.claims.map((c) => ({ subject: c.subject, claim: c.claim, topic: c.topic, contributor: c.contributor, confidence: c.confidence, sources: c.sources.map((x) => x.title ?? x.type) }))
     calls.push(paid.purchase
-      ? paidRead({ namespace: paid.namespace, version: paid.version, claims, question, price: paid.purchase.amount, network: NETWORK_NAME[paid.purchase.network] ?? paid.purchase.network, tx: paid.purchase.tx, validUntil: paid.validUntil })
+      ? paidRead({ namespace: paid.namespace, version: paid.version, claims, question, price: paid.purchase.amount, network: NETWORK_NAME[paid.purchase.network] ?? paid.purchase.network, tx: paid.purchase.tx, validUntil: paid.validUntil, ...(decision?.buy ? { reason: decision.reason } : {}) })
       : namespaceRead({ namespace: paid.namespace, version: paid.version, claims, question, sealed: 'grant' }))
   }
   if (ctx.wallets.length) {
