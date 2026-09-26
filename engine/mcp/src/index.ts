@@ -69,7 +69,7 @@ async function publishers(r: Repository): Promise<string> {
   } catch { return 'on ENS: could not read roles right now' }
 }
 
-const server = new McpServer({ name: 'knowledge', version: '0.3.2' })
+const server = new McpServer({ name: 'knowledge', version: '0.3.3' })
 const text = (body: string) => ({ content: [{ type: 'text' as const, text: body }] })
 const fail = (e: unknown) => ({ isError: true as const, content: [{ type: 'text' as const, text: notice(`error: ${e instanceof Error ? e.message : String(e)}`) }] })
 const run = async (fn: () => string | Promise<string>) => { try { return text(await fn()) } catch (e) { return fail(e) } }
