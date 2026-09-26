@@ -171,8 +171,8 @@ export function Onboarding({ signedIn }: { signedIn?: SignedIn } = {}) {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ address, name, signature, message }),
       })
-      const out = (await res.json()) as { error?: string }
-      if (!res.ok) throw new Error(out.error ?? 'could not verify')
+      const out = (await res.json().catch(() => ({}))) as { error?: string }
+      if (!res.ok) throw new Error(out.error ?? `could not sign in (${res.status}) — the server did not say why`)
       // Not reload(): arriving from the demos the URL is /app?start=1, which
       // always shows this start screen — so a reload asked for the signature
       // again, forever. Signed in, go to the app itself.

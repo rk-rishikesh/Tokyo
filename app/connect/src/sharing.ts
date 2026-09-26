@@ -18,8 +18,8 @@
  * implying the grant is on chain.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
+import { cacheRoot } from './cacheRoot.js'
 import {
   AccessDenied, NotPublished, Remote, RepoStore, Repository, grantAccess, localNetwork, localNetworkDir,
   readManifest, reposDir, resolveNamespace, revokeAccess,
@@ -88,8 +88,7 @@ async function ensureHome(repo: Repository): Promise<void> {
 // ---------------------------------------------------------------------------
 
 const stateRoot = (): string => {
-  const base = process.env.RECALL_CACHE_DIR ?? '~/.recall'
-  return base.startsWith('~') ? join(homedir(), base.slice(1)) : resolve(base)
+  return cacheRoot()
 }
 const ownerKeyPath = (owner: string) => join(stateRoot(), 'owner-keys', `${owner}.json`)
 

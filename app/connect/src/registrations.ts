@@ -9,15 +9,14 @@
  * would leave a trail of dead clients on their side.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import { APP_NAME, callbackUrl, ENDPOINTS } from './endpoints.js'
 import type { Provider } from './users.js'
+import { cacheRoot } from './cacheRoot.js'
 
 /** Where the issued ids are kept. */
 const registrationsPath = (): string => {
-  const base = process.env.RECALL_CACHE_DIR ?? '~/.recall'
-  const root = base.startsWith('~') ? join(homedir(), base.slice(1)) : resolve(base)
+  const root = cacheRoot()
   return join(root, 'oauth-clients.json')
 }
 

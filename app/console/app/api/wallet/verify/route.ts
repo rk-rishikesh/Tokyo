@@ -31,12 +31,18 @@ export async function POST(req: Request) {
   jar.delete('wallet_nonce')
   if (!result.ok) return NextResponse.json({ error: result.reason }, { status: 400 })
 
-  // Worth checking for anyone next time — still verified against the registry
-  // before it is offered.
-  rememberName(result.name)
-  const user = upsertWalletUser({ address: result.address, name: result.name })
-  jar.set(SESSION_COOKIE, signSession(user.id, { address: result.address, name: result.name }), {
-    httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/', maxAge: SESSION.days * 86400,
-  })
-  return NextResponse.json({ ok: true, namespace: user.namespace, address: result.address })
+  try {
+    // Worth checking for anyone next time — still verified against the registry
+    // before it is offered.
+    rememberName(result.name)
+    const user = upsertWalletUser({ address: result.address, name: result.name })
+    jar.set(SESSION_COOKIE, signSession(user.id, { address: result.address, name: result.name }), {
+      httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/', maxAge: SESSION.days * 86400,
+    })
+    return NextResponse.json({ ok: true, namespace: user.namespace, address: result.address })
+  } catch (e) {
+    // Proven, but not signed in. Say why: an empty 500 read in the browser as
+    // "sign again", and the person signed again, forever.
+    return NextResponse.json({ error: `signed in, but could not start the session: ${e instanceof Error ? e.message : String(e)}` }, { status: 500 })
+  }
 }

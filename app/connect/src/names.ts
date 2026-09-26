@@ -15,10 +15,10 @@
 import { createPublicClient, http, type Address, type PublicClient } from 'viem'
 import { sepolia } from 'viem/chains'
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import { reposDir } from '@knowledge01/repo'
 import { findExpiry, findOwner, findParentRegistry } from '@knowledge01/core/resolve'
+import { cacheRoot } from './cacheRoot.js'
 
 export type OwnedName = {
   name: string
@@ -189,7 +189,3 @@ function rememberedNames(): string[] {
   } catch { return [] }
 }
 
-function cacheRoot(): string {
-  const base = process.env.RECALL_CACHE_DIR ?? '~/.recall'
-  return base.startsWith('~') ? join(homedir(), base.slice(1)) : resolve(base)
-}

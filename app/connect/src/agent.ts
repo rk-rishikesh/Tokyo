@@ -16,17 +16,16 @@
  * server to ask.
  */
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import { chromeProfiles, findings as chromeFindings, readHistory } from './chrome.js'
 import { editorFindings, editorProfiles, projectStack, shellFindings, shellHistoryPath } from './local-sources.js'
 import { ingest, type Outcome } from './ingest.js'
 import { workspace, WORKSPACES, type ActivityItem, type Grant } from './workspaces.js'
 import type { ConnectorEvent } from './routing.js'
+import { cacheRoot } from './cacheRoot.js'
 
 const root = (): string => {
-  const base = process.env.RECALL_CACHE_DIR ?? '~/.recall'
-  return base.startsWith('~') ? join(homedir(), base.slice(1)) : resolve(base)
+  return cacheRoot()
 }
 /**
  * Where a person's grants live.

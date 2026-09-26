@@ -11,14 +11,14 @@
  * interface asks for that signature at once rather than queueing it.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import { createPublicClient, http, namehash, type Address, type Hex, type PublicClient } from 'viem'
 import { sepolia } from 'viem/chains'
 import { abis, decodeObject, findOwner, findResolver, planBatch, planNext, PlanError, type Batch, type Deployed, type Plan, type Staged, type Step } from '@knowledge01/core'
 import { Repository } from '@knowledge01/repo'
 import type { AccessManifest } from '@knowledge01/repo'
 import { appNetwork, ensureOwnerGrant, namespacesOf, publishNamespace, readOwnerKey } from './sharing.js'
+import { cacheRoot } from './cacheRoot.js'
 
 const RPC = () => process.env.SEPOLIA_RPC_URL?.trim() || 'https://ethereum-sepolia-rpc.publicnode.com'
 let client: PublicClient | null = null
@@ -28,8 +28,7 @@ export const chainClient = (): PublicClient => (client ??= createPublicClient({ 
 export const rootOf = (owner: string): string => owner.split('.').slice(-2).join('.')
 
 const stateRoot = (): string => {
-  const base = process.env.RECALL_CACHE_DIR ?? '~/.recall'
-  return base.startsWith('~') ? join(homedir(), base.slice(1)) : resolve(base)
+  return cacheRoot()
 }
 const deployedPath = (root: string) => join(stateRoot(), 'onchain', `${root}.json`)
 const readDeployed = (root: string): Deployed => {

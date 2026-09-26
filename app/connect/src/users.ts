@@ -18,8 +18,8 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { SESSION } from './policy.js'
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
+import { cacheRoot } from './cacheRoot.js'
 
 export type Provider = 'github' | 'google' | 'linear' | 'granola'
 
@@ -65,8 +65,7 @@ export type User = {
 }
 
 const root = (): string => {
-  const base = process.env.RECALL_CACHE_DIR ?? '~/.recall'
-  return base.startsWith('~') ? join(homedir(), base.slice(1)) : resolve(base)
+  return cacheRoot()
 }
 const usersDir = (): string => join(root(), 'users')
 const userPath = (id: string): string => join(usersDir(), `${id}.json`)

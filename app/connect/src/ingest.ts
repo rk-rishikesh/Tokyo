@@ -8,11 +8,11 @@
  * kept one" is the interesting half of the story.
  */
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import { generateContentKey, type Source } from '@knowledge01/core'
 import { Repository, RepoStore, repoPath } from '@knowledge01/repo'
 import { isKnowledge, route, type ConnectorEvent } from './routing.js'
+import { cacheRoot } from './cacheRoot.js'
 
 export type Outcome =
   | { status: 'committed'; namespace: string; claimId: string; commit: string; version: number; merged: boolean }
@@ -31,8 +31,7 @@ export type ActivityEntry = {
 }
 
 const root = (): string => {
-  const base = process.env.RECALL_CACHE_DIR ?? '~/.recall'
-  return base.startsWith('~') ? join(homedir(), base.slice(1)) : resolve(base)
+  return cacheRoot()
 }
 /**
  * The activity log. Per user on a hosted site, because the feed shows what the

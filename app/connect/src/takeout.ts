@@ -23,10 +23,10 @@
  * than from prose.
  */
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import type { Finding } from './local-sources.js'
 import { POLICY } from './policy.js'
+import { cacheRoot } from './cacheRoot.js'
 
 const API = 'https://dataportability.googleapis.com/v1'
 
@@ -137,8 +137,7 @@ export const resetAuthorization = (token: string): Promise<unknown> => call(toke
 // ---------------------------------------------------------------------------
 
 const jobsPath = (userId?: string): string => {
-  const base = process.env.RECALL_CACHE_DIR ?? '~/.recall'
-  const root = base.startsWith('~') ? join(homedir(), base.slice(1)) : resolve(base)
+  const root = cacheRoot()
   return userId ? join(root, 'users', `${userId}.takeout.json`) : join(root, 'takeout.json')
 }
 
