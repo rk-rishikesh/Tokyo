@@ -2,7 +2,7 @@
   "name": "recall",
   "private": true,
   "version": "0.1.0",
-  "description": "ENS-native versioned knowledge network — engine/ is the protocol, app/ is the demo built on it",
+  "description": "ENS-native versioned knowledge network \u2014 engine/ is the protocol, app/ is the demo built on it",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -17,7 +17,6 @@
     "resolve:check": "node --conditions=development --import tsx scripts/check-resolve.ts",
     "mcp": "pnpm --filter @knowledge01/mcp start",
     "check:deployment": "node --conditions=development --import tsx scripts/check-deployment.ts",
-    "preflight": "node --conditions=development --import tsx scripts/preflight.ts",
     "register:name": "node --conditions=development --import tsx scripts/register-name.ts",
     "memory": "pnpm --filter @knowledge01/cli start --",
     "build:mcp": "pnpm --filter @knowledge01/mcp build",
@@ -35,8 +34,8 @@
     "docs:pdf": "python3 scripts/md2html.py docs/PRD.md /tmp/prd.html && \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=docs/PRD.pdf /tmp/prd.html",
     "agent-b": "pnpm --filter agent-b start",
     "agent-b:read": "pnpm --filter agent-b read",
-    "release:check": "pnpm --filter './engine/*' --filter '!@knowledge01/contracts' build && pnpm -r --filter './engine/*' --filter '!@knowledge01/contracts' publish --dry-run --no-git-checks --access public",
-    "release": "pnpm --filter './engine/*' --filter '!@knowledge01/contracts' build && pnpm -r --filter './engine/*' --filter '!@knowledge01/contracts' publish --access public"
+    "release:check": "pnpm --filter './engine/*' build && pnpm -r --filter './engine/*' publish --dry-run --no-git-checks --access public",
+    "release": "pnpm --filter './engine/*' build && pnpm -r --filter './engine/*' publish --access public"
   },
   "devDependencies": {
     "@types/node": "^22.13.1",

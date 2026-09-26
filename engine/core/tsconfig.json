@@ -5,9 +5,5 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
-  "exclude": [
-    "src/legacy/**",
-    "test/legacy/**"
   ]
 }

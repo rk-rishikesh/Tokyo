@@ -9,7 +9,6 @@
     "src/**/*.ts"
   ],
   "exclude": [
-    "src/legacy/**",
     "test/**"
   ]
 }

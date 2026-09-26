@@ -21,7 +21,7 @@ const APP_PACKAGES = new Set(readdirSync(join(root, 'app')).map((d) => `@knowled
 const sourceFiles = (dir: string): string[] => {
   const out: string[] = []
   for (const entry of readdirSync(dir)) {
-    if (['node_modules', 'dist', '.next', 'legacy', 'out'].includes(entry)) continue
+    if (['node_modules', 'dist', '.next', 'out'].includes(entry)) continue
     const full = join(dir, entry)
     if (statSync(full).isDirectory()) out.push(...sourceFiles(full))
     else if (/\.tsx?$/.test(entry)) out.push(full)

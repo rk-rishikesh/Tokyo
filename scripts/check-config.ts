@@ -26,7 +26,7 @@ const files = (dir: string): string[] => {
   let entries: string[]
   try { entries = readdirSync(dir) } catch { return out }
   for (const entry of entries) {
-    if (['node_modules', '.next', '.next-verify', 'dist', 'legacy', 'test'].includes(entry)) continue
+    if (['node_modules', '.next', '.next-verify', 'dist', 'test'].includes(entry)) continue
     const full = join(dir, entry)
     if (statSync(full).isDirectory()) out.push(...files(full))
     else if (/\.tsx?$/.test(entry)) out.push(full)

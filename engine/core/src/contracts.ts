@@ -59,7 +59,7 @@ export const addresses = {
   userRegistryImpl: UserRegistryImpl.address as Address,
   /** Implementation proxied for a collection's resolver. */
   permissionedResolverImpl: PermissionedResolverImpl.address as Address,
-  /** Test stablecoin the SubscriptionRegistrar accepts on Sepolia. */
+  /** Test stablecoin that pays for `.eth` registration on Sepolia. */
   stablecoin: MockUSDC.address as Address,
   /**
    * The live `.eth` registrar — where a second-level name is bought.
@@ -68,7 +68,7 @@ export const addresses = {
    * the sender of every `LabelRegistered` event on the live `.eth` registry, and
    * all 23 functions of the vendored ABI are present in its bytecode. Registering
    * through it grants the owner SET_SUBREGISTRY and SET_RESOLVER, which is what
-   * `deploy-collection.ts` needs.
+   * attaching a namespace's own registry and resolver needs.
    */
   ethRegistrar: ETHRegistrar.address as Address,
 } as const

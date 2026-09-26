@@ -1,5 +1,5 @@
 /**
- * Buy a `.eth` second-level name on Sepolia — the publisher name a collection hangs under.
+ * Buy a `.eth` second-level name on Sepolia — the name a namespace and its children hang under.
  *
  * ENSv2 registration is commit-reveal, which exists to stop someone watching the
  * mempool and front-running your name: you publish a hash first, wait, then
@@ -151,8 +151,8 @@ async function main() {
   }
 
   // ---------------------------------------------------------------- 4
-  // The name is registered with no subregistry and no resolver — deploy-collection.ts
-  // creates and attaches both. Registering them here would mean deploying
+  // The name is registered with no subregistry and no resolver — `knowledge init
+  // --register` attaches both. Registering them here would mean deploying
   // contracts before knowing the name was actually won.
   const secret = toHex(randomBytes(32)) as Hex
   const commitmentArgs = [
@@ -239,11 +239,11 @@ async function main() {
 
   info(`owner:  ${owner} ${getAddress(owner) === getAddress(account.address) ? '✓' : '✗ NOT US'}`)
   info(`expiry: ${new Date(Number(expiry) * 1000).toISOString()}`)
-  info(`can set subregistry: ${canSetSubregistry ? '✓' : '✗ — deploy-collection would revert'}`)
+  info(`can set subregistry: ${canSetSubregistry ? '✓' : '✗ — attaching a registry would revert'}`)
 
   console.log(`\nRegistered ${LABEL}.eth\n`)
   console.log('Next:')
-  console.log(`  pnpm preflight --publisher ${LABEL}.eth --collection exploits\n`)
+  console.log(`  knowledge init ${LABEL}.eth --register\n`)
 }
 
 main().catch((e) => {

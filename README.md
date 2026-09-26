@@ -256,7 +256,6 @@ engine/                 the protocol — published to npm as @knowledge01/*
                         pull-proposal, review (--sign), land, findings, policy, source, push, pull
   mcp/                  `knowledge_*` MCP server, 18 tools, one server for many namespaces
   adapters/             Claude Code skill + Cursor rule; conventions seed
-  contracts/            SubscriptionRegistrar (pre-pivot; not on the write path)
 
 app/                    the demo product built on the engine
   connect/              sources that observe real data and write claims:
@@ -268,7 +267,7 @@ app/                    the demo product built on the engine
                         /faq · /protocol · /compare · /me/<ns>
 
 scripts/                guards: check-layering · check-packaging · check-config · check-oauth
-                        check-abi-usage · check-deployment · check-resolve · preflight
+                        check-abi-usage · check-deployment · check-resolve
 deployments/            sepolia.json — live record
 docs/ROADMAP.md         what is left, and why it is in that order
 ```
@@ -276,9 +275,6 @@ docs/ROADMAP.md         what is left, and why it is in that order
 Every source reads real data. There is no sample or simulated connector
 anywhere in `app/connect`: a source either reads something that genuinely
 belongs to the person connecting it, or it is not offered.
-
-`legacy/` directories hold two earlier products (skills collections; agent
-memory). They are excluded from typecheck, tests and bundles.
 
 ---
 

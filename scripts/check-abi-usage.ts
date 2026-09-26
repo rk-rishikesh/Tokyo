@@ -46,21 +46,10 @@ const ALL_EVENT_NAMES = new Set<string>(
 /** Directory names skipped anywhere in the tree. */
 const SKIP_ANYWHERE = new Set(['node_modules', 'dist', '.next', 'out', 'cache', 'abis'])
 
-/**
- * Paths skipped by exact location, not by name.
- *
- * `engine/contracts/lib` is Foundry's vendored dependencies. Skipping every
- * directory *named* `lib` would also skip `app/console/lib`, which is real
- * source — and silently shrinking the guard's coverage is worse than not having
- * it.
- */
-const SKIP_PATHS = new Set([join(ROOT, 'engine/contracts/lib')])
-
 function* walk(dir: string): Generator<string> {
   for (const entry of readdirSync(dir)) {
     if (SKIP_ANYWHERE.has(entry)) continue
     const full = join(dir, entry)
-    if (SKIP_PATHS.has(full)) continue
     if (statSync(full).isDirectory()) yield* walk(full)
     else if (['.ts', '.tsx'].includes(extname(full))) yield full
   }
