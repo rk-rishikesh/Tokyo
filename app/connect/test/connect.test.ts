@@ -1462,21 +1462,22 @@ describe('Google Data Portability: what a person orders and watches', () => {
   })
 })
 
-describe('the Ethereum wallet source', () => {
+describe('the Base wallet source', () => {
   it('writes patterns, never amounts, and routes to the portfolio namespace', async () => {
     const { findings } = await import('../src/ethereum.js')
     const { route } = await import('../src/routing.js')
     const activity = {
       address: '0x0000000000000000000000000000000000000001',
       eth: 1.2345,
-      tokens: [{ symbol: 'USDC', usd: 5000 }, { symbol: 'ENS', usd: 800 }],
+      tokens: [{ symbol: 'USDC', usd: 5000 }, { symbol: 'AERO', usd: 800 }],
+      via: 'MultiBaas' as const,
       txs: [
         ...Array.from({ length: 4 }, () => ({ timestamp: new Date().toISOString(), to: { hash: '0xa', name: 'UniswapV2Router02', is_contract: true }, result: 'success' })),
         ...Array.from({ length: 2 }, () => ({ timestamp: new Date().toISOString(), to: { hash: '0xb', name: 'OneOff', is_contract: true }, result: 'success' })),
       ],
     }
     const texts = findings(activity).map((f) => f.text)
-    expect(texts).toEqual(['Holds ETH on Ethereum', 'Holds USDC on Ethereum', 'Holds ENS on Ethereum', 'Uses Uniswap on Ethereum'])
+    expect(texts).toEqual(['Holds ETH on Base', 'Holds USDC on Base', 'Holds AERO on Base', 'Uses Uniswap on Base'])
     // No amount or balance ever appears in a claim or its evidence.
     for (const f of findings(activity)) expect(`${f.text} ${f.evidence}`).not.toMatch(/1\.23|5000|800|\$/)
     for (const t of texts) expect(route({ text: t } as never, { owner: 'you.eth' }).namespace).toBe('portfolio.you.eth')

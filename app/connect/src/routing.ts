@@ -57,7 +57,7 @@ export type Routed = {
 const TOPIC_RULES: [RegExp, string][] = [
   // On-chain holdings and activity. First, so "Uses Uniswap on Ethereum" is a
   // portfolio fact rather than a tool — ties break in rule order.
-  [/\b(on ethereum|on-?chain|holds?|staked?|yield|liquidity pool|wallet)\b/gi, 'portfolio'],
+  [/\b(on ethereum|on base|on-?chain|holds?|staked?|yield|liquidity pool|wallet)\b/gi, 'portfolio'],
   [/\b(incident|runbook|rollback|on-?call|postmortem|outage|approver|production deploys?|staging)\b/gi, 'runbook'],
   [/\b(convention|always|never|must|should|standard|style|lint|prefer|instead of|not npm|not yarn)\b/gi, 'conventions'],
   [/\b(price|pricing|contract|invoice|renewal|terms|sla|vendor|customer|payment|discount)\b/gi, 'accounts'],

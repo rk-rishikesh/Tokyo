@@ -9,6 +9,7 @@
  * without seeing what it says is not consent.
  */
 import { useEffect, useRef, useState } from 'react'
+import { Markdown } from '@/components/chat/Markdown'
 import { CANVAS, CitedPills, PendingTrace, Reads, splitCitations, UserBubble, type TraceCall } from '@/components/chat/AgentTrace'
 
 type Pending = { tool: string; server: string; args: Record<string, unknown>; summary: string }
@@ -144,7 +145,7 @@ function Said({ text, versions }: { text: string; versions?: Record<string, numb
   const { text: clean, cites } = splitCitations(text, versions)
   return (
     <div className="space-y-3">
-      <p className="whitespace-pre-wrap text-[15.5px] leading-relaxed tracking-[-0.005em]">{clean.trim()}</p>
+      <Markdown text={clean.trim()} />
       <CitedPills cites={cites} />
     </div>
   )

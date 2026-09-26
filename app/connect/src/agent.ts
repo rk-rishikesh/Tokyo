@@ -99,6 +99,15 @@ function writeGrants(g: Grant[], userId?: string): void {
   renameSync(tmp, p)
 }
 
+/** Record that a pass read this source, and what it found. */
+export function notePass(workspaceId: string, found: number, userId?: string): void {
+  const all = readGrants(userId)
+  const g = all.find((x) => x.workspaceId === workspaceId && !x.revokedAt)
+  if (!g) return
+  g.lastPass = { at: new Date().toISOString(), found }
+  writeGrants(all, userId)
+}
+
 export const grantFor = (workspaceId: string, userId?: string): Grant | undefined =>
   readGrants(userId).find((g) => g.workspaceId === workspaceId && !g.revokedAt)
 

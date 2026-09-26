@@ -22,6 +22,20 @@ export type SidebarSource = {
   needsAuth: boolean
   failing?: string
   claims: number
+  /** The last pass over this source: when, and how many findings it had. */
+  lastPass?: { at: string; found: number }
+}
+
+/**
+ * A connected source with no claims yet: say what actually happened. "reading"
+ * forever hid the difference between a pass that has not run and one that ran
+ * and found nothing worth claiming — an empty wallet, say.
+ */
+function statusOf(lastPass?: { at: string; found: number }): string {
+  if (!lastPass) return 'waiting for the first read'
+  const m = Math.round((Date.now() - Date.parse(lastPass.at)) / 60_000)
+  const when = m < 1 ? 'just now' : m < 60 ? `${m}m ago` : `${Math.round(m / 60)}h ago`
+  return lastPass.found ? `read ${when} · nothing new` : `read ${when} · nothing to claim yet`
 }
 
 export function Sidebar({ sources, owner }: { sources: SidebarSource[]; owner: string }) {
@@ -121,7 +135,7 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
  * from one nobody connected, which is the distinction that used to be invisible.
  */
 function Tile({ source, owner }: { source: SidebarSource; owner: string }) {
-  const { ws, connected, needsAuth, failing, claims } = source
+  const { ws, connected, needsAuth, failing, claims, lastPass } = source
   return (
     <div
       className={`group flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors ${
@@ -132,7 +146,7 @@ function Tile({ source, owner }: { source: SidebarSource; owner: string }) {
       <div className="min-w-0 flex-1">
         <p className="truncate text-[14px] font-medium" title={ws.name}>{ws.name}</p>
         <p className="text-[12px] text-dim">
-          {failing ? 'needs reconnecting' : connected ? (claims ? `${claims} claim${claims === 1 ? '' : 's'}` : 'reading') : 'not connected'}
+          {failing ? 'needs reconnecting' : connected ? (claims ? `${claims} claim${claims === 1 ? '' : 's'}` : statusOf(lastPass)) : 'not connected'}
         </p>
       </div>
       <div className="shrink-0">

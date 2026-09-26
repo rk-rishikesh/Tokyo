@@ -7,10 +7,10 @@ Two files make any Claude Code session a consumer and contributor of your team's
 ```json
 { "mcpServers": { "knowledge": {
     "command": "npx", "args": ["-y", "@knowledge01/mcp"],
-    "env": { "KNOWLEDGE_NAMESPACE": "conventions.recalltest.eth", "KNOWLEDGE_AGENT": "<your-name>.eth" } } } }
+    "env": { "PINATA_GATEWAY": "<gateway>.mypinata.cloud", "KNOWLEDGE_NAMESPACE": "conventions.acme.eth", "KNOWLEDGE_AGENT": "<your-name>.eth" } } } }
 ```
 
 2. `.claude/skills/knowledge/SKILL.md` (this folder's `SKILL.md`): search before answering
    "how do we…" questions; propose after the user states or corrects a convention.
 
-Replace `conventions.recalltest.eth` with your namespace. This repository dogfoods both files.
+`conventions.acme.eth` is a live example team namespace (see it at https://explorer.ens.dev/conventions.acme.eth); replace it with your own `conventions.<org>.eth`. This repository dogfoods both files against it.

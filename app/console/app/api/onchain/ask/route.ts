@@ -29,12 +29,17 @@ const SYSTEM = `You are Agent B, Portfolio Intelligence. You answer natural-lang
 
 Answer as a short report:
 - Open with one line that answers the question, with the key number.
-- Then 2–4 short sections, each a line starting "## " (e.g. "## Holdings", "## Activity", "## Yield", "## Watchlist", "## What to consider"), each with 1–4 lines starting "• ". Only the sections the question needs.
+- Then 2–4 short sections, each a line starting "## " (e.g. "## Holdings", "## Activity", "## Yield", "## Watchlist"), each with 1–4 lines starting "• ". Only the sections the question needs.
 - Give amounts in USD and units. Compare with tracked wallets or the benchmarks when it helps.
 - Yield: for idle stablecoins or ETH, name the matching pools in treasury_memory (protocol, APY, TVL) and what the balance would earn per year; cbETH and wstETH already earn staking yield. Respect the user's risk preferences.
 - History: you only see the latest movements (movements_seen, since oldest_movement_seen); say so when a question reaches further back.
 - Cite sources inline in brackets: [${TREASURY}: <subject>], [${SIGNALS}: <subject>], [<namespace>: <subject>], [wallet <label>].
 - Never invent balances, prices, transactions, yields or policies, and never guess why something moved. If the data cannot answer, say what is missing.
+- End with "## Suggested moves" whenever the question touches the user's holdings, their watchlist, whale activity or yield: 1–4 lines, one per asset, each starting "• " and then exactly one of Hold, Buy, Add, Trim, Sell, Stake, Earn or Watch, then the asset and an amount in units and USD, then "—" and the reason.
+- A suggested move must follow from the data, and say which: the playbook rules (topic "policy": concentration limit, gas reserve, runway, rebalancing pace, outflow alert), the user's own preferences in user_memory (which override the playbook), the yields in treasury_memory, and the 7-day whale flows in paid_memory. Cite each, e.g. [treasury.eth: Concentration limit].
+- Keep moves inside the rules: never above the rebalancing pace in one step, never below the gas reserve or the runway, never riskier than the user's stated risk. Idle stablecoins or ETH with a matching pool → Earn or Stake, naming the pool, its APY and what the amount would earn a year. Nothing breached and nothing idle → Hold, and say so.
+- Whale flows are a signal of attention, not a forecast: at most they justify Watch, or a smaller step. Never claim a price will rise or fall.
+- After the moves, one line: "Suggestions from the data above, not financial advice. Agent B never signs or sends."
 - Plain text apart from "## " and "• ". No tables, no bold. Recommendations only — you never sign or send anything.`
 
 export async function POST(req: Request) {
@@ -68,7 +73,7 @@ export async function POST(req: Request) {
   }
 
   const messages: ChatMessage[] = [
-    { role: 'system', content: `${SYSTEM}\n\nToday is ${new Date().toISOString().slice(0, 10)}.\n\nDATA:\n${data}` },
+    { role: 'system', content: `${SYSTEM}\n\nToday is ${new Date().toISOString().slice(0, 10)}.\n\nLIMITS (computed from the playbook and the user's wallets — suggested moves must stay inside them):\n${limitsOf(ctx)}\n\nDATA:\n${data}` },
     ...history.map((t) => ({ role: t.role, content: t.content.slice(0, 2000) })),
     { role: 'user', content: question },
   ]
@@ -87,6 +92,25 @@ export async function POST(req: Request) {
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : 'the model did not answer' }, { status: 502 })
   }
+}
+
+/**
+ * The playbook's limits as numbers, so a suggested move is checked arithmetic
+ * rather than the model's: a free model will happily "move $14,000" of a
+ * $17,000 wallet in one step, or stake the ETH that pays for gas.
+ */
+function limitsOf(ctx: Context): string {
+  const mine = ctx.wallets.filter((w) => w.role === 'yours')
+  const total = mine.reduce((n, w) => n + w.totalUsd, 0)
+  if (!mine.length || !total) return '- none: no wallet of the user\'s was read, so suggest nothing that moves funds.'
+  const ethUsd = ctx.prices.ETH ?? ctx.prices.WETH ?? 0
+  const memory = ctx.user.memories[0]?.namespace
+  return [
+    `- total_usd: ${Math.round(total)} across ${mine.length} wallet(s) of the user's`,
+    `- max_step_usd: ${Math.round(total * 0.1)} — the rebalancing pace (10% of holdings) caps any single move today; for a larger target, give only this first step and say the rest follows in later steps`,
+    `- gas_reserve: 0.05 ETH per wallet${ethUsd ? ` (≈ $${(0.05 * ethUsd).toFixed(0)})` : ''} stays as native ETH — never stake, lend or sell it`,
+    `- cite the user's preferences as [${memory ?? 'their memory'}: <subject>], never as "user_memory"`,
+  ].join('\n')
 }
 
 /** The reads behind this answer, in the order Agent B made them. */

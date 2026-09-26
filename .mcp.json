@@ -3,7 +3,7 @@
     "knowledge": {
       "command": "node",
       "args": ["./engine/mcp/dist/knowledge-mcp.mjs"],
-      "env": { "KNOWLEDGE_NAMESPACE": "cancer-research.eth", "KNOWLEDGE_AGENT": "rishikesh.eth" }
+      "env": { "KNOWLEDGE_NAMESPACE": "conventions.acme.eth", "KNOWLEDGE_AGENT": "rishikesh.eth" }
     }
   }
 }

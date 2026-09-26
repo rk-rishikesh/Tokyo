@@ -217,6 +217,7 @@ register({
   // No token: the address was proven at sign-in, and the chain is public.
   requires: 'wallet',
   async read(ctx: ReadContext) {
-    return ethereumFindings(await walletActivity(ctx.wallet!)).map((f) => rules('Ethereum', f, 'eth.blockscout.com'))
+    const a = await walletActivity(ctx.wallet!)
+    return ethereumFindings(a).map((f) => rules('Base wallet', f, a.via === 'MultiBaas' ? 'MultiBaas · Base' : 'base.blockscout.com'))
   },
 })

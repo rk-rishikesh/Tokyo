@@ -26,7 +26,7 @@ import { ingest, type Outcome } from './ingest.js'
 import { subjectFor, topicFor } from './routing.js'
 import { TOPIC_IDS } from './topics.js'
 import { AGENT } from './policy.js'
-import { readGrants } from './agent.js'
+import { notePass, readGrants } from './agent.js'
 import { allUsers, type User } from './users.js'
 import { liveToken } from './tokens.js'
 import { publishShared } from './sharing.js'
@@ -168,6 +168,7 @@ export async function tick(opts: { owner: string; recentDays?: number; useModel?
       if (result.reason !== 'not-connected') broken.push({ provider: g.workspaceId, reason: result.detail ?? result.reason })
       continue
     }
+    notePass(g.workspaceId, result.findings.length, opts.userId)
     const seen = new Set<string>()
     const observed: Observed[] = result.findings
       .filter((f) => !seen.has(f.text) && seen.add(f.text))

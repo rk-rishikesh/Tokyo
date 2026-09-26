@@ -10,14 +10,14 @@ assistant's memory. Use the `knowledge` MCP server (already attached via `.mcp.j
 
 ## Before answering
 For any question about how this codebase or team works — tooling, protocol rules, naming,
-"why do we do X" — call `knowledge_search({ namespace: "conventions.recalltest.eth", query })`
+"why do we do X" — call `knowledge_search({ namespace: "conventions.acme.eth", query })`
 first. Cite what comes back: the claim, its sources, who contributed it, who reviewed it, the
 version. If nothing comes back, say so and answer from the code.
 
 ## After learning
 When the user states a convention, decision or rule ("we use pnpm, not npm"; "never cache token
 ids"), or corrects one, propose it back:
-`knowledge_propose({ namespace: "conventions.recalltest.eth", title, items: [{ subject, claim, topic, confidence, sources: [{ kind: "human", type: "conversation", name: "<user's ENS name>", excerpt: "<their words>" }] }] })`.
+`knowledge_propose({ namespace: "conventions.acme.eth", title, items: [{ subject, claim, topic, confidence, sources: [{ kind: "human", type: "conversation", name: "<user's ENS name>", excerpt: "<their words>" }] }] })`.
 If it changes an existing convention, pass `supersedes: <old claim id>` — a changed rule is a
 supersession, not a contradiction. It lands only after a maintainer reviews; tell the user that.
 

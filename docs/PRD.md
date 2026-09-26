@@ -1,4 +1,4 @@
-# Knowledge Network — what it is, what it claims, what the code does
+# K01 (Knowledge01) — what it is, what it claims, what the code does
 
 A document for deciding one thing: **has the product drifted from the idea, and
 should anything change?**
@@ -9,6 +9,38 @@ checked rather than remembered. Where those disagree, the disagreement is the
 finding.
 
 Prepared 24 September 2026 · 53 commits · 230 tests passing.
+
+---
+
+## K01 in brief
+
+**K01 (Knowledge01)** is a protocol for AI knowledge: a body of knowledge is an ENS name, and what it
+says is a set of claims — each with sources, contributor, reviewers and confidence — kept as versioned,
+content-addressed commits on IPFS.
+
+- **Ownership and portability.** The knowledge lives at a name you own, not inside an app. Change
+  assistants and it comes with you; `knowledge import memory` turns another vendor's export into claims
+  you own.
+- **Provenance and review.** Every claim says where it came from and who checked it; changes are
+  proposed, reviewed and landed under the namespace's own policy.
+- **Privacy and exchange.** Private namespaces are encrypted; access is a key sealed to a reader's own
+  key — granted, or bought between agents over x402.
+- **Why ENS.** A name is an owner; subnames give real hierarchy; the `contenthash` is the one pointer to
+  the current version; each namespace's PermissionedResolver enforces roles on chain (reviewers may
+  publish, a named contributor may write only their own proposal key); the Universal Resolver makes the
+  same name readable everywhere, including explorer.ens.dev.
+- **The demos.** *Portfolio Intelligence* (`/demo/onchain`): Agent A (Market Scout) writes prices,
+  yields and whale readings to `treasury.eth` and sells seven-day whale flows in `signals.treasury.eth`;
+  Agent B reads both plus your memory and your wallets, and answers with every figure cited. Every
+  balance is read on Base mainnet through **MultiBaas** (ERC-20 `balanceOf` through its REST API, no
+  node to run), with Blockscout for history and DefiLlama for prices and yields. Also `/demo/mcp`,
+  `/app` (personal memory) and `conventions.acme.eth` (a team's conventions, with an on-chain
+  contributor).
+- **Against Supermemory and Mem0.** Both are memory layers inside one app or provider — hosted, or open
+  source and self-run. K01 is the layer under them: memory at a name you own, versioned, reviewed, and
+  readable by any agent.
+
+In short: memory that outlives the app that wrote it, and that the next agent can build on.
 
 ---
 
@@ -263,6 +295,10 @@ Four structural checks run in CI and fail the build:
   runs for a real person.
 - `check:abi` — every contract call exists in a vendored ABI.
 
-Live on Ethereum Sepolia: `recalltest.eth`, `worldhistory.eth`,
-`india.worldhistory.eth`, `rishhtokyo.eth` — the last registered through the
-app's own browser flow, wallet-signed, as a test of the onboarding path.
+Live on Ethereum Sepolia, ENS v2 (the deployment of 15 September 2026 that ENS's
+own apps read): `cancer-research.eth`, `treasury.eth` and `signals.treasury.eth`,
+`personal.eth`, the `kestrel.eth` family, `rishhtokyo.eth` with `notes` and
+`projects` (registered through the app's own browser flow, wallet-signed), and
+`conventions.acme.eth`. Each is visible at `https://explorer.ens.dev/<name>`. The
+earlier test names (`recalltest.eth`, `worldhistory.eth`) were retired with the old
+deployment.

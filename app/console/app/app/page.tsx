@@ -74,8 +74,10 @@ export default async function AgentApp({ searchParams }: { searchParams: Promise
     }
   }
 
+  const grants = readGrants(userId)
   const sidebar: SidebarSource[] = sources.map((ws) => {
     const p = prog.find((x) => x.workspaceId === ws.id)
+    const lastPass = grants.find((g) => g.workspaceId === ws.id && !g.revokedAt)?.lastPass
     const failing = ws.provider ? broken.get(ws.provider) : undefined
     return {
       ws,
@@ -83,6 +85,7 @@ export default async function AgentApp({ searchParams }: { searchParams: Promise
       needsAuth: hosted && ws.access === 'oauth' && !connectedProviders.has(ws.provider!),
       ...(failing ? { failing } : {}),
       claims: claimsBySource.get(ws.name.toLowerCase()) ?? 0,
+      ...(lastPass ? { lastPass } : {}),
     }
   })
 

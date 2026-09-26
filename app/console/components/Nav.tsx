@@ -67,11 +67,15 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-30 w-full border-b border-line bg-bg/95 backdrop-blur-xl">
       <div className="flex w-full items-center gap-6 px-5 py-3.5 sm:px-8 lg:px-10">
-        <Link href="/" aria-label="knowledge.eth — home" className="shrink-0">
+        <Link href="/" aria-label="K01, Knowledge01 — home" className="flex shrink-0 items-center gap-2.5">
           <svg viewBox="0 0 40 40" className="h-8 w-8" aria-hidden>
             <rect x="18" y="0" width="22" height="20" rx="3.5" className="fill-[hsl(var(--ink))]" />
             <rect x="0" y="18" width="22" height="22" rx="3.5" className="fill-[hsl(var(--ink))]" />
           </svg>
+          <span className="flex items-baseline gap-1.5 leading-none">
+            <span className="text-[1.2rem] font-semibold tracking-[-0.03em]">K01</span>
+            <span className="hidden text-[12.5px] tracking-[-0.005em] text-dim sm:inline">Knowledge01</span>
+          </span>
         </Link>
         <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-[14px] tracking-[-0.01em] [scrollbar-width:none]">
           {APP.map((l) => {
@@ -109,11 +113,15 @@ function ProtocolNav({ active }: { active: (href: string, opts?: { exact?: boole
   return (
     <header className="sticky top-0 z-30 w-full bg-bg/95 backdrop-blur-xl">
       <div className="flex w-full items-center gap-8 px-5 py-4 sm:px-8 lg:px-10">
-        <Link href="/" aria-label="knowledge.eth — home" className="shrink-0">
+        <Link href="/" aria-label="K01, Knowledge01 — home" className="flex shrink-0 items-center gap-2.5">
           <svg viewBox="0 0 40 40" className="h-9 w-9" aria-hidden>
             <rect x="18" y="0" width="22" height="20" rx="3.5" className="fill-[hsl(var(--ink))]" />
             <rect x="0" y="18" width="22" height="22" rx="3.5" className="fill-[hsl(var(--ink))]" />
           </svg>
+          <span className="flex items-baseline gap-1.5 leading-none">
+            <span className="text-[1.2rem] font-semibold tracking-[-0.03em]">K01</span>
+            <span className="hidden text-[12.5px] tracking-[-0.005em] text-dim sm:inline">Knowledge01</span>
+          </span>
         </Link>
         <nav className="ml-auto hidden items-center gap-9 text-[15px] tracking-[-0.01em] md:flex">
           {PROTOCOL.map((l) => (

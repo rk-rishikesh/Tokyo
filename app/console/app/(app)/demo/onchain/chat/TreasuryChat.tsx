@@ -18,14 +18,17 @@ type Paid = { namespace: string; price: string | null; network: string | null; p
 type Purchase = { namespace: string; amount: string; asset: string; network: string; tx: string | null; validUntil: string }
 type Turn = { role: 'user' | 'assistant'; content: string; model?: string; purchase?: Purchase | null; usedPaid?: string | null; paidError?: string; trace?: TraceCall[]; versions?: Record<string, number> }
 
-const PROMPTS = [
-  'Give me a portfolio report',
-  'What did the whales move this week?',
-  'What moved in and out of my wallet in the last 30 days?',
-  'Where could my idle USDC earn yield on Base?',
-  'How do I compare with the wallets I track?',
-  'How are the coins I watch doing today?',
+/** Questions to start from — each names what Agent B will read to answer it. */
+const PROMPTS: { q: string; reads: string }[] = [
+  { q: 'What should I buy, sell or hold right now?', reads: 'Holdings · playbook · whale flows' },
+  { q: 'Give me a portfolio report', reads: 'Holdings · treasury.eth' },
+  { q: 'What did the whales move this week?', reads: 'signals.treasury.eth · paid tier' },
+  { q: 'Where could my idle USDC earn yield on Base?', reads: 'Yields in treasury.eth' },
+  { q: 'Am I inside my playbook limits?', reads: 'Runway · concentration · gas reserve' },
+  { q: 'How do I compare with the wallets I track?', reads: 'Your memory · Base wallets' },
 ]
+/** After an answer, fewer and shorter: the next thing worth asking. */
+const FOLLOW_UPS = ['What should I buy, sell or hold?', 'What did the whales move this week?', 'Where could my idle USDC earn?', 'Am I inside my playbook limits?']
 const DEMO_MEMORY = 'personal.eth'
 const NETWORK_NAME: Record<string, string> = { 'eip155:84532': 'Base Sepolia', 'eip155:8453': 'Base' }
 const txUrl = (network: string, tx: string) => `${network === 'eip155:8453' ? 'https://basescan.org' : 'https://sepolia.basescan.org'}/tx/${tx}`
@@ -130,7 +133,7 @@ export function TreasuryChat({ initialName, initialWallets }: { initialName: str
               extra={
                 <p className="mt-1.5 text-[12px] text-dim">
                   {w.via === 'demo wallet' ? <span className="mr-1">Connected demo address</span> : null}
-                  <a href={`https://basescan.org/address/${w.address}`} target="_blank" rel="noreferrer" className="break-all font-mono text-ink/80 underline decoration-line underline-offset-2 hover:text-ink">{w.address}</a>
+                  <a href={`https://basescan.org/address/${w.address}`} target="_blank" rel="noreferrer" className="break-all font-mono text-[10.5px] tracking-tight text-ink/80 underline decoration-line underline-offset-2 hover:text-ink">{w.address}</a>
                 </p>
               } />
           ))}
@@ -163,9 +166,18 @@ export function TreasuryChat({ initialName, initialWallets }: { initialName: str
         </div>
         <div ref={scroller} className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain px-1 pb-6">
           {!turns.length ? (
-            <div>
-              <p className="text-[14.5px] text-dim">Ask about your holdings, transactions, yield or history. Answers come back as a short report, with every figure cited.</p>
-              <div className="mt-4 flex flex-wrap gap-2">{PROMPTS.map((p) => <button key={p} disabled={!loaded} onClick={() => ask(p)} className="rounded-full border border-line px-3 py-1.5 text-left text-[13px] hover:bg-raised disabled:opacity-50">{p}</button>)}</div>
+            <div className="pt-2">
+              <p className="font-display text-[1.7rem] leading-tight">What should Agent B look at?</p>
+              <p className="mt-1 max-w-xl text-[14px] text-dim">Holdings, transactions, yield and whale activity — answered as a short report with every figure cited, and suggested moves that stay inside your playbook.</p>
+              <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+                {PROMPTS.map((p, i) => (
+                  <button key={p.q} disabled={!loaded} onClick={() => ask(p.q)}
+                    className={`group rounded-2xl border p-4 text-left transition-colors disabled:opacity-50 ${i === 0 ? 'border-ink/25 bg-surface hover:border-ink/45' : 'border-line hover:bg-raised'}`}>
+                    <span className="block text-[14.5px] font-medium leading-snug">{p.q}</span>
+                    <span className="mt-1.5 block text-[12px] text-dim">{p.reads}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           ) : turns.map((t, i) => t.role === 'user' ? (
             <UserBubble key={i}>{t.content}</UserBubble>
@@ -182,6 +194,13 @@ export function TreasuryChat({ initialName, initialWallets }: { initialName: str
               ) : t.usedPaid ? <p className="mt-2 text-[11.5px] text-dim">read {t.usedPaid} with Agent B&apos;s existing grant</p> : null}
               {t.paidError ? <p className="mt-2 text-[11.5px] text-removed">Could not buy whale flows: {t.paidError}</p> : null}
               {t.model ? <p className="mt-2 text-[11.5px] text-dim">answered by {t.model}</p> : null}
+              {i === turns.length - 1 && !busy ? (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {FOLLOW_UPS.filter((f) => f !== turns[i - 1]?.content).slice(0, 3).map((f) => (
+                    <button key={f} onClick={() => ask(f)} className="rounded-full border border-line px-3 py-1.5 text-[12.5px] hover:bg-raised">{f}</button>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ))}
           {busy ? <div className="max-w-[92%]"><PendingTrace namespace="treasury.eth" query={turns.at(-1)?.content ?? ''} /></div> : null}
@@ -201,17 +220,76 @@ function Answer({ text, versions }: { text: string; versions?: Record<string, nu
   return <div className="space-y-3"><Report text={clean} /><CitedPills cites={cites} /></div>
 }
 
-/** The answer as a report: "## " starts a section, "• " a point. */
+/** The answer as a report: "## " starts a section, "• " a point; "Suggested moves" becomes a card. */
 function Report({ text }: { text: string }) {
-  const cite = (s: string) => s
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
+  const at = lines.findIndex((l) => /^##\s*suggested moves/i.test(l))
+  const body = at < 0 ? lines : lines.slice(0, at)
+  const rest = at < 0 ? [] : lines.slice(at + 1)
+  // Moves run until the next section; the disclaimer line, if any, is kept for the card's footer.
+  const end = rest.findIndex((l) => l.startsWith('## '))
+  const moveLines = end < 0 ? rest : rest.slice(0, end)
+  const after = end < 0 ? [] : rest.slice(end)
+  return (
+    <div className="space-y-3">
+      <Lines lines={body} lead />
+      {at >= 0 ? <Moves lines={moveLines} /> : null}
+      {after.length ? <Lines lines={after} /> : null}
+    </div>
+  )
+}
+
+function Lines({ lines, lead }: { lines: string[]; lead?: boolean }) {
   return (
     <div className="space-y-1.5 text-[14.5px] leading-relaxed">
-      {text.split('\n').filter((l) => l.trim()).map((l, i) => {
-        const line = l.trim()
+      {lines.map((line, i) => {
         if (line.startsWith('## ')) return <p key={i} className="pt-2 text-[12px] font-medium uppercase tracking-[0.08em] text-dim">{line.slice(3)}</p>
-        if (line.startsWith('• ')) return <p key={i} className="flex gap-2 pl-1"><span className="text-dim">•</span><span>{cite(line.slice(2))}</span></p>
-        return <p key={i} className={i === 0 ? 'text-[17px] leading-snug tracking-[-0.01em]' : ''}>{cite(line)}</p>
+        if (line.startsWith('• ')) return <p key={i} className="flex gap-2 pl-1"><span className="text-dim">•</span><span>{line.slice(2)}</span></p>
+        return <p key={i} className={lead && i === 0 ? 'text-[17px] leading-snug tracking-[-0.01em]' : ''}>{line}</p>
       })}
+    </div>
+  )
+}
+
+const ACTIONS = ['Hold', 'Buy', 'Add', 'Trim', 'Sell', 'Stake', 'Earn', 'Watch'] as const
+type Action = (typeof ACTIONS)[number]
+const TONE: Record<Action, string> = {
+  Buy: 'bg-added-bg text-added', Add: 'bg-added-bg text-added',
+  Sell: 'bg-removed-bg text-removed', Trim: 'bg-removed-bg text-removed',
+  Stake: 'bg-accent-soft text-accent', Earn: 'bg-accent-soft text-accent',
+  Watch: 'bg-warn-bg text-warn', Hold: 'bg-raised text-ink',
+}
+
+/** "Earn — USDC, $1,728 — reason" → action, what, why. Lines that do not parse stay as text. */
+function parseMove(line: string): { action: Action; what: string; why: string } | null {
+  const m = line.replace(/^•\s*/, '').match(/^(Hold|Buy|Add|Trim|Sell|Stake|Earn|Watch)\b\s*[—–:-]?\s*(.*)$/i)
+  if (!m) return null
+  const action = (m[1]![0]!.toUpperCase() + m[1]!.slice(1).toLowerCase()) as Action
+  const [what, ...why] = m[2]!.split(/\s+[—–]\s+/)
+  return { action, what: (what ?? '').trim(), why: why.join(' — ').trim() }
+}
+
+function Moves({ lines }: { lines: string[] }) {
+  const moves = lines.map((l) => ({ l, m: parseMove(l) }))
+  const notes = moves.filter((x) => !x.m).map((x) => x.l.replace(/^•\s*/, ''))
+  return (
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+      <div className="flex items-baseline justify-between gap-3 border-b border-line px-4 py-3">
+        <p className="text-[13px] font-semibold">Suggested moves</p>
+        <p className="text-[11.5px] text-dim">inside your playbook · you decide</p>
+      </div>
+      <ul className="divide-y divide-line">
+        {moves.filter((x) => x.m).map(({ m }, i) => (
+          <li key={i} className="flex gap-3 px-4 py-3">
+            <span className={`h-fit w-[4.25rem] shrink-0 rounded-lg px-2 py-1 text-center text-[12px] font-semibold ${TONE[m!.action]}`}>{m!.action}</span>
+            <div className="min-w-0 text-[14px] leading-snug">
+              <p className="font-medium">{m!.what}</p>
+              {m!.why ? <p className="mt-0.5 text-[13px] text-dim">{m!.why}</p> : null}
+            </div>
+          </li>
+        ))}
+      </ul>
+      {notes.length ? <p className="border-t border-line px-4 py-2.5 text-[11.5px] text-dim">{notes.join(' ')}</p> : null}
     </div>
   )
 }

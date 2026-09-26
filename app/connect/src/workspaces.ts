@@ -77,10 +77,10 @@ export const WORKSPACES: WorkspaceDef[] = [
     never: ['Read your code', 'Name a private repository', 'Read issues, pull request bodies or comments', 'Write anything to GitHub'],
   },
   {
-    access: 'wallet', id: 'ethereum', name: 'Ethereum wallet', kind: 'application', glyph: '◆',
-    account: 'the wallet you signed in with, on Ethereum mainnet',
-    summary: 'What you hold on Ethereum, and which protocols you use.',
-    scopes: [{ id: 'read:wallet', label: 'What you hold and use on Ethereum', detail: `Which assets the wallet holds (ETH and the priced tokens you hold most of) and which named contracts it calls repeatedly${windowPhrase('ethereum')}, read from public chain data through Blockscout. Never an amount.` }],
+    access: 'wallet', id: 'ethereum', name: 'Wallet on Base', kind: 'application', glyph: '◆',
+    account: 'the wallet you signed in with, on Base',
+    summary: 'What you hold on Base, and which protocols you use.',
+    scopes: [{ id: 'read:wallet', label: 'What you hold and use on Base', detail: `Which assets the wallet holds on Base (ETH and the tokens you hold most of), read through MultiBaas, and which named contracts it calls repeatedly${windowPhrase('ethereum')}, from Base Blockscout. Never an amount.` }],
     never: ['Record a balance or an amount', 'Name who you sent to or received from', 'Read unpriced or spam tokens', 'Sign or send a transaction'],
   },
   {
@@ -165,6 +165,8 @@ export type Grant = {
   revokedAt?: string
   /** How many findings the agent has consumed from this source. */
   cursor: number
+  /** The last time a pass read this source, and how many findings it had — so "found nothing" is not shown as "still reading". */
+  lastPass?: { at: string; found: number }
 }
 
 /** One thing the agent observed, ready to become a claim. */

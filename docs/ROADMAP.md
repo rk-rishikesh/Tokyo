@@ -1,4 +1,9 @@
-# Getting to product grade
+# K01 (Knowledge01) — getting to product grade
+
+K01 is a protocol for AI knowledge that you own: a namespace is an ENS name, its claims carry their
+sources and reviewers, every version is a commit on IPFS, and any agent can read it — so memory is
+portable across assistants instead of locked in one. The full picture, including why ENS and the
+Portfolio Intelligence demo on MultiBaas, is in the [README](../README.md).
 
 Two products, sequenced by leverage.
 
@@ -12,9 +17,10 @@ Two products, sequenced by leverage.
 - **Nothing costs money.** OpenRouter is the one exception. Every provider is
   free-tier or free-to-register; storage and hosting stay on free plans. Where a
   paid path exists, the free one is the product and the paid one is a note.
-- **No placeholder identity in the product path.** `acme.eth`, `demo.eth`,
-  `recalltest.eth` are test fixtures. If one can reach a real user, that is a
-  bug, not a default.
+- **No placeholder identity in the product path.** `demo.eth` and the retired
+  `recalltest.eth` are test fixtures; `acme.eth` is only ever the labelled example
+  team (`conventions.acme.eth`). If a placeholder can reach a real user's own
+  flow, that is a bug, not a default.
 - **No table decides what a claim means.** Keyword lists encode assumptions
   about a life. What they cannot see is invisible, and they fail silently.
 - **Any user can connect.** Not "any user we set up first".
