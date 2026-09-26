@@ -1,6 +1,5 @@
 import type { WorkspaceDef } from '@knowledge01/connect/workspaces'
 import { Monogram } from '@/components/Monogram'
-import { localSources } from '@knowledge01/connect/workspaces'
 import { Onboarding, type SignedIn } from './Onboarding'
 
 /**
@@ -59,11 +58,6 @@ export function SignIn({ sources, signedIn }: { providers: string[]; sources: Wo
           ))}
         </div>
       </section>
-
-      <p className="mt-10 max-w-2xl text-[14px] leading-relaxed text-dim">
-        Running this on your own machine reads more: {localSources().map((w) => w.name.toLowerCase()).join(', ')} are
-        files rather than accounts, so there is nothing to sign into — and a website cannot read them.
-      </p>
     </main>
   )
 }
