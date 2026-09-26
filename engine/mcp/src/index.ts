@@ -56,7 +56,7 @@ function remote(r: Repository): Remote {
   return new Remote(r, createStorage(), new EnsPointer(r.namespace, pc, wallet))
 }
 
-const server = new McpServer({ name: 'knowledge', version: '0.3.0' })
+const server = new McpServer({ name: 'knowledge', version: '0.3.1' })
 const text = (body: string) => ({ content: [{ type: 'text' as const, text: body }] })
 const fail = (e: unknown) => ({ isError: true as const, content: [{ type: 'text' as const, text: notice(`error: ${e instanceof Error ? e.message : String(e)}`) }] })
 const run = async (fn: () => string | Promise<string>) => { try { return text(await fn()) } catch (e) { return fail(e) } }

@@ -4,12 +4,12 @@
   "title": "k01 knowledge network",
   "description": "Read and contribute to ENS-owned, versioned knowledge namespaces: claims with sources, reviewers and history.",
   "repository": { "url": "https://github.com/rk-rishikesh/Tokyo", "source": "github", "subfolder": "engine/mcp" },
-  "version": "0.3.0",
+  "version": "0.3.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@knowledge01/mcp",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "KNOWLEDGE_NAMESPACE", "description": "The namespace to read by default, e.g. cancer-research.eth", "isRequired": false },

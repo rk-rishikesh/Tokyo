@@ -1,6 +1,6 @@
 {
   "name": "@knowledge01/mcp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "bin": {
     "k01-mcp": "./dist/knowledge-mcp.mjs",
